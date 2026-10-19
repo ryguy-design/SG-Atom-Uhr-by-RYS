@@ -145,9 +145,70 @@ body.photo .showhint{display:block}
 .recent:empty{display:none}
 .recent button{font:inherit; font-size:.82rem; color:var(--fg); background:transparent; border:1px solid #3a444b; border-radius:999px; padding:.3rem .75rem; cursor:pointer}
 .recent button.cur{background:var(--fg); color:var(--bg); border-color:var(--fg)}
-.checklist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem}
-.checklist label{display:flex; gap:.75rem; align-items:flex-start; background:#1d252a; border-radius:10px; padding:.7rem .8rem; cursor:pointer}
-.checklist input{width:1.3rem; height:1.3rem; margin:.1rem 0 0; accent-color:var(--ok); flex-shrink:0}
+/* ---- Camera popup: tap-only, three screens ---- */
+.sheet{align-items:center; padding:max(10px,env(safe-area-inset-top,0px)) 10px max(10px,env(safe-area-inset-bottom,0px))}
+.sheet-panel.pop{border-radius:22px; max-height:100%; height:min(100%, 46rem); max-width:30rem; padding:.9rem 1rem 1.1rem; gap:.75rem; display:flex; flex-direction:column; overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px #262f35}
+.pop-head{display:flex; align-items:center; gap:.6rem}
+.pop-back{width:2.4rem; height:2.4rem; flex-shrink:0; border-radius:50%; border:1px solid #3a444b; background:none; color:var(--fg); font:inherit; font-size:1.2rem; cursor:pointer}
+.pop-back[hidden]{visibility:hidden; display:block}
+.pop-titles{flex:1; min-width:0; display:flex; flex-direction:column}
+.pop-titles h2{margin:0; font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pop-titles span{font-size:.8rem; color:var(--muted)}
+.pop-del{flex-shrink:0; height:2.4rem; min-width:2.4rem; border-radius:999px; border:1px solid #3a444b; background:none; color:var(--fg); font:inherit; font-size:.95rem; cursor:pointer; padding:0 .55rem; transition:background-color .2s, transform .25s var(--spring)}
+.pop-del.armed{background:var(--bad); border-color:var(--bad); color:#fff; font-weight:800; font-size:.8rem}
+.pop-done{font:inherit; font-weight:800; color:var(--bg); background:var(--fg); border:0; border-radius:999px; padding:.5rem 1.1rem; cursor:pointer}
+.pop-steps{display:flex; gap:.4rem}
+.pop-steps i{flex:1; font-style:normal; font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding-top:.4rem; border-top:4px solid #2a3238; transition:border-color .3s, color .3s}
+.pop-steps i.on{border-color:var(--ok); color:var(--ok)} .pop-steps i.cur{border-color:var(--fg); color:var(--fg)}
+.pop-sc{display:none; flex:1; min-height:0; overflow:auto; flex-direction:column; gap:.7rem; padding:.1rem .1rem .4rem; -webkit-overflow-scrolling:touch}
+.pop[data-screen="brand"] [data-sc="brand"], .pop[data-screen="model"] [data-sc="model"], .pop[data-screen="checks"] [data-sc="checks"]{display:flex; animation:scIn .42s var(--spring)}
+.pop.back-anim .pop-sc{animation-name:scBack!important}
+@keyframes scIn{from{opacity:0; transform:translateX(28px)}} @keyframes scBack{from{opacity:0; transform:translateX(-28px)}}
+.pop-label{font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-top:.2rem}
+.pop-label[hidden]{display:none}
+/* Hand cam / LS switch */
+.seg{display:flex; background:#0e1316; border-radius:14px; padding:4px; gap:4px}
+.seg[hidden]{display:none}
+.seg button{flex:1; font:inherit; font-weight:800; font-size:1rem; color:var(--muted); background:none; border:0; border-radius:10px; padding:.75rem; cursor:pointer; transition:background-color .25s, color .25s, transform .25s var(--spring)}
+.seg button.on{background:var(--fg); color:var(--bg)}
+.seg button:active{transform:scale(.96)}
+/* Tiles: brands and models */
+.tiles{display:grid; grid-template-columns:repeat(2, 1fr); gap:.6rem}
+.tile{position:relative; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:.15rem; min-height:4.2rem; font:inherit; text-align:left; color:var(--fg);
+  background:#1d252a; border:2px solid transparent; border-radius:16px; padding:.75rem .9rem; cursor:pointer; transition:transform .3s var(--spring), border-color .2s, background-color .2s}
+.tile:active{transform:scale(.95)}
+.tile b{font-size:1.05rem; font-weight:800; line-height:1.15}
+.tile small{font-size:.75rem; color:var(--muted)}
+.tile.sel{border-color:var(--ok); background:#163222}
+.tile.sel::after{content:"✓"; position:absolute; top:.45rem; right:.6rem; font-weight:900; color:var(--ok)}
+.brands .tile{min-height:5.2rem; align-items:center; text-align:center}
+.brands .tile b{font-size:1.35rem; letter-spacing:.02em}
+.brands .tile.other{grid-column:1 / -1; min-height:3.4rem; background:transparent; border:2px dashed #3a444b}
+.brands .tile.other b{font-size:1rem; color:var(--muted)}
+.tile.other-model{background:transparent; border:2px dashed #3a444b}
+.mgroup{display:flex; flex-direction:column; gap:.5rem; margin-bottom:.6rem}
+.recent.quick button{font-size:.9rem; font-weight:700; padding:.55rem .9rem; border-radius:12px; background:#1d252a; border:2px solid transparent}
+.recent.quick button.cur{background:#163222; color:var(--fg); border-color:var(--ok)}
+/* Check screen */
+.camcard{display:flex; align-items:center; justify-content:space-between; gap:.6rem; font:inherit; color:var(--fg); background:#1d252a; border:0; border-radius:14px; padding:.75rem .9rem; cursor:pointer; text-align:left}
+.camcard span:first-child{font-weight:800; font-size:1.05rem}
+.camcard .chg{font-size:.85rem; color:var(--muted); font-weight:700}
+.ckhead{display:flex; align-items:center; gap:.7rem}
+.ckhead span{font-weight:800; font-size:.9rem; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums}
+.ckbar{flex:1; height:8px; border-radius:4px; background:#2a3238; overflow:hidden}
+.ckbar i{display:block; height:100%; width:0; background:var(--ok); border-radius:4px; transition:width .45s var(--spring)}
+.checklist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.6rem}
+.checklist label{display:flex; gap:.85rem; align-items:center; background:#1d252a; border:2px solid transparent; border-radius:16px; padding:.85rem .9rem; cursor:pointer;
+  transition:background-color .25s, border-color .25s, transform .3s var(--spring)}
+.checklist label:active{transform:scale(.97)}
+.checklist input{appearance:none; -webkit-appearance:none; width:2rem; height:2rem; margin:0; flex-shrink:0; border-radius:50%; border:2.5px solid #56626a; display:grid; place-content:center; transition:background-color .2s, border-color .2s, transform .35s var(--spring)}
+.checklist input::after{content:"✓"; font-weight:900; font-size:1.1rem; color:#06210e; transform:scale(0); transition:transform .35s var(--spring)}
+.checklist input:checked{background:var(--ok); border-color:var(--ok); transform:scale(1.08)}
+.checklist input:checked::after{transform:scale(1)}
+.checklist label:has(input:checked){background:#14301f; border-color:#2a6b3b}
+#sheetGo.ready{animation:readyPulse 1.6s ease-in-out infinite}
+@keyframes readyPulse{0%,100%{box-shadow:0 0 0 0 rgba(47,209,79,.45)} 50%{box-shadow:0 0 0 10px rgba(47,209,79,0)}}
 .checklist .t{display:block; font-weight:700}
 .checklist .d{display:block; color:#c9d1d5; font-size:.88rem; line-height:1.35; margin-top:.15rem}
 .checklist .d b{color:var(--fg)}
@@ -382,34 +443,47 @@ footer,.taphint{transition:opacity .3s var(--ease)}
 </footer>
 
 <div id="sheet" class="sheet" hidden>
-  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-    <div class="sheet-head">
-      <h2 id="sheetTitle">Camera check</h2>
-      <button id="sheetClose" type="button">Done</button>
+  <div class="sheet-panel pop" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" data-screen="brand">
+    <div class="pop-head">
+      <button id="pBack" class="pop-back" type="button" aria-label="Back">←</button>
+      <div class="pop-titles"><h2 id="sheetTitle"></h2><span id="pSub"></span></div>
+      <button id="removeCam" class="pop-del" type="button" aria-label="Delete this camera" title="Delete camera">🗑</button>
+      <button id="sheetClose" class="pop-done" type="button">Done</button>
     </div>
-    <div class="kit">
+    <div class="pop-steps" aria-hidden="true"><i data-s="brand">Brand</i><i data-s="model">Model</i><i data-s="checks">Check</i></div>
+
+    <!-- 1 · Type + brand (or one tap on a recent camera) -->
+    <section class="pop-sc" data-sc="brand">
+      <div id="pType" class="seg" role="radiogroup" aria-label="Camera type"><button type="button" data-t="HAND CAM">Hand cam</button><button type="button" data-t="LS">LS</button></div>
+      <div class="pop-label" id="recentLabel">Quick pick</div>
+      <div id="recent" class="recent quick" aria-label="Recently used cameras"></div>
+      <div class="pop-label">Brand</div>
+      <div id="pBrands" class="tiles brands"></div>
+    </section>
+
+    <!-- 2 · Model -->
+    <section class="pop-sc" data-sc="model"><div id="pModels"></div></section>
+
+    <!-- 3 · The four checks -->
+    <section class="pop-sc" data-sc="checks">
       <div id="tabs" class="strip tabs" aria-label="My cameras"></div>
-      <div class="addrow">
-        <button id="addHC" class="addbtn" type="button">+ Hand cam</button>
-        <button id="addLS" class="addbtn" type="button">+ LS</button>
-        <button id="removeCam" class="linkbtn" type="button">🗑 Delete this camera</button>
+      <button id="pCamCard" class="camcard" type="button"><span id="pCamName"></span><span class="chg">Change ›</span></button>
+      <div class="ckhead"><span id="ckCount"></span><div class="ckbar"><i id="ckFill"></i></div></div>
+      <ol id="checklist" class="checklist"></ol>
+      <button id="sheetGo" class="fl-go" type="button" hidden></button>
+      <div id="photoRow" class="photorow" hidden><img id="photoThumb" alt="Photo of the camera back"><span>Camera-back photo saved</span><button id="photoRetake" class="addbtn" type="button">Retake</button><button id="photoDel" class="addbtn del" type="button">Delete</button></div>
+      <p id="sheetNote" class="sheet-note"></p>
+      <div class="endrow">
+        <button id="sendPhotos" class="resetbtn send" type="button" hidden></button>
+        <button id="camOver" class="resetbtn neutral" type="button">Reset this camera</button>
+        <button id="newEvent" class="resetbtn neutral" type="button">Clear all cameras</button>
       </div>
-    </div>
-    <div class="pick">
-      <select id="brand" aria-label="Camera brand">
-        <option value="">Brand…</option><option>Canon</option><option>Fujifilm</option><option>Nikon</option><option>Sony</option><option value="Other">Other brand</option>
-      </select>
-      <select id="model" aria-label="Camera model" disabled><option value="">Model…</option></select>
-    </div>
-    <div id="recent" class="recent" aria-label="Recently used cameras"></div>
-    <ol id="checklist" class="checklist"></ol>
-    <button id="sheetGo" class="fl-go" type="button" hidden></button>
-    <div id="photoRow" class="photorow" hidden><img id="photoThumb" alt="Photo of the camera back"><span>Camera-back photo saved</span><button id="photoRetake" class="addbtn" type="button">Retake</button><button id="photoDel" class="addbtn del" type="button">Delete</button></div>
-    <p id="sheetNote" class="sheet-note"></p>
-    <div class="endrow">
-      <button id="sendPhotos" class="resetbtn send" type="button" hidden></button>
-      <button id="camOver" class="resetbtn neutral" type="button">Reset this camera</button>
-      <button id="newEvent" class="resetbtn neutral" type="button">Clear all cameras</button>
+    </section>
+
+    <div hidden>
+      <select id="brand"><option value="">Brand…</option><option>Canon</option><option>Fujifilm</option><option>Nikon</option><option>Sony</option><option value="Other">Other brand</option></select>
+      <select id="model"><option value="">Model…</option></select>
+      <button id="addHC" type="button"></button><button id="addLS" type="button"></button>
     </div>
   </div>
 </div>
@@ -1101,7 +1175,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     // "+" on the main screen: tap to choose Hand cam or LS, then that camera's setup opens
     if(hc < MAXN || ls < MAXN){
       if(!addOpen){
-        stripEl.appendChild(addChip("+ 📸", "plus", function(){ addOpen = true; renderStrips(); var e = stripEl.lastChild; if(e && e.scrollIntoView) e.scrollIntoView({inline:"end", block:"nearest"}); }));
+        stripEl.appendChild(addChip("+ 📸", "plus", function(){ var hcN = kit.empty ? 0 : kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length; addFirst(hcN < MAXN ? "HAND CAM" : "LS"); }));
       } else {
         stripEl.appendChild(addChip("+ Hand cam", "plusopt", function(){ addOpen = false; addFirst("HAND CAM"); }, hc >= MAXN));
         stripEl.appendChild(addChip("+ LS", "plusopt", function(){ addOpen = false; addFirst("LS"); }, ls >= MAXN));
@@ -1116,6 +1190,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   function refresh(){
     var a = act();
     brandSel.value = a.b; fillModels(); renderRecent(); renderList(); renderStrips(); updateCam(); if(photoRow) renderPhotoRow();
+    if(typeof pop !== "undefined" && pop && !sheet.hidden){ if(pop.dataset.screen === "checks" && !findCam(a.b, a.m)) pop.dataset.screen = screenFor(a); renderPop(); }
   }
 
   function fillModels(){
@@ -1143,7 +1218,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     recent.forEach(function(r){
       var bt = document.createElement("button"); bt.type = "button"; bt.textContent = r.b === "Other" ? "Other camera" : r.b + " " + shortName(r.m);
       if(r.b === a.b && r.m === a.m) bt.className = "cur";
-      bt.addEventListener("click", function(){ choose(r.b, r.m); });
+      bt.addEventListener("click", function(){ tick(); choose(r.b, r.m); goScreen("checks"); });
       recentEl.appendChild(bt);
     });
   }
@@ -1156,7 +1231,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       var li = document.createElement("li"), lb = document.createElement("label"), cb = document.createElement("input"), sp = document.createElement("span");
       cb.type = "checkbox"; cb.id = "chk" + i; cb.checked = !!t[i];
       cb.addEventListener("change", function(){
-        t[i] = cb.checked; save(); updateCount(); renderStrips(); updateSheetGo();
+        t[i] = cb.checked; tick(); save(); updateCount(); renderStrips(); updateSheetGo(); renderPop();
       });
       sp.innerHTML = '<span class="t"></span><span class="d">' + item[1] + "</span>";
       sp.firstChild.textContent = item[0];
@@ -1172,6 +1247,83 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     save(); refresh();
   }
   brandSel.addEventListener("change", function(){ choose(brandSel.value, brandSel.value === "Other" ? OTHER : ""); });
+  // ================= Camera popup: Brand → Model → Check, all by tapping =================
+  var pop = document.querySelector(".sheet-panel.pop"), pBrands = document.getElementById("pBrands"), pModels = document.getElementById("pModels");
+  var BRANDS = ["Canon", "Nikon", "Sony", "Fujifilm"];
+  function tick(){ try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }
+  function screenFor(a){ return !a.b ? "brand" : !findCam(a.b, a.m) ? "model" : "checks"; }
+  function goScreen(sc, back){
+    pop.classList.toggle("back-anim", !!back); pop.dataset.screen = sc;
+    var order = ["brand", "model", "checks"], n = order.indexOf(sc);
+    [].forEach.call(pop.querySelectorAll(".pop-steps i"), function(el, i){ el.className = i < n ? "on" : i === n ? "cur" : ""; });
+    renderPop(); var box = pop.querySelector('[data-sc="' + sc + '"]'); if(box) box.scrollTop = 0;
+  }
+  function renderPop(){
+    var a = act(), sc = pop.dataset.screen;
+    document.getElementById("pBack").hidden = sc === "brand";
+    document.getElementById("sheetTitle").textContent = sc === "brand" ? (a.b ? key(a) + " · brand" : "Add " + key(a)) : sc === "model" ? (a.b || "") + " model" : key(a);
+    document.getElementById("pSub").textContent = sc === "brand" ? "Pick the brand, or tap a recent camera" : sc === "model" ? "Tap your model · flagship first" : "Tap each setting once it's set on the camera";
+    // type switch only while the camera isn't set up yet
+    var pType = document.getElementById("pType"); pType.hidden = !!(a.b && findCam(a.b, a.m));
+    [].forEach.call(pType.children, function(bt){ bt.classList.toggle("on", bt.dataset.t === a.type); });
+    document.getElementById("recentLabel").hidden = !recent.length;
+    // brand tiles
+    pBrands.textContent = "";
+    BRANDS.concat(["Other"]).forEach(function(b){
+      var t = document.createElement("button"); t.type = "button"; t.className = "tile" + (b === "Other" ? " other" : "") + (a.b === b ? " sel" : "");
+      t.innerHTML = "<b></b>"; t.firstChild.textContent = b === "Other" ? "Other brand / not listed" : b;
+      t.addEventListener("click", function(){
+        tick();
+        if(b === "Other"){ choose("Other", OTHER); goScreen("checks"); return; }
+        if(a.b !== b) choose(b, "");
+        goScreen("model");
+      });
+      pBrands.appendChild(t);
+    });
+    // model tiles, grouped by body type
+    pModels.textContent = "";
+    if(a.b && GROUPS[a.b]){
+      GROUPS[a.b].forEach(function(g){
+        var grp = document.createElement("div"); grp.className = "mgroup";
+        var lb = document.createElement("div"); lb.className = "pop-label"; lb.textContent = g[0]; grp.appendChild(lb);
+        var tl = document.createElement("div"); tl.className = "tiles";
+        g[1].forEach(function(m){
+          if(!findCam(a.b, m)) return;
+          var t = document.createElement("button"); t.type = "button"; t.className = "tile" + (a.m === m ? " sel" : "");
+          t.innerHTML = "<b></b><small></small>"; t.firstChild.textContent = shortName(m); t.lastChild.textContent = yearOf(m) + (m.indexOf("APS-C") > -1 ? " · APS-C" : "");
+          t.addEventListener("click", function(){ tick(); choose(a.b, m); goScreen("checks"); });
+          tl.appendChild(t);
+        });
+        grp.appendChild(tl); pModels.appendChild(grp);
+      });
+      var o = document.createElement("button"); o.type = "button"; o.className = "tile other-model" + (a.m === OTHER ? " sel" : "");
+      o.innerHTML = "<b></b><small>General settings for any " + a.b + "</small>"; o.firstChild.textContent = "Other " + a.b + " model";
+      o.addEventListener("click", function(){ tick(); choose(a.b, OTHER); goScreen("checks"); });
+      var wrap = document.createElement("div"); wrap.className = "tiles"; o.style.gridColumn = "1 / -1"; wrap.appendChild(o); pModels.appendChild(wrap);
+    }
+    // check screen header
+    var c = findCam(a.b, a.m);
+    document.getElementById("pCamName").textContent = !c ? "Choose a camera" : a.m === OTHER ? (a.b === "Other" ? "Other camera" : "Other " + a.b + " model") : a.b + " " + shortName(a.m);
+    var n = countOf(a);
+    document.getElementById("ckCount").textContent = n + " of 4 set";
+    document.getElementById("ckFill").style.width = (n * 25) + "%";
+  }
+  document.getElementById("pBack").addEventListener("click", function(){
+    var a = act(), sc = pop.dataset.screen;
+    goScreen(sc === "checks" && a.b !== "Other" ? "model" : "brand", true);
+  });
+  document.getElementById("pCamCard").addEventListener("click", function(){ var a = act(); goScreen(a.b && a.b !== "Other" ? "model" : "brand", true); });
+  [].forEach.call(document.getElementById("pType").children, function(bt){
+    bt.addEventListener("click", function(){
+      var a = act(), t = bt.dataset.t; if(a.type === t) return; tick();
+      // switch a not-yet-set-up camera between Hand cam and LS (takes the next free number)
+      var used = kit.cams.filter(function(c){ return c !== a && c.type === t; }).map(function(c){ return c.n; });
+      for(var n = 1; n <= MAXN; n++) if(used.indexOf(n) < 0) break;
+      if(n > MAXN) return;
+      var oldK = photoKey(a); a.type = t; a.n = n; syncEvent(); delete ev.ticks[oldK];
+      sortKit(); kit.active = key(a); save(); refresh(); renderPop();
+    });
+  });
   modelSel.addEventListener("change", function(){ choose(act().b, modelSel.value); });
 
   // ---- Add / remove cameras ----
@@ -1217,7 +1369,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     kit.active = key(pick); save(); updateSend(); refresh();
     return pick;
   }
-  twoTap(document.getElementById("removeCam"), "🗑 Delete this camera", "Tap again to delete it", function(){ removeCamera(act()); });
+  twoTap(document.getElementById("removeCam"), "🗑", "Delete?", function(){ removeCamera(act()); if(kit.empty) closeSheet(); });
 
   // ---- Next-camera prompt ----
   function nextAfter(a){
@@ -1687,7 +1839,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   });
   sendBtn.addEventListener("click", sendAll);
 
-  function openSheet(){ hideNext(); clearTimeout(sheetT); sheet.classList.remove("leaving"); sheet.hidden = false; if(rotated) fit(); document.getElementById("sheetClose").focus(); }
+  function openSheet(){ hideNext(); clearTimeout(sheetT); sheet.classList.remove("leaving"); goScreen(screenFor(act())); sheet.hidden = false; if(rotated) fit(); document.getElementById("sheetClose").focus(); }
   var sheetT = null;
   function closeSheet(){
     if(sheet.hidden) return;
@@ -1696,7 +1848,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   // All 4 ticked: a big Continue button in the check takes you back into the steps (no need to untick and re-tick)
   var sheetGo = document.getElementById("sheetGo");
   function updateSheetGo(){
-    var a = act(), on = isDone(a); sheetGo.hidden = !on; if(!on) return;
+    var a = act(), on = isDone(a); sheetGo.hidden = !on; sheetGo.classList.toggle("ready", on); if(!on) return;
     var st = stepOf(a);
     sheetGo.textContent = st === 1 ? "Continue: shoot the clock →" : st === 2 ? "Continue: photo of the screen →" : "Continue →";
   }
