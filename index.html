@@ -480,8 +480,6 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       <p id="sheetNote" class="sheet-note"></p>
       <div class="endrow">
         <button id="sendPhotos" class="resetbtn send" type="button" hidden></button>
-        <button id="camOver" class="resetbtn neutral" type="button">Reset this camera</button>
-        <button id="newEvent" class="resetbtn neutral" type="button">Clear all cameras</button>
       </div>
     </section>
 
@@ -1906,7 +1904,6 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     delete photos[k]; db(function(d){ try{ d.transaction("p","readwrite").objectStore("p").delete(k); }catch(e){} });
     save(); updateSend(); refresh();
   }
-  twoTap(document.getElementById("camOver"), "Reset this camera", "Tap again to reset this camera", function(){ resetCam(act()); });
   // This camera's photo in the check sheet: see it, retake or delete it
   var photoRow = document.getElementById("photoRow"), photoThumb = document.getElementById("photoThumb"), thumbUrl = null;
   function renderPhotoRow(){
@@ -1928,7 +1925,6 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     updateSend(); renderPhotoRow();
   });
   function clearAll(){ shotClock = {}; skipped = {}; at = {}; ev = {day: today(), ticks: {}, id: String(Date.now())}; save(); hideNext(); dbClear(); refresh(); }
-  twoTap(document.getElementById("newEvent"), "Clear all cameras", "Tap again to clear every camera", clearAll);
   // Same, from the main screen next to Sync now (ticks and photos of every camera; cameras and initials stay)
   twoTap(document.getElementById("clearMain"), "Reset app", "Sure? Resets everything", resetApp);
   // Reset the whole app to a fresh start: no cameras, no initials, no ticks or photos, location off, not rotated
