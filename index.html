@@ -231,7 +231,8 @@ body.photo .showhint{display:block}
 .strip.main{width:100%}
 .strip.main .chip{flex:1 0 auto; justify-content:center; font-size:1.05rem; font-weight:800; padding:.6rem .9rem; border-radius:12px; gap:.5rem}
 .strip.main .chip .st{font-size:1.05rem}
-.strip.main .chip.plus{flex:0 0 auto; min-width:3rem}
+.strip.main{justify-content:center}
+.strip.main .chip.plus{flex:0 0 auto; min-width:7rem; padding:.75rem 1.6rem; font-size:1.35rem; border-radius:16px}
 .strip.main .chip.act{border-color:var(--fg)}
 .strip.main .chip.act:not(.ok):not(.none){border-color:var(--bad)}
 .strip.main .chip.act.ok{border-color:var(--ok)}
@@ -250,10 +251,21 @@ body.photo .showhint{display:block}
 .endrow{display:flex; justify-content:center; gap:.6rem; flex-wrap:wrap}
 .resetbtn.neutral{color:var(--fg); border-color:#56626a}
 /* Next-camera prompt, shown after a camera's four checks are done */
-.nextbar{position:fixed; left:0; right:0; bottom:0; z-index:9; display:flex; flex-direction:column; align-items:stretch; gap:.35rem; text-align:left;
-  background:#12301b; border-top:2px solid var(--ok); color:var(--fg);
-  padding-block:.8rem max(.8rem, env(safe-area-inset-bottom,0px));
-  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px))}
+/* Camera box: floats just above the + button, three heights: line only, main button, everything */
+footer{position:relative}
+.nextbar{position:absolute; left:0; right:0; bottom:calc(100% + .6rem); z-index:9; margin:0 auto; max-width:34rem;
+  display:flex; flex-direction:column; align-items:stretch; text-align:left; overflow:hidden;
+  background:#151b1f; color:var(--fg); border:1px solid #2c363d; border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.02) inset; padding:0 14px}
+.fl-inner{display:flex; flex-direction:column; align-items:stretch; gap:.4rem; padding-bottom:12px}
+.fl-more{display:flex; flex-direction:column; gap:.35rem}
+/* Landscape has spare width, not height: the box floats on the right and the clock centres in the space left of it */
+html.land main{padding-right:var(--boxres,0px)}
+body.photo main{padding-right:0}
+html.land .nextbar{left:auto; right:max(12px, env(safe-area-inset-right,0px)); width:min(17.5rem, 36%); margin:0}
+html.land .fl-go{font-size:.98rem; padding:.7rem .6rem}
+html.land .fl-adds{flex-direction:column; gap:.4rem}
+html.land .fl-add{padding:.5rem}
 .nextbar[hidden]{display:none}
 .nb-msg{flex:1; min-width:0; display:flex; flex-direction:column; text-align:left}
 .nb-msg b{color:var(--ok); font-size:1rem}
@@ -379,21 +391,22 @@ html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); 
 /* ---- Motion: soft, slightly springy ("liquid") ---- */
 :root{--spring:cubic-bezier(.2,1.25,.3,1); --ease:cubic-bezier(.2,.8,.2,1)}
 /* Bottom panel: slides up, can be dragged down to a small peek, and back up */
-.nextbar{transition:transform .5s var(--spring); will-change:transform; border-radius:18px 18px 0 0; padding-top:.35rem; touch-action:pan-x}
-.nextbar:not([hidden]){animation:panelIn .55s var(--spring)}
-.nextbar.leaving{transform:translateY(110%)!important; transition:transform .28s var(--ease)}
+.nextbar{transition:height .45s var(--spring), opacity .25s var(--ease); touch-action:pan-x}
+.nextbar:not([hidden]){animation:panelIn .5s var(--spring)}
+.nextbar.leaving{opacity:0; transform:translateY(20px); transition:opacity .25s var(--ease), transform .25s var(--ease)}
 .nextbar.dragging{transition:none}
-.nextbar.mini{transform:translateY(calc(100% - var(--peek,7rem)))}
-/* Tucked away: the camera row, progress line and the main button stay in view; the details sit below, a slide away */
-.nextbar.mini > *{order:1}
-.nextbar.mini > .fl-grab,.nextbar.mini > .fl-top,.nextbar.mini > .fl-steps,.nextbar.mini > .fl-go,.nextbar.mini > .fl-adds{order:0}
-.fl-grab{align-self:center; display:flex; align-items:center; justify-content:center; width:100%; height:1.3rem; margin-bottom:-.15rem; padding:0; background:none; border:0; cursor:grab; touch-action:none}
+.nextbar[data-stage="2"]{overflow-y:auto}
+.nextbar:not([data-stage="2"]) .fl-more{opacity:.0; transition:opacity .2s}
+.nextbar[data-stage="2"] .fl-more{opacity:1; transition:opacity .35s .1s}
+.nextbar[data-stage="0"] .fl-inner{opacity:0; pointer-events:none}
+.fl-inner{transition:opacity .25s var(--ease)}
+.fl-grab{flex-shrink:0; align-self:center; display:flex; align-items:center; justify-content:center; width:100%; height:1.6rem; padding:0; background:none; border:0; cursor:grab; touch-action:none}
 .fl-grab i{display:block; width:2.6rem; height:5px; border-radius:3px; background:#56626a}
 .fl-grab:active{cursor:grabbing}
 .fl-grab:focus-visible{outline:2px solid var(--fg); outline-offset:2px; border-radius:6px}
 .nextbar .fl-body{transition:opacity .3s var(--ease)}
-.nextbar.swap > :not(.fl-grab){animation:swapIn .38s var(--ease)}
-@keyframes panelIn{from{transform:translateY(105%)} to{transform:translateY(0)}}
+.nextbar.swap .fl-inner > *{animation:swapIn .38s var(--ease)}
+@keyframes panelIn{from{opacity:0; transform:translateY(24px) scale(.97)} to{opacity:1; transform:none}}
 @keyframes swapIn{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
 /* Camera check sheet: backdrop fades, panel rises with a little spring */
 .sheet:not([hidden]){animation:fadeIn .25s var(--ease)}
@@ -437,8 +450,29 @@ footer,.taphint{transition:opacity .3s var(--ease)}
 <div id="tapHint" class="taphint">Tap the clock to hide the buttons</div>
 <div id="showHint" class="showhint">Tap to show buttons</div>
 <footer>
+<div id="nextBar" class="nextbar" hidden role="region" aria-label="Camera steps" data-stage="0">
+  <button id="flGrab" class="fl-grab" type="button" aria-label="Slide the camera box up or down"><i></i></button>
+  <div class="fl-inner">
+  <div class="fl-top"><div id="flCams" class="fl-cams" aria-label="Cameras"></div>
+    <button id="flPlus" class="fl-x plus" type="button" aria-label="Add a camera" title="Add camera">+</button>
+    <button id="flEdit" class="fl-x" type="button" aria-label="Edit this camera" title="Edit camera">✎</button>
+    <button id="flDel" class="fl-x del" type="button" aria-label="Delete this camera" title="Delete camera">🗑</button>
+    <button id="flX" class="fl-x" type="button" aria-label="Minimise" title="Minimise">✕</button></div>
+  <div id="flSteps" class="fl-steps"><i></i><i></i><i></i></div>
+  <button id="flGo" class="fl-go" type="button"></button>
+  <div id="flAdds" class="fl-adds" hidden><button id="flAddHC" class="fl-add" type="button">+ Add hand cam</button><button id="flAddLS" class="fl-add" type="button">+ Add LS</button></div>
+  <div id="flMore" class="fl-more">
+  <div id="flKick" class="fl-kick"></div>
+  <div id="flHead" class="fl-head"></div>
+  <div id="flSub" class="fl-sub"></div>
+  <button id="flThumb" class="fl-thumb" type="button" hidden><img alt=""><span></span></button>
+  <div class="fl-links"><button id="flL" class="fl-link" type="button"></button><button id="flR" class="fl-link" type="button"></button></div>
+  </div>
+  </div>
+  <input id="photoIn" type="file" accept="image/*" capture="environment" hidden>
+</div>
   <div class="cam">
-    <div id="strip" class="strip main" aria-label="My cameras: tap to open its camera check"></div>
+    <div id="strip" class="strip main" aria-label="Add a camera"></div>
   </div>
   <div id="status">
     <span id="syncText">Syncing with time server…</span>
@@ -540,23 +574,6 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   </div>
 </div>
 
-<div id="nextBar" class="nextbar" hidden role="region" aria-label="Camera steps">
-  <button id="flGrab" class="fl-grab" type="button" aria-label="Slide the panel down or up"><i></i></button>
-  <div class="fl-top"><div id="flCams" class="fl-cams" aria-label="Cameras"></div>
-    <button id="flPlus" class="fl-x plus" type="button" aria-label="Add a camera" title="Add camera">+</button>
-    <button id="flEdit" class="fl-x" type="button" aria-label="Edit this camera" title="Edit camera">✎</button>
-    <button id="flDel" class="fl-x del" type="button" aria-label="Delete this camera" title="Delete camera">🗑</button>
-    <button id="flX" class="fl-x" type="button" aria-label="Hide" title="Hide">✕</button></div>
-  <div id="flSteps" class="fl-steps"><i></i><i></i><i></i></div>
-  <div id="flKick" class="fl-kick"></div>
-  <div id="flHead" class="fl-head"></div>
-  <div id="flSub" class="fl-sub"></div>
-  <button id="flThumb" class="fl-thumb" type="button" hidden><img alt=""><span></span></button>
-  <button id="flGo" class="fl-go" type="button"></button>
-  <div id="flAdds" class="fl-adds" hidden><button id="flAddHC" class="fl-add" type="button">+ Add hand cam</button><button id="flAddLS" class="fl-add" type="button">+ Add LS</button></div>
-  <div class="fl-links"><button id="flL" class="fl-link" type="button"></button><button id="flR" class="fl-link" type="button"></button></div>
-  <input id="photoIn" type="file" accept="image/*" capture="environment" hidden>
-</div>
 
 <script>
 // User counter: a free, no-account counting service (Abacus). Each phone is counted once (remembered on the phone),
@@ -756,7 +773,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     var placeH = placeEl.offsetHeight;
     var modelEl = document.getElementById("camModel");
     var rest = daydate.offsetHeight + timeRow.offsetHeight + tzEl.offsetHeight + gap*3 + (modelEl.textContent ? modelEl.offsetHeight + gap*0.35 : 0) + document.getElementById("camSet").offsetHeight + gap*0.35;
-    var availW = mainEl.clientWidth*0.985, availH = mainEl.clientHeight*0.97 - placeH;
+    var mcs = getComputedStyle(mainEl), availW = (mainEl.clientWidth - (parseFloat(mcs.paddingRight) || 0))*0.985, availH = mainEl.clientHeight*0.97 - placeH;
     var portrait = scr.h >= scr.w, scale;
     if(portrait){
       // Camera label scales with the clock; the longest label would be exactly as wide as the time
@@ -779,6 +796,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       root.style.setProperty("--u", u.toFixed(1) + "px");
     }
     fitted = u.toFixed(1) + "px";
+    reserve();
   }
   var fitted = "";
   window.addEventListener("resize", fit);
@@ -1172,23 +1190,18 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     bt.disabled = !!disabled; bt.addEventListener("click", onClick); return bt;
   }
   function renderStrips(){
-    stripEl.classList.toggle("only", !!kit.empty);
+    stripEl.classList.add("only");
     stripEl.textContent = ""; tabsEl.textContent = "";
+    // The main screen only has the + : the cameras live in the floating camera box
     kit.cams.forEach(function(c){
       if(kit.empty) return;
-      stripEl.appendChild(chip(c, function(){
-        addOpen = false; var was = key(c) === kit.active, up = bannerWasUp; setActive(key(c));
-        if(!isDone(c)) openSheet();
-        else if(was && up) openSheet();   // banner was showing: second tap opens the check
-        else showNext(c);                  // finished camera: bring back its banner (photo of the camera back, next camera)
-      }));
       tabsEl.appendChild(chip(c, function(){ setActive(key(c)); }));
     });
     var hc = kit.empty ? 0 : kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length, ls = kit.empty ? 0 : kit.cams.length - hc;
     // "+" on the main screen: tap to choose Hand cam or LS, then that camera's setup opens
     if(hc < MAXN || ls < MAXN){
       if(!addOpen){
-        stripEl.appendChild(addChip("+ 📸", "plus", function(){ var hcN = kit.empty ? 0 : kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length; addFirst(hcN < MAXN ? "HAND CAM" : "LS"); }));
+        stripEl.appendChild(addChip("+ 📷", "plus", function(){ var hcN = kit.empty ? 0 : kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length; addFirst(hcN < MAXN ? "HAND CAM" : "LS"); }));
       } else {
         stripEl.appendChild(addChip("+ Hand cam", "plusopt", function(){ addOpen = false; addFirst("HAND CAM"); }, hc >= MAXN));
         stripEl.appendChild(addChip("+ LS", "plusopt", function(){ addOpen = false; addFirst("LS"); }, ls >= MAXN));
@@ -1203,6 +1216,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   function refresh(){
     var a = act();
     brandSel.value = a.b; fillModels(); renderRecent(); renderList(); renderStrips(); updateCam(); if(photoRow) renderPhotoRow();
+    if(typeof syncBox === "function") syncBox();
     if(typeof pop !== "undefined" && pop && !sheet.hidden){ if(pop.dataset.screen === "checks" && !findCam(a.b, a.m)) pop.dataset.screen = screenFor(a); renderPop(); }
   }
 
@@ -1399,6 +1413,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   var flThumb = document.getElementById("flThumb"), flGo = document.getElementById("flGo"), flL = document.getElementById("flL"), flR = document.getElementById("flR"), flThumbUrl = null;
   var act_go = null, act_l = null, act_r = null;
   function panel(o){
+    if(o.raise === undefined) o.raise = showRaise;
     for(var i = 0; i < 3; i++) flSteps[i].className = i < o.step ? "on" : i === o.step ? "cur" : "";
     flKick.textContent = o.kick || ""; flHead.textContent = o.head || ""; flSub.textContent = o.sub || "";
     if(flThumbUrl){ URL.revokeObjectURL(flThumbUrl); flThumbUrl = null; }
@@ -1416,50 +1431,71 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     clearTimeout(hideT); var wasUp = !nextBar.hidden && !nextBar.classList.contains("leaving");
     nextBar.classList.remove("leaving"); nextBar.style.transform = "";
     nextBar.hidden = false;
-    setMini(wasUp ? nextBar.classList.contains("mini") : true);   // a fresh panel starts tucked away
-    if(wasUp){ nextBar.classList.remove("swap"); void nextBar.offsetWidth; nextBar.classList.add("swap"); }   // new step: content glides in
+    if(o.raise && stage === 0) stage = 1;   // something to do now: show the main button
+    setStage(stage);
+    var sig = (o.kick || "") + "|" + (o.head || "") + "|" + o.go[0];
+    if(wasUp && stage && sig !== lastSig){ nextBar.classList.remove("swap"); void nextBar.offsetWidth; nextBar.classList.add("swap"); }   // new step: content glides in
+    lastSig = sig;
   }
   flGo.addEventListener("click", function(){ if(act_go) act_go(); });
   flL.addEventListener("click", function(){ if(act_l) act_l(); });
   flR.addEventListener("click", function(){ if(act_r) act_r(); });
-  document.getElementById("flX").addEventListener("click", hideNext);
-  // Tucked-away strip keeps the line, the camera row, the progress line and the main button visible
-  function peekPx(){ var ad = document.getElementById("flAdds"), last = ad.hidden ? flGo : ad; return last.offsetTop + last.offsetHeight + 4; }
-  function setMini(on){ nextBar.classList.toggle("mini", on); nextBar.style.setProperty("--peek", peekPx() + "px"); nextBar.style.transform = ""; }
-  // Slide the panel: drag the little line up for the details, down to tuck them away; a tap on the line toggles
+  document.getElementById("flX").addEventListener("click", function(){ setStage(0); });
+  // ---- The camera box has three heights: 0 = just the line, 1 = camera row + main button, 2 = everything ----
+  var showRaise = true, stage = 0, lastSig = "", flGrabEl = document.getElementById("flGrab"), flInner = nextBar.querySelector(".fl-inner"), flAddsEl = document.getElementById("flAdds");
+  function hasCams(){ return !kit.empty && kit.cams.length > 0; }
+  function stageH(n){
+    var bd = 2, g = flGrabEl.offsetHeight;
+    if(n <= 0) return g + bd;
+    if(n === 1){ var last = flAddsEl.hidden ? flGo : flAddsEl; return last.offsetTop + last.offsetHeight + 12 + bd; }
+    var full = flInner.offsetTop + flInner.offsetHeight + bd, foot = nextBar.parentNode;
+    return Math.max(stageH(1), Math.min(full, foot.offsetTop - 24));
+  }
+  function setStage(n){ stage = n; nextBar.dataset.stage = n; if(n < 2) nextBar.scrollTop = 0; nextBar.style.height = stageH(n) + "px"; reserve(); }
+  // Landscape is short: the clock shrinks a little so the box's middle height never covers it
+  var reserved = -1;
+  function reserve(){
+    if(!flGrabEl) return;
+    var v = (!nextBar.hidden && document.documentElement.classList.contains("land")) ? nextBar.offsetWidth + 20 : 0;
+    if(v === reserved) return; reserved = v; document.documentElement.style.setProperty("--boxres", v + "px"); fit();
+  }
+  window.addEventListener("resize", function(){ if(!nextBar.hidden) setStage(stage); });
+  // Drag the line up or down; it settles on the nearest height. A tap on the line goes up one (from the top, back to the middle).
   (function(){
-    var grab = document.getElementById("flGrab"), y0 = 0, t0 = 0, base = 0, h = 0, dy = 0, moved = false, down = false;
-    // When the app is turned with the rotate button, the panel's "down" is sideways on the glass
+    var grab = flGrabEl, y0 = 0, t0 = 0, h0 = 0, dy = 0, moved = false, down = false;
+    // When the app is turned with the rotate button, the box's "down" is sideways on the glass
     function along(e){ return document.documentElement.classList.contains("rot") ? -e.clientX : e.clientY; }
     grab.addEventListener("pointerdown", function(e){
-      down = true; moved = false; dy = 0; y0 = along(e); t0 = Date.now(); h = nextBar.offsetHeight;
-      if(nextBar.classList.contains("mini")) nextBar.style.setProperty("--peek", peekPx() + "px");
-      base = nextBar.classList.contains("mini") ? h - peekPx() : 0;
+      down = true; moved = false; dy = 0; y0 = along(e); t0 = Date.now(); h0 = nextBar.offsetHeight;
       nextBar.classList.add("dragging"); grab.setPointerCapture(e.pointerId);
     });
     grab.addEventListener("pointermove", function(e){
-      if(!down) return; dy = along(e) - y0; if(Math.abs(dy) > 4) moved = true;
-      var y = base + dy; if(y < 0) y = y * 0.25;               // a little stretch past the top, like pulling something soft
-      if(y > h - peekPx()) y = (h - peekPx()) + (y - (h - peekPx())) * 0.25;
-      nextBar.style.transform = "translateY(" + y + "px)";
+      if(!down) return; dy = along(e) - y0; if(Math.abs(dy) > 4) moved = true; if(!moved) return;
+      var lo = stageH(0), hi = stageH(2), h = h0 - dy;
+      if(h > hi) h = hi + (h - hi) * .25; if(h < lo) h = lo - (lo - h) * .25;   // a little stretch past the ends, like pulling something soft
+      nextBar.dataset.stage = h > stageH(1) + 8 ? 2 : h > lo + 8 ? 1 : 0;
+      nextBar.style.height = h + "px";
     });
     function end(){
       if(!down) return; down = false; nextBar.classList.remove("dragging");
-      if(!moved){ setMini(!nextBar.classList.contains("mini")); return; }   // a tap toggles
-      var v = dy / Math.max(1, Date.now() - t0), y = base + dy;
-      setMini(v > 0.5 || (v > -0.5 && y > (h - peekPx()) / 2));
+      if(!moved){ setStage(stage === 0 ? 1 : stage === 1 ? 2 : 1); return; }
+      var v = -dy / Math.max(1, Date.now() - t0), h = nextBar.offsetHeight, hs = [stageH(0), stageH(1), stageH(2)], n = 0;
+      for(var i = 1; i < 3; i++) if(Math.abs(hs[i] - h) < Math.abs(hs[n] - h)) n = i;
+      if(v > .5) n = hs[2] > h + 4 ? (hs[1] > h + 4 ? 1 : 2) : 2;          // flicked up
+      else if(v < -.5) n = hs[0] < h - 4 ? (hs[1] < h - 4 ? 1 : 0) : 0;    // flicked down
+      setStage(n);
     }
     grab.addEventListener("pointerup", end); grab.addEventListener("pointercancel", end);
-    // Tucked away: tapping the strip brings the panel back
-    nextBar.addEventListener("click", function(e){ if(nextBar.classList.contains("mini") && !grab.contains(e.target) && !e.target.closest(".fl-x, .fl-go, .fl-top, .fl-adds")){ e.stopPropagation(); setMini(false); } }, true);
   })();
+  // Keep the box showing the current camera whenever there are cameras
+  function syncBox(){ if(!flGrabEl) return; if(!hasCams()){ hideNext(true); return; } showNext(act(), true); }
   document.getElementById("flEdit").addEventListener("click", function(){ var c = bannerCam || act(); hideNext(); setActive(key(c)); openSheet(); });
   // Delete from the panel: first tap asks, second deletes
   var flDel = document.getElementById("flDel"), delT = null;
   flDel.addEventListener("click", function(){
     if(!flDel.classList.contains("armed")){ flDel.classList.add("armed"); flDel.textContent = "Delete " + short(bannerCam || act()) + "?"; delT = setTimeout(disarmDel, 4000); return; }
     disarmDel(); var pick = removeCamera(bannerCam || act());
-    if(pick && isDone(pick)) showNext(pick); else hideNext();
+    if(pick) showNext(pick); else hideNext(true);
   });
   function disarmDel(){ clearTimeout(delT); flDel.classList.remove("armed"); flDel.textContent = "🗑"; }
   // The panel's own camera row: tap one to go to it (its step if checked, otherwise its check)
@@ -1468,7 +1504,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     kit.cams.forEach(function(c){
       box.appendChild(chip(c, function(){
         if(bannerCam === c){ hideNext(); setActive(key(c)); openSheet(); return; }
-        setActive(key(c)); if(isDone(c)) showNext(c); else { hideNext(); openSheet(); }
+        setActive(key(c)); showNext(c);
       }));
     });
     var hc = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length, ls = kit.cams.length - hc;
@@ -1481,7 +1517,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       box.appendChild(addChip("✕", "plus", function(){ flAdd = false; renderFlCams(); }));
       return;
     }
-    var cur = box.querySelector(".chip.act"); if(cur && cur.scrollIntoView) cur.scrollIntoView({inline:"nearest", block:"nearest"});
+    var cur = box.querySelector(".chip.act"); if(cur){ var L = cur.offsetLeft - box.offsetLeft, R = L + cur.offsetWidth; if(L < box.scrollLeft) box.scrollLeft = L; else if(R > box.scrollLeft + box.clientWidth) box.scrollLeft = R - box.clientWidth; }
   }
   var flAdd = false;
   document.getElementById("flAddHC").addEventListener("click", function(){ hideNext(); addFirst("HAND CAM"); });
@@ -1490,10 +1526,10 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   flThumb.addEventListener("click", function(){ if(bannerCam) viewSaved(bannerCam, "saved"); });
   // Slide the panel away (then hide it)
   var hideT = null;
-  function hideNext(){
-    if(nextBar.hidden) return;
+  function hideNext(force){
+    if(nextBar.hidden || (!force && hasCams())) return;   // the box stays; pop-ups and the camera simply cover it
     nextBar.classList.add("leaving"); clearTimeout(hideT);
-    hideT = setTimeout(function(){ nextBar.hidden = true; nextBar.classList.remove("leaving", "mini"); nextBar.style.transform = ""; }, 280);
+    hideT = setTimeout(function(){ nextBar.hidden = true; nextBar.classList.remove("leaving"); nextBar.style.transform = ""; stage = 0; reserve(); }, 260);
   }
   function doneCount(){ var n = 0; kit.cams.forEach(function(c){ if(isDone(c) && (photos[photoKey(c)] || skipped[photoKey(c)])) n++; }); return n; }
   function goNext(){
@@ -1505,8 +1541,15 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   var at = {};
   function stepOf(c){ var k = photoKey(c); return at[k] || (photos[k] || skipped[k] ? 4 : shotClock[k] ? 2 : 1); }
   function go(c, n){ var k = photoKey(c); if(n === 4) delete at[k]; else at[k] = n; showNext(c); }
-  function showNext(a){
-    bannerCam = a; var k = photoKey(a), rec = photos[k], name = key(a), st = stepOf(a);
+  function showNext(a, quiet){
+    bannerCam = a; var k = photoKey(a), rec = photos[k], name = key(a), st = stepOf(a), up = !quiet; showRaise = up;
+    if(!isDone(a)){
+      var n = countOf(a), has = !!findCam(a.b, a.m);
+      panel({step: -1, kick: name + " · camera check", head: has ? n + " of 4 settings ticked" : "Choose the brand and model",
+        sub: "Tick the 4 settings on " + name + ", then shoot the clock.", raise: up,
+        go: [has ? "Camera check " + n + "/4 →" : "Start camera check →", function(){ openSheet(); }]});
+      return;
+    }
     if(st === 1){
       panel({step: 0, kick: name + " · step 1 of 3", head: "Shoot the clock with your camera", sub: "Point " + name + " at this screen and take a shot.",
         go: ["Done, I shot it →", function(){ shotClock[k] = true; go(a, 2); }],
@@ -1570,7 +1613,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       try{
         var st = d.transaction("p","readwrite").objectStore("p"), rq = st.openCursor();
         rq.onsuccess = function(){
-          var cur = rq.result; if(!cur){ updateSend(); return; }
+          var cur = rq.result; if(!cur){ updateSend(); syncBox(); return; }
           if(cur.value && cur.value.day === evId()) photos[cur.key] = cur.value; else cur.delete();   // older events are dropped
           cur.continue();
         };
@@ -2302,7 +2345,9 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   function closeSheet(){
     if(sheet.hidden) return;
     sheet.classList.add("leaving"); clearTimeout(sheetT);
-    sheetT = setTimeout(function(){ sheet.hidden = true; sheet.classList.remove("leaving"); if(rotated) fit(); }, 230); var a = stripEl.querySelector(".chip.act"); if(a) a.focus(); }
+    sheetT = setTimeout(function(){ sheet.hidden = true; sheet.classList.remove("leaving"); if(rotated) fit(); }, 230);
+    if(hasCams()) showNext(act());   // back on the clock: the camera box shows this camera's next step
+  }
   // All 4 ticked: a big Continue button in the check takes you back into the steps (no need to untick and re-tick)
   var sheetGo = document.getElementById("sheetGo");
   function updateSheetGo(){
@@ -2311,7 +2356,6 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     sheetGo.textContent = st === 1 ? "Continue: shoot the clock →" : st === 2 ? "Continue: photo of the screen →" : "Continue →";
   }
   sheetGo.addEventListener("click", function(){ var a = act(); closeSheet(); showNext(a); });
-  document.getElementById("sheetClose").addEventListener("click", function(){ var a = act(); if(isDone(a)) showNext(a); });
   document.getElementById("sheetClose").addEventListener("click", closeSheet);
   sheet.addEventListener("click", function(e){ if(e.target === sheet) closeSheet(); });
   document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !sheet.hidden) closeSheet(); });
