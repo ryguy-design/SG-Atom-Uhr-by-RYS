@@ -346,6 +346,11 @@ html.narrow .nb-next{font-size:.92rem; padding:.5rem .7rem}
 .send-item span{font-size:.8rem; color:var(--ok)}
 .send-item span.bad{color:#f3b5b6}
 .send-item span.miss{color:var(--muted)}
+.send-item.missing{border:2px dashed var(--bad); cursor:pointer}
+.miss-ph{width:100%; aspect-ratio:4/3; border-radius:6px; background:#2a1416; display:grid; place-content:center; font-size:1.8rem}
+.s-warn{background:#3a1416; color:#f3b5b6; font-weight:700; font-size:.88rem; padding:.6rem 1rem; text-align:left}
+.s-warn[hidden]{display:none}
+#sGo:disabled{background:#2a3238; color:var(--muted); cursor:not-allowed}
 .photorow span{flex:1; min-width:0; font-weight:700; color:var(--ok); font-size:.9rem}
 .addbtn.del{border-color:var(--bad); color:var(--bad)}
 .addbtn.del.armed{background:var(--bad); color:#fff}
@@ -510,6 +515,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
 <!-- Step 3: everything that will be sent, with a last look before the share sheet -->
 <div id="sendView" class="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="sTitle">
   <div class="view-top"><b id="sTitle"></b><span id="sSub">Tap a photo to look again.</span></div>
+  <div id="sWarn" class="s-warn" hidden>Sending is locked until every camera has its photo.</div>
   <div id="sList" class="send-list"></div>
   <div class="view-bar"><button id="sBack" class="nb-btn" type="button">↩ Back</button><button id="sGo" class="nb-next" type="button"></button></div>
 </div>
@@ -1514,18 +1520,19 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     }
     // Camera finished: next camera, or send
     nextTarget = nextAfter(a);
-    var n = photoCount(), tot = kit.cams.length, dn = doneCount();
+    var n = photoCount(), tot = kit.cams.length, dn = doneCount(), missN = tot - n;
     var state = rec ? (rec.sync === true ? "✓ in sync" : rec.sync === false ? "✗ not in sync" : "") : "no photo";
     var thumbText = rec ? (rec.sync === false ? "Saved · camera NOT in sync" : "Photo saved · " + rec.name.replace(/^.*_(\d\d)(\d\d)(\d\d)\.jpg$/, "$1:$2:$3") + (rec.atomic ? " atomic" : "")) : "";
     var back = ["← Back", function(){ if(rec) reviewSaved(a); else { delete skipped[k]; go(a, 2); } }];
     if(nextTarget){
       panel({step: 3, kick: name + " " + state + " · " + dn + " of " + tot + " cameras done", thumb: rec, thumbText: thumbText,
         go: ["Next camera: " + key(nextTarget) + " →", goNext],
-        l: back, r: n ? ["Send " + n + " now", sendAll] : null});
+        l: back, r: null});   // sending only once every camera has its photo
     } else {
       panel({step: 3, kick: "All " + tot + " camera" + (tot > 1 ? "s" : "") + " done ✓", thumb: rec, thumbText: thumbText,
-        head: n ? "Send the photos to your group" : "All set", sub: n ? "You'll see them all once more before they go." : "",
-        go: n ? ["Send " + n + " photo" + (n > 1 ? "s" : "") + " →", sendAll] : ["OK", hideNext],
+        head: missN ? "⚠ " + missN + " camera" + (missN > 1 ? "s" : "") + " still need" + (missN > 1 ? "" : "s") + " a photo" : "Send the photos to your group",
+        sub: missN ? "Every camera needs its camera-back photo before sending." : "You'll see them all once more before they go.",
+        go: missN ? ["Fix missing photo" + (missN > 1 ? "s" : "") + " →", sendAll] : ["Send " + n + " photo" + (n > 1 ? "s" : "") + " →", sendAll],
         adds: true, l: back});
     }
   }
@@ -1562,7 +1569,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   }
   function updateSend(){
     var n = photoCount(); if(typeof renderPhotoRow === "function" && photoRow) renderPhotoRow();
-    sendBtn.hidden = !n; sendBtn.textContent = "📷 Send " + n + " camera photo" + (n > 1 ? "s" : "");
+    sendBtn.hidden = !n || kit.cams.some(function(c){ return !photos[photoKey(c)]; }); sendBtn.textContent = "📷 Send " + n + " camera photo" + (n > 1 ? "s" : "");
   }
   // Rotated app: these full screens show upright, so refit whenever one opens or closes
   if(window.MutationObserver) ["cam","viewer","sendView","initDlg"].forEach(function(id){
@@ -1810,21 +1817,42 @@ footer,.taphint{transition:opacity .3s var(--ease)}
         st.textContent = rec.sync === true ? "In sync ✓" : rec.sync === false ? "Not in sync ✗" : "Not checked"; if(rec.sync !== true){ st.className = "bad"; bad++; }
         it.addEventListener("click", function(){ viewSaved(c, "send"); });
       } else {
-        miss++; st.textContent = "No photo"; st.className = "miss"; it.style.cursor = "default";
+        // Missing photo: the tile becomes a "fix it" button that takes you to that camera's photo step
+        miss++; st.textContent = "No photo · tap to fix"; st.className = "bad"; it.classList.add("missing");
+        var ph = document.createElement("div"); ph.className = "miss-ph"; ph.textContent = "📷"; it.appendChild(ph);
+        it.addEventListener("click", function(){ fixCam(c); });
       }
       var nm = document.createElement("b"); nm.textContent = key(c); it.appendChild(nm); it.appendChild(st);
       sList.appendChild(it);
     });
-    document.getElementById("sTitle").textContent = "Send " + n + " camera photo" + (n === 1 ? "" : "s") + "?";
-    document.getElementById("sSub").textContent = "Tap a photo to look again." + (bad ? " " + bad + " not confirmed in sync." : "") + (miss ? " " + miss + " camera" + (miss > 1 ? "s have" : " has") + " no photo." : "");
-    sGo.textContent = "Send " + n + " →"; sGo.disabled = !n;
+    var warn = document.getElementById("sWarn");
+    if(miss){
+      // Every camera in the list needs its photo before anything can be sent
+      document.getElementById("sTitle").textContent = "⚠ " + miss + " camera" + (miss > 1 ? "s need" : " needs") + " a photo";
+      document.getElementById("sSub").textContent = "Every camera must have its camera-back photo before sending. Tap a red one to fix it.";
+      warn.hidden = false;
+      sGo.textContent = "Fix " + miss + " first"; sGo.disabled = true;
+    } else {
+      document.getElementById("sTitle").textContent = "Send " + n + " camera photo" + (n === 1 ? "" : "s") + "?";
+      document.getElementById("sSub").textContent = "Tap a photo to look again." + (bad ? " " + bad + " not confirmed in sync." : "");
+      warn.hidden = true;
+      sGo.textContent = "Send " + n + " →"; sGo.disabled = !n;
+    }
     sendView.hidden = false; sGo.focus();
   }
   // Sent: start the 12-hour clock (sending again restarts it)
   function markSent(){ ev.sentAt = Date.now() + offset; save(); }
   // Back from the send list returns to the step panel you came from
+  // Jump from the send list to whatever a camera still needs: its checks, or its photo
+  function fixCam(c){
+    sendView.hidden = true; setActive(key(c));
+    var k = photoKey(c); delete skipped[k];
+    if(!isDone(c)){ openSheet(); return; }
+    shotClock[k] = true; at[k] = 2; showNext(c);
+  }
   document.getElementById("sBack").addEventListener("click", function(){ sendView.hidden = true; var c = bannerCam; if(c && isDone(c)) showNext(c); });
   sGo.addEventListener("click", function(){
+    if(kit.cams.some(function(c){ return !photos[photoKey(c)]; })){ sendAll(); return; }   // never send with a camera missing
     var list = kit.cams.map(function(c){ return photos[photoKey(c)]; }).filter(Boolean);
     if(!list.length) return;
     var files = list.map(function(x){ return new File([x.blob], x.name, {type: "image/jpeg"}); });
