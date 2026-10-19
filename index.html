@@ -48,6 +48,8 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; align-items:cent
 /* Landscape: day and date share one line so the time can grow to fill the width */
 html.land .daydate{flex-direction:row; gap:.7em; font-size:calc(var(--u)*.5)}
 html.land main{gap:calc(var(--u)*.16)}
+main{position:relative}
+html.land .tqr{position:absolute; right:0; top:50%; transform:translateY(-50%)}
 /* LCD characters drawn in-page: 14-segment style, rounded bars, faint unlit segments; fixed widths so nothing shifts */
 .row svg{display:block; height:1em; width:.635em; margin:0 .05em; overflow:visible}
 .row svg.sep{width:.21em; margin:0}
@@ -78,6 +80,8 @@ footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 .cammodel:empty{display:none}
 /* The checked settings, so the sync photo also proves how the camera was set */
 .camset:empty{display:none}
+/* Machine-readable time code: lets the app read the clock's exact time back from the photo */
+.tqr{width:calc(var(--u)*1.8); height:calc(var(--u)*1.8); image-rendering:pixelated; border-radius:4px; flex-shrink:0}
 .camset{font-family:var(--sans); font-weight:700; font-size:calc(var(--u)*.17); letter-spacing:.03em; white-space:nowrap; color:var(--bad)}
 .camset.ok{color:var(--ok)}
 /* Photo mode: tap the clock to hide everything else */
@@ -325,6 +329,11 @@ html.narrow .nb-next{font-size:.92rem; padding:.5rem .7rem}
 .view-top{display:flex; flex-direction:column; gap:.2rem; text-align:left; background:#151b1f; color:var(--fg);
   padding-block:max(.8rem, env(safe-area-inset-top,0px)) .7rem; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px))}
 .view-top b{font-size:1.05rem}
+.v-auto{margin-top:.35rem; display:flex; align-items:center; gap:.55rem; font-size:.9rem; font-weight:700; border-radius:10px; padding:.55rem .7rem; background:#1d252a; color:#c9d1d5}
+.v-auto[hidden]{display:none}
+.v-auto.ok{background:#14301f; color:var(--ok)} .v-auto.bad{background:#3a1416; color:#f3b5b6}
+.v-auto .spin{width:1rem; height:1rem; border-radius:50%; border:2px solid #56626a; border-top-color:var(--fg); animation:spin .8s linear infinite; flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 .view-top span{font-size:.88rem; color:#c9d1d5; line-height:1.35}
 .view-top span b{font-size:inherit; color:var(--fg)}
 .cam-box{flex:1; min-height:0; position:relative; background:#000; display:flex; align-items:center; justify-content:center; overflow:hidden}
@@ -422,6 +431,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   </div>
   <div class="row" id="timeRow" aria-label="Time"></div>
   <div class="tz" id="tz"></div>
+  <canvas id="tqr" class="tqr" width="200" height="200" aria-label="Time code for the automatic sync check"></canvas>
   <div id="place"><b id="suburb">Finding you…</b> <span id="coords"></span><div class="locwarn">⚠️ Exact GPS location visible on screen ⚠️</div></div>
 </main>
 
@@ -505,7 +515,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
 
 <!-- Step 2: review the camera-back photo and confirm the camera is in sync -->
 <div id="viewer" class="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="vTitle">
-  <div class="view-top"><b id="vTitle"></b><span id="vSub"></span></div>
+  <div class="view-top"><b id="vTitle"></b><span id="vSub"></span><div id="vAuto" class="v-auto" hidden></div></div>
   <div id="viewScroll" class="view-scroll"><img id="viewImg" alt="Camera-back photo"></div>
   <div class="view-bar" id="vBar"></div>
 </div>
@@ -746,9 +756,17 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     var gap = parseFloat(getComputedStyle(mainEl).rowGap) || 20;
     var placeH = placeEl.offsetHeight;
     var modelEl = document.getElementById("camModel");
-    var rest = daydate.offsetHeight + timeRow.offsetHeight + tzEl.offsetHeight + gap*3 + (modelEl.textContent ? modelEl.offsetHeight + gap*0.35 : 0) + document.getElementById("camSet").offsetHeight + gap*0.35;
+    var rest = daydate.offsetHeight + timeRow.offsetHeight + tzEl.offsetHeight + gap*3 + (modelEl.textContent ? modelEl.offsetHeight + gap*0.35 : 0) + document.getElementById("camSet").offsetHeight + gap*0.35 + document.getElementById("tqr").offsetHeight + gap;
     var availW = mainEl.clientWidth*0.985, availH = mainEl.clientHeight*0.97 - placeH;
     var portrait = scr.h >= scr.w, scale;
+    // Time code: under the clock in portrait; beside it (right edge) in landscape, with room kept on both sides so the clock stays centred
+    var tq = document.getElementById("tqr");
+    if(portrait){ tq.style.width = tq.style.height = ""; }
+    else {
+      rest -= tq.offsetHeight + gap;
+      var qs = Math.round(Math.min(scr.w, scr.h) * 0.3); tq.style.width = tq.style.height = qs + "px";
+      availW -= 2 * (qs + 14);
+    }
     if(portrait){
       // Camera label scales with the clock; the longest label would be exactly as wide as the time
       var k = tw / lw;
@@ -794,8 +812,98 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   var DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"]; // always capitals
   var lastDay = "", lastStatusMin = -1;
   function tick(){ render(); requestAnimationFrame(tick); }
+  // ---- Time code (QR, version 1): the atomic time in ms, refreshed every 1/10 s ----
+// Minimal QR encoder: version 1, error correction M, numeric mode (up to 34 digits). Returns 21x21 array of 0/1.
+function qrV1(digits){
+  // --- data bits
+  var bits = [];
+  function put(v, n){ for(var i = n - 1; i >= 0; i--) bits.push((v >> i) & 1); }
+  put(1, 4); put(digits.length, 10);
+  for(var i = 0; i < digits.length; i += 3){
+    var g = digits.substr(i, 3); put(parseInt(g, 10), g.length === 3 ? 10 : g.length === 2 ? 7 : 4);
+  }
+  var DATA = 16, ECC = 10;
+  for(var t = 0; t < 4 && bits.length < DATA * 8; t++) bits.push(0);
+  while(bits.length % 8) bits.push(0);
+  var cw = []; for(i = 0; i < bits.length; i += 8){ var b = 0; for(var j = 0; j < 8; j++) b = (b << 1) | bits[i + j]; cw.push(b); }
+  for(var pad = 0; cw.length < DATA; pad++) cw.push(pad % 2 ? 0x11 : 0xEC);
+  // --- Reed-Solomon over GF(256), poly 0x11d
+  var EXP = [], LOG = []; for(i = 0, b = 1; i < 255; i++){ EXP[i] = b; LOG[b] = i; b <<= 1; if(b & 256) b ^= 0x11d; } for(i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  var mul = function(a, c){ return a && c ? EXP[LOG[a] + LOG[c]] : 0; };
+  var gen = [1]; for(i = 0; i < ECC; i++){ var ng = []; for(j = 0; j <= gen.length; j++) ng[j] = (gen[j] || 0) ^ mul(gen[j - 1] || 0, EXP[i]); gen = ng; }
+  var rem = cw.concat(new Array(ECC).fill(0));
+  for(i = 0; i < DATA; i++){ var f = rem[i]; if(f) for(j = 0; j < gen.length; j++) rem[i + j] ^= mul(gen[j], f); }
+  var all = cw.concat(rem.slice(DATA));
+  // --- matrix
+  var N = 21, M = [], R = []; for(i = 0; i < N; i++){ M.push(new Array(N).fill(0)); R.push(new Array(N).fill(false)); }
+  function set(r, c, v){ M[r][c] = v; R[r][c] = true; }
+  function finder(r0, c0){ for(var r = -1; r <= 7; r++) for(var c = -1; c <= 7; c++){ var rr = r0 + r, cc = c0 + c; if(rr < 0 || cc < 0 || rr >= N || cc >= N) continue;
+    var on = (r >= 0 && r <= 6 && (c === 0 || c === 6)) || (c >= 0 && c <= 6 && (r === 0 || r === 6)) || (r >= 2 && r <= 4 && c >= 2 && c <= 4); set(rr, cc, on ? 1 : 0); } }
+  finder(0, 0); finder(0, N - 7); finder(N - 7, 0);
+  for(i = 8; i < N - 8; i++){ set(6, i, i % 2 ? 0 : 1); set(i, 6, i % 2 ? 0 : 1); }
+  set(N - 8, 8, 1);   // dark module
+  // reserve format areas
+  for(i = 0; i < 9; i++){ if(!R[8][i]) R[8][i] = true; if(!R[i][8]) R[i][8] = true; }
+  for(i = 0; i < 8; i++){ R[8][N - 1 - i] = true; R[N - 1 - i][8] = true; }
+  // data placement (zigzag)
+  var bitList = []; all.forEach(function(x){ for(var k = 7; k >= 0; k--) bitList.push((x >> k) & 1); });
+  var idx = 0, up = true, pos = [];
+  for(var col = N - 1; col > 0; col -= 2){
+    if(col === 6) col--;
+    for(var n = 0; n < N; n++){
+      var row = up ? N - 1 - n : n;
+      for(var d = 0; d < 2; d++){
+        var cc2 = col - d; if(R[row][cc2]) continue;
+        M[row][cc2] = idx < bitList.length ? bitList[idx++] : 0; pos.push([row, cc2]);
+      }
+    }
+    up = !up;
+  }
+  var MASKS = [function(r,c){return (r+c)%2===0;}, function(r){return r%2===0;}, function(r,c){return c%3===0;}, function(r,c){return (r+c)%3===0;},
+    function(r,c){return (Math.floor(r/2)+Math.floor(c/3))%2===0;}, function(r,c){return (r*c)%2+(r*c)%3===0;}, function(r,c){return ((r*c)%2+(r*c)%3)%2===0;}, function(r,c){return ((r+c)%2+(r*c)%3)%2===0;}];
+  function withMask(m){
+    var A = M.map(function(row){ return row.slice(); });
+    pos.forEach(function(p){ if(MASKS[m](p[0], p[1])) A[p[0]][p[1]] ^= 1; });
+    // format info: ECC level M = 00, then mask number; BCH(15,5) then XOR 0x5412
+    var data5 = (0 << 3) | m, rem2 = data5 << 10;
+    for(var i = 14; i >= 10; i--) if(rem2 & (1 << i)) rem2 ^= 0x537 << (i - 10);
+    var fmt = ((data5 << 10) | rem2) ^ 0x5412, fb = function(k){ return (fmt >> k) & 1; };
+    for(i = 0; i <= 5; i++) A[8][i] = fb(14 - i);
+    A[8][7] = fb(8); A[8][8] = fb(7); A[7][8] = fb(6);
+    for(i = 9; i <= 14; i++) A[14 - i][8] = fb(14 - i);
+    for(i = 0; i <= 6; i++) A[N - 1 - i][8] = fb(14 - i);
+    for(i = 7; i <= 14; i++) A[8][N - 15 + i] = fb(14 - i);
+    A[N - 8][8] = 1;
+    return A;
+  }
+  function penalty(A){
+    var p = 0, r, c, k;
+    for(r = 0; r < N; r++){ for(c = 0, k = 1; c < N; c++){ if(c && A[r][c] === A[r][c-1]){ k++; if(k === 5) p += 3; else if(k > 5) p++; } else k = 1; } }
+    for(c = 0; c < N; c++){ for(r = 0, k = 1; r < N; r++){ if(r && A[r][c] === A[r-1][c]){ k++; if(k === 5) p += 3; else if(k > 5) p++; } else k = 1; } }
+    for(r = 0; r < N - 1; r++) for(c = 0; c < N - 1; c++){ var v = A[r][c]; if(v === A[r][c+1] && v === A[r+1][c] && v === A[r+1][c+1]) p += 3; }
+    var pat1 = "10111010000", pat2 = "00001011101";
+    for(r = 0; r < N; r++){ var rs = A[r].join(""), cs = ""; for(c = 0; c < N; c++) cs += A[c][r];
+      for(c = 0; c + 11 <= N; c++){ if(rs.substr(c, 11) === pat1 || rs.substr(c, 11) === pat2) p += 40; if(cs.substr(c, 11) === pat1 || cs.substr(c, 11) === pat2) p += 40; } }
+    var dark = 0; for(r = 0; r < N; r++) for(c = 0; c < N; c++) dark += A[r][c];
+    p += Math.floor(Math.abs(dark * 100 / (N * N) - 50) / 5) * 10;
+    return p;
+  }
+  var best = null, bestP = 1e9;
+  for(var m = 0; m < 8; m++){ var A = withMask(m), pp = penalty(A); if(pp < bestP){ bestP = pp; best = A; } }
+  return best;
+}
+
+
+  var tqr = document.getElementById("tqr"), tqrCtx = tqr.getContext("2d"), lastDs = -1;
+  function drawTimeCode(ms){
+    var ds = Math.floor(ms / 100); if(ds === lastDs) return; lastDs = ds;
+    var M = qrV1(String(ds * 100)), N = 21, q = 2, sz = tqr.width, m = sz / (N + 2 * q);
+    tqrCtx.fillStyle = "#fff"; tqrCtx.fillRect(0, 0, sz, sz); tqrCtx.fillStyle = "#000";
+    for(var r = 0; r < N; r++) for(var c = 0; c < N; c++) if(M[r][c]) tqrCtx.fillRect(Math.floor((c + q) * m), Math.floor((r + q) * m), Math.ceil(m), Math.ceil(m));
+  }
   function render(){
     var now = new Date(Date.now() + offset);
+    drawTimeCode(now.getTime());
     setTime(pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds()) + "." + pad(Math.floor(now.getMilliseconds()/10)));
 
     var key = now.toDateString() + now.getTimezoneOffset();
@@ -1612,6 +1720,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     clearInterval(camTick);
     var tick = function(){ var t = new Date(Date.now() + offset); camClock.textContent = p2(t.getHours()) + ":" + p2(t.getMinutes()) + ":" + p2(t.getSeconds()) + (synced ? " atomic" : " phone clock"); };
     tick(); camTick = setInterval(tick, 100);
+    loadScript(TESS).catch(function(){}); if(!("BarcodeDetector" in window)) loadScript(JSQR).catch(function(){});
     startStream();
   }
   // Hide the viewfinder; keep the camera warm for a retake unless told to release it
@@ -1627,8 +1736,9 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     var k = Math.min(1, 1600 / Math.max(w, h));
     var base = document.createElement("canvas"); base.width = Math.round(w * k); base.height = Math.round(h * k);
     base.getContext("2d").drawImage(camVid, 0, 0, base.width, base.height);
+    var full = document.createElement("canvas"); full.width = w; full.height = h; full.getContext("2d").drawImage(camVid, 0, 0, w, h);
     var c = bannerCam || act(); closeCam(false);
-    pending = {c: c, base: base, t: new Date(at + offset), exact: true};
+    pending = {c: c, base: base, full: full, t: new Date(at + offset), exact: true};
     setActive(key(c)); hideNext(); openReview();
   });
   document.getElementById("camCancel").addEventListener("click", function(){ var c = bannerCam; closeCam(true); if(c) showNext(c); });
@@ -1705,7 +1815,9 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       // Shutter moment on the phone's clock, corrected to atomic time. Without EXIF it's not exact: marked "~" and flagged in review.
       var ok = function(x){ return x && Math.abs(back - x) < 10*60*1000; }, lm = f.lastModified, ref, exact = true;
       if(ok(shot)) ref = shot; else { ref = ok(lm) ? lm : back; exact = false; }
-      pending = {c: c, base: base, t: new Date(ref + offset), exact: exact};
+      var full = document.createElement("canvas"); var kf = Math.min(1, 4000 / Math.max(img.width, img.height));
+      full.width = Math.round(img.width * kf); full.height = Math.round(img.height * kf); full.getContext("2d").drawImage(img, 0, 0, full.width, full.height);
+      pending = {c: c, base: base, full: full, t: new Date(ref + offset), exact: exact};
       setActive(key(c)); hideNext();
       openReview();
     };
@@ -1713,6 +1825,93 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     img.src = url;
     }
   });
+
+  // ================= Automatic sync check =================
+  // Reads (1) the clock's time code and (2) the camera's own time from the photo of the camera's screen, then compares them.
+  // The libraries load only when needed. If anything can't be read, the manual In sync / Not in sync answer still decides.
+  var JSQR = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js", TESS = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+  var libP = {}, ocrWorker = null;
+  function loadScript(src){
+    if(libP[src]) return libP[src];
+    return libP[src] = new Promise(function(res, rej){ var el = document.createElement("script"); el.src = src; el.async = true; el.onload = res; el.onerror = function(){ delete libP[src]; rej(); }; document.head.appendChild(el); });
+  }
+  function scaled(cv, k){ if(k === 1) return cv; var o = document.createElement("canvas"); o.width = Math.round(cv.width * k); o.height = Math.round(cv.height * k); o.getContext("2d").drawImage(cv, 0, 0, o.width, o.height); return o; }
+  function codeVal(t){ return /^\d{13}$/.test(t || "") ? +t : null; }
+  // (1) the clock's time code
+  function readCode(cv){
+    var det = ("BarcodeDetector" in window) ? Promise.resolve(window.BarcodeDetector.getSupportedFormats ? window.BarcodeDetector.getSupportedFormats() : ["qr_code"]).then(function(f){
+      if(f.indexOf("qr_code") < 0) throw 0;
+      return new window.BarcodeDetector({formats: ["qr_code"]}).detect(cv);
+    }).then(function(list){ for(var i = 0; i < list.length; i++){ var v = codeVal(list[i].rawValue); if(v) return v; } throw 0; }) : Promise.reject();
+    return det.catch(function(){
+      return loadScript(JSQR).then(function(){
+        var tries = [Math.min(1, 1600 / Math.max(cv.width, cv.height)), Math.min(1, 2600 / Math.max(cv.width, cv.height)), 1];
+        for(var i = 0; i < tries.length; i++){
+          var sc = scaled(cv, tries[i]), d = sc.getContext("2d").getImageData(0, 0, sc.width, sc.height);
+          var q = window.jsQR(d.data, sc.width, sc.height, {inversionAttempts: "attemptBoth"});
+          if(q && codeVal(q.data)) return codeVal(q.data);
+        }
+        return null;
+      });
+    }).catch(function(){ return null; });
+  }
+  // (2) the camera's time: keep only bright text (camera menus/info are light on dark), then read it
+  function minMax1D(src, dst, n, stride, off, k, isMax){
+    // van Herk / Gil-Werman running min or max over a window of k
+    var g = new Float32Array(n), h = new Float32Array(n), i, j, r = k >> 1;
+    for(i = 0; i < n; i++){ var v = src[off + i * stride]; g[i] = (i % k === 0) ? v : (isMax ? Math.max(g[i - 1], v) : Math.min(g[i - 1], v)); }
+    for(i = n - 1; i >= 0; i--){ var w = src[off + i * stride]; h[i] = (i === n - 1 || (i + 1) % k === 0) ? w : (isMax ? Math.max(h[i + 1], w) : Math.min(h[i + 1], w)); }
+    for(i = 0; i < n; i++){ var a = Math.max(0, i - r), b = Math.min(n - 1, i + r); dst[off + i * stride] = isMax ? Math.max(h[a], g[b]) : Math.min(h[a], g[b]); }
+  }
+  function morph(img, W, H, k, isMax){
+    var t = new Float32Array(W * H), o = new Float32Array(W * H), y, x;
+    for(y = 0; y < H; y++) minMax1D(img, t, W, 1, y * W, k, isMax);
+    for(x = 0; x < W; x++) minMax1D(t, o, H, W, x, k, isMax);
+    return o;
+  }
+  function whiteText(cv){
+    var sc = scaled(cv, Math.min(1, 1600 / Math.max(cv.width, cv.height))), W = sc.width, H = sc.height;
+    var ctx = sc.getContext("2d"), d = ctx.getImageData(0, 0, W, H), g = new Float32Array(W * H), i;
+    for(i = 0; i < W * H; i++) g[i] = 0.299 * d.data[i * 4] + 0.587 * d.data[i * 4 + 1] + 0.114 * d.data[i * 4 + 2];
+    var open = morph(morph(g, W, H, 25, false), W, H, 25, true), th = new Float32Array(W * H), hist = new Array(256).fill(0);
+    for(i = 0; i < W * H; i++){ th[i] = Math.max(0, g[i] - open[i]); hist[Math.min(255, Math.round(th[i]))]++; }
+    // Otsu threshold
+    var tot = W * H, sum = 0, sumB = 0, wB = 0, best = 0, thr = 0; for(i = 0; i < 256; i++) sum += i * hist[i];
+    for(i = 0; i < 256; i++){ wB += hist[i]; if(!wB) continue; var wF = tot - wB; if(!wF) break; sumB += i * hist[i];
+      var mB = sumB / wB, mF = (sum - sumB) / wF, between = wB * wF * (mB - mF) * (mB - mF); if(between > best){ best = between; thr = i; } }
+    for(i = 0; i < W * H; i++){ var v = th[i] > thr ? 0 : 255; d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v; d.data[i * 4 + 3] = 255; }
+    ctx.putImageData(d, 0, 0); return sc;
+  }
+  function parseTimes(text){
+    var re = /([0-2]?\d)\s?[:.]\s?([0-5]\d)\s?[:.]\s?([0-5]\d)/g, m, out = [];
+    while((m = re.exec(text || ""))){ var hh = +m[1]; if(hh < 24) out.push(hh * 3600 + (+m[2]) * 60 + (+m[3])); }
+    return out;
+  }
+  function readCamTimes(cv){
+    return loadScript(TESS).then(function(){
+      if(!ocrWorker) ocrWorker = window.Tesseract.createWorker("eng");
+      return ocrWorker;
+    }).then(function(w){
+      var img = whiteText(cv);
+      return w.setParameters({tessedit_pageseg_mode: "11"}).then(function(){ return w.recognize(img); }).then(function(res){
+        var t = parseTimes(res.data.text); if(t.length) return t;
+        return w.setParameters({tessedit_pageseg_mode: "3"}).then(function(){ return w.recognize(img); }).then(function(r2){ return parseTimes(r2.data.text); });
+      });
+    }).catch(function(){ ocrWorker = null; return []; });
+  }
+  function fmtSOD(s){ s = ((s % 86400) + 86400) % 86400; return p2(Math.floor(s / 3600)) + ":" + p2(Math.floor(s / 60) % 60) + ":" + p2(Math.floor(s % 60)); }
+  // Compare: the camera writes whole seconds, the code is to 1/10 s
+  function autoCheck(cv){
+    return Promise.all([readCode(cv), readCamTimes(cv)]).then(function(r){
+      var code = r[0], cams = r[1], out = {code: code, cams: cams};
+      if(code == null || !cams.length) return out;
+      var d = new Date(code), sod = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds(), frac = d.getMilliseconds() / 1000;
+      var best = null; cams.forEach(function(c){ var diff = c - sod; if(diff > 43200) diff -= 86400; if(diff < -43200) diff += 86400; if(best === null || Math.abs(diff) < Math.abs(best.diff)) best = {cam: c, diff: diff}; });
+      out.cam = best.cam; out.diff = best.diff; out.clock = sod + frac;
+      out.sync = best.diff === 0 || (best.diff === 1 && frac > 0.8) || (best.diff === -1 && frac < 0.2);
+      return out;
+    });
+  }
 
   // ---- Step 2: review. Zoom in and confirm the camera's time matches the clock, to the second ----
   var viewer = document.getElementById("viewer"), viewScroll = document.getElementById("viewScroll"), viewImg = document.getElementById("viewImg");
@@ -1742,8 +1941,34 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       "<b>⚠ This photo's time can't be trusted to the second</b> (the phone camera didn't record it). Retake it with the in-app camera.";
     showImg(compose(pending.base, stamp(c, pending.t, undefined, pending.exact)).toDataURL("image/jpeg", .85));
     viewer.hidden = false;
+    runAuto(pending);
     flowBar(pending.exact ? ["✓ Yes, in sync", function(){ keep(true); }] : ["📷 Retake", retake],
       [["← Back", backTo2], pending.exact ? ["📷 Retake", retake] : null, ["✗ Not in sync", notInSync, "bad"]].filter(Boolean));
+  }
+  var vAuto = document.getElementById("vAuto");
+  function showAuto(cls, html){ vAuto.hidden = false; vAuto.className = "v-auto" + (cls ? " " + cls : ""); vAuto.innerHTML = html; }
+  function runAuto(pd){
+    if(pd.auto){ applyAuto(pd); return; }
+    showAuto("", '<i class="spin"></i><span>Checking the photo for you…</span>');
+    autoCheck(pd.full || pd.base).then(function(res){ pd.auto = res; if(pending === pd && !viewer.hidden) applyAuto(pd); });
+  }
+  function applyAuto(pd){
+    var a = pd.auto, c = pd.c;
+    if(a.diff !== undefined){
+      var clk = fmtSOD(a.clock) + "." + Math.floor((a.clock % 1) * 10), cam = fmtSOD(a.cam);
+      if(a.sync){
+        showAuto("ok", "✓ <span>In sync — clock " + clk + " · camera " + cam + "</span>");
+      } else {
+        showAuto("bad", "✗ <span>Camera is " + Math.abs(a.diff) + " s " + (a.diff > 0 ? "ahead" : "behind") + " — clock " + clk + " · camera " + cam + "</span>");
+        flowBar(["✗ Not in sync — fix camera", notInSync], [["← Back", function(){ pending = null; stopStream(); closeViewer(); go(c, 2); }], ["📷 Retake", retake], ["✓ In sync anyway", function(){ keep(true); }]]);
+      }
+    } else if(a.code == null && !a.cams.length){
+      showAuto("", "<span>Couldn't read the photo automatically — compare by eye.</span>");
+    } else if(a.code == null){
+      showAuto("", "<span>Read the camera (" + fmtSOD(a.cams[0]) + ") but not the clock's code — keep the code in the camera's shot. Compare by eye.</span>");
+    } else {
+      showAuto("", "<span>Read the clock (" + (function(d){ return fmtSOD(d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()); })(new Date(a.code)) + ") but not the camera's time — show the shot's time on the camera's screen. Compare by eye.</span>");
+    }
   }
   function notInSync(){
     var c = pending.c;
@@ -1782,6 +2007,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   function viewSaved(c, from){
     var rec = photos[photoKey(c)]; if(!rec) return;
     viewFrom = from;
+    vAuto.hidden = true;
     vTitle.textContent = "📷 " + key(c) + (rec.sync === true ? " · in sync ✓" : rec.sync === false ? " · not in sync ✗" : "");
     vSub.innerHTML = CHECK;
     showImg(""); viewUrl = URL.createObjectURL(rec.blob); viewImg.src = viewUrl;
