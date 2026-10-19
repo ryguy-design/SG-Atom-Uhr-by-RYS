@@ -1218,7 +1218,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     recent.forEach(function(r){
       var bt = document.createElement("button"); bt.type = "button"; bt.textContent = r.b === "Other" ? "Other camera" : r.b + " " + shortName(r.m);
       if(r.b === a.b && r.m === a.m) bt.className = "cur";
-      bt.addEventListener("click", function(){ tick(); choose(r.b, r.m); goScreen("checks"); });
+      bt.addEventListener("click", function(){ buzz(); choose(r.b, r.m); goScreen("checks"); });
       recentEl.appendChild(bt);
     });
   }
@@ -1231,7 +1231,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       var li = document.createElement("li"), lb = document.createElement("label"), cb = document.createElement("input"), sp = document.createElement("span");
       cb.type = "checkbox"; cb.id = "chk" + i; cb.checked = !!t[i];
       cb.addEventListener("change", function(){
-        t[i] = cb.checked; tick(); save(); updateCount(); renderStrips(); updateSheetGo(); renderPop();
+        t[i] = cb.checked; buzz(); save(); updateCount(); renderStrips(); updateSheetGo(); renderPop();
       });
       sp.innerHTML = '<span class="t"></span><span class="d">' + item[1] + "</span>";
       sp.firstChild.textContent = item[0];
@@ -1250,7 +1250,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   // ================= Camera popup: Brand → Model → Check, all by tapping =================
   var pop = document.querySelector(".sheet-panel.pop"), pBrands = document.getElementById("pBrands"), pModels = document.getElementById("pModels");
   var BRANDS = ["Canon", "Nikon", "Sony", "Fujifilm"];
-  function tick(){ try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }
+  function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }   // light haptic tap (not the clock's tick)
   function screenFor(a){ return !a.b ? "brand" : !findCam(a.b, a.m) ? "model" : "checks"; }
   function goScreen(sc, back){
     pop.classList.toggle("back-anim", !!back); pop.dataset.screen = sc;
@@ -1273,7 +1273,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       var t = document.createElement("button"); t.type = "button"; t.className = "tile" + (b === "Other" ? " other" : "") + (a.b === b ? " sel" : "");
       t.innerHTML = "<b></b>"; t.firstChild.textContent = b === "Other" ? "Other brand / not listed" : b;
       t.addEventListener("click", function(){
-        tick();
+        buzz();
         if(b === "Other"){ choose("Other", OTHER); goScreen("checks"); return; }
         if(a.b !== b) choose(b, "");
         goScreen("model");
@@ -1291,14 +1291,14 @@ footer,.taphint{transition:opacity .3s var(--ease)}
           if(!findCam(a.b, m)) return;
           var t = document.createElement("button"); t.type = "button"; t.className = "tile" + (a.m === m ? " sel" : "");
           t.innerHTML = "<b></b><small></small>"; t.firstChild.textContent = shortName(m); t.lastChild.textContent = yearOf(m) + (m.indexOf("APS-C") > -1 ? " · APS-C" : "");
-          t.addEventListener("click", function(){ tick(); choose(a.b, m); goScreen("checks"); });
+          t.addEventListener("click", function(){ buzz(); choose(a.b, m); goScreen("checks"); });
           tl.appendChild(t);
         });
         grp.appendChild(tl); pModels.appendChild(grp);
       });
       var o = document.createElement("button"); o.type = "button"; o.className = "tile other-model" + (a.m === OTHER ? " sel" : "");
       o.innerHTML = "<b></b><small>General settings for any " + a.b + "</small>"; o.firstChild.textContent = "Other " + a.b + " model";
-      o.addEventListener("click", function(){ tick(); choose(a.b, OTHER); goScreen("checks"); });
+      o.addEventListener("click", function(){ buzz(); choose(a.b, OTHER); goScreen("checks"); });
       var wrap = document.createElement("div"); wrap.className = "tiles"; o.style.gridColumn = "1 / -1"; wrap.appendChild(o); pModels.appendChild(wrap);
     }
     // check screen header
@@ -1315,7 +1315,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   document.getElementById("pCamCard").addEventListener("click", function(){ var a = act(); goScreen(a.b && a.b !== "Other" ? "model" : "brand", true); });
   [].forEach.call(document.getElementById("pType").children, function(bt){
     bt.addEventListener("click", function(){
-      var a = act(), t = bt.dataset.t; if(a.type === t) return; tick();
+      var a = act(), t = bt.dataset.t; if(a.type === t) return; buzz();
       // switch a not-yet-set-up camera between Hand cam and LS (takes the next free number)
       var used = kit.cams.filter(function(c){ return c !== a && c.type === t; }).map(function(c){ return c.n; });
       for(var n = 1; n <= MAXN; n++) if(used.indexOf(n) < 0) break;
