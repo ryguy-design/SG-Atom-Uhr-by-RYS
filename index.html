@@ -523,9 +523,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       <button id="sheetGo" class="fl-go" type="button" hidden></button>
       <div id="photoRow" class="photorow" hidden><img id="photoThumb" alt="Photo of the camera back"><span>Camera-back photo saved</span><button id="photoRetake" class="addbtn" type="button">Retake</button><button id="photoDel" class="addbtn del" type="button">Delete</button></div>
       <p id="sheetNote" class="sheet-note"></p>
-      <div class="endrow">
-        <button id="sendPhotos" class="resetbtn send" type="button" hidden></button>
-      </div>
+      <button id="sendPhotos" class="resetbtn send" type="button" hidden></button>
     </section>
 
     <div hidden>
@@ -1627,7 +1625,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   }
   function updateSend(){
     var n = photoCount(); if(typeof renderPhotoRow === "function" && photoRow) renderPhotoRow();
-    sendBtn.hidden = !n || kit.cams.some(function(c){ return !photos[photoKey(c)]; }); sendBtn.textContent = "📷 Send " + n + " camera photo" + (n > 1 ? "s" : "");
+    sendBtn.hidden = true;   // sending lives in the camera box, not in the camera check
   }
   // Rotated app: these full screens show upright, so refit whenever one opens or closes
   if(window.MutationObserver) ["cam","viewer","sendView","initDlg"].forEach(function(id){
