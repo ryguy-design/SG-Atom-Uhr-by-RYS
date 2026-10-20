@@ -297,6 +297,12 @@ html.land .fl-add{padding:.5rem}
 .fl-thumb img{width:3rem; height:2.25rem; object-fit:cover; border-radius:4px}
 .fl-thumb span{font-size:.85rem; font-weight:700; color:var(--ok)}
 .fl-thumb.bad span{color:#f3b5b6}
+.fl-gorow{display:flex; gap:.5rem; margin-top:.35rem}
+.fl-gorow .fl-go{flex:1; min-width:0; margin-top:0}
+.fl-goadd{flex:0 0 auto; font:inherit; font-size:1.05rem; font-weight:800; color:var(--ok); background:transparent; border:2px solid var(--ok); border-radius:12px; padding:0 1rem; cursor:pointer}
+.fl-goadd[hidden]{display:none}
+.fl-goadd:disabled{opacity:.35}
+.fl-goadd:focus-visible{outline:2px solid var(--fg); outline-offset:2px}
 .fl-go{margin-top:.35rem; font:inherit; font-size:1.05rem; font-weight:800; color:#06210e; background:var(--ok); border:0; border-radius:12px; padding:.8rem; cursor:pointer}
 .fl-adds{display:flex; gap:.5rem}
 .fl-adds[hidden]{display:none}
@@ -409,7 +415,7 @@ html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); 
 .nextbar .fl-body{transition:opacity .3s var(--ease)}
 .nextbar.swap .fl-inner > *{animation:swapIn .38s var(--ease)}
 @keyframes panelIn{from{opacity:0; transform:translateY(24px) scale(.97)} to{opacity:1; transform:none}}
-@keyframes swapIn{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+@keyframes swapIn{from{opacity:0} to{opacity:1}}
 /* Camera check sheet: backdrop fades, panel rises with a little spring */
 .sheet:not([hidden]){animation:fadeIn .25s var(--ease)}
 .sheet:not([hidden]) .sheet-panel{animation:riseIn .5s var(--spring)}
@@ -461,7 +467,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     <button id="flDel" class="fl-x del" type="button" aria-label="Delete this camera" title="Delete camera">🗑</button>
     <button id="flX" class="fl-x" type="button" aria-label="Minimise" title="Minimise">✕</button></div>
   <div id="flSteps" class="fl-steps"><i></i><i></i><i></i></div>
-  <button id="flGo" class="fl-go" type="button"></button>
+  <div class="fl-gorow"><button id="flGo" class="fl-go" type="button"></button><button id="flGoAdd" class="fl-goadd" type="button" hidden aria-label="Add another camera">+ 📷</button></div>
   <div id="flAdds" class="fl-adds" hidden><button id="flAddHC" class="fl-add" type="button">+ Add hand cam</button><button id="flAddLS" class="fl-add" type="button">+ Add LS</button></div>
   <div id="flMore" class="fl-more">
   <div id="flKick" class="fl-kick"></div>
@@ -1421,11 +1427,10 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     flThumb.hidden = !o.thumb;
     if(o.thumb){ flThumbUrl = URL.createObjectURL(o.thumb.blob); flThumb.firstChild.src = flThumbUrl; flThumb.lastChild.textContent = o.thumbText; flThumb.classList.toggle("bad", o.thumb.sync !== true); }
     flGo.textContent = o.go[0]; act_go = o.go[1];
-    var adds = document.getElementById("flAdds"); adds.hidden = !o.adds;
-    if(o.adds){
-      var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length;
-      document.getElementById("flAddHC").disabled = hcN >= MAXN; document.getElementById("flAddLS").disabled = kit.cams.length - hcN >= MAXN;
-    }
+    // Last step: a "+ 📷" right next to Send, to add another camera
+    document.getElementById("flAdds").hidden = true;
+    var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length, room = hcN < MAXN || kit.cams.length - hcN < MAXN;
+    document.getElementById("flGoAdd").hidden = !(o.adds && room);
     disarmDel(); flAdd = false; renderFlCams();
     flL.textContent = o.l ? o.l[0] : ""; act_l = o.l ? o.l[1] : null; flL.className = "fl-link" + (o.l && o.l[2] ? " " + o.l[2] : "");
     flR.textContent = o.r ? o.r[0] : ""; act_r = o.r ? o.r[1] : null; flR.className = "fl-link" + (o.r && o.r[2] ? " " + o.r[2] : "");
@@ -1463,6 +1468,13 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     if(v === reserved) return; reserved = v; document.documentElement.style.setProperty("--boxres", v + "px"); fit();
   }
   window.addEventListener("resize", function(){ if(!nextBar.hidden) setStage(stage); });
+  // Whenever the box's contents change size (new step, photo loaded, fonts), fit its height again
+  if(window.ResizeObserver) new ResizeObserver(function(){ if(!nextBar.hidden && !nextBar.classList.contains("dragging")) setStage(stage); }).observe(flInner);
+  // Heights measured while a full screen (camera, review, send list) covers the app can be off: measure again when it closes
+  if(window.MutationObserver) ["cam","viewer","sendView","sheet","initDlg"].forEach(function(id){
+    var el = document.getElementById(id); if(!el) return;
+    new MutationObserver(function(){ if(!nextBar.hidden) requestAnimationFrame(function(){ setStage(stage); }); }).observe(el, {attributes: true, attributeFilter: ["hidden"]});
+  });
   // Drag the line up or down; it settles on the nearest height. A tap on the line goes up one (from the top, back to the middle).
   (function(){
     var grab = flGrabEl, y0 = 0, t0 = 0, h0 = 0, dy = 0, moved = false, down = false;
@@ -1523,6 +1535,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     var cur = box.querySelector(".chip.act"); if(cur){ var L = cur.offsetLeft - box.offsetLeft, R = L + cur.offsetWidth; if(L < box.scrollLeft) box.scrollLeft = L; else if(R > box.scrollLeft + box.clientWidth) box.scrollLeft = R - box.clientWidth; }
   }
   var flAdd = false;
+  document.getElementById("flGoAdd").addEventListener("click", function(){ var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length; addFirst(hcN < MAXN ? "HAND CAM" : "LS"); });
   document.getElementById("flAddHC").addEventListener("click", function(){ hideNext(); addFirst("HAND CAM"); });
   document.getElementById("flAddLS").addEventListener("click", function(){ hideNext(); addFirst("LS"); });
   document.getElementById("flPlus").addEventListener("click", function(){ flAdd = true; renderFlCams(); });
