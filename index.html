@@ -399,7 +399,8 @@ html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); 
 .nextbar[data-stage="2"]{overflow-y:auto}
 .nextbar:not([data-stage="2"]) .fl-more{opacity:.0; transition:opacity .2s}
 .nextbar[data-stage="2"] .fl-more{opacity:1; transition:opacity .35s .1s}
-.nextbar[data-stage="0"] .fl-inner{opacity:0; pointer-events:none}
+/* Minimised: just the line and the green button, so the next step is always one tap away */
+.nextbar[data-stage="0"] .fl-top,.nextbar[data-stage="0"] .fl-steps,.nextbar[data-stage="0"] .fl-adds{display:none}
 .fl-inner{transition:opacity .25s var(--ease)}
 .fl-grab{flex-shrink:0; align-self:center; display:flex; align-items:center; justify-content:center; width:100%; height:1.6rem; padding:0; background:none; border:0; cursor:grab; touch-action:none}
 .fl-grab i{display:block; width:2.6rem; height:5px; border-radius:3px; background:#56626a}
@@ -1447,11 +1448,13 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   var showRaise = false, stage = 0, lastSig = "", flGrabEl = document.getElementById("flGrab"), flInner = nextBar.querySelector(".fl-inner"), flAddsEl = document.getElementById("flAdds");
   function hasCams(){ return !kit.empty && kit.cams.length > 0; }
   function stageH(n){
-    var bd = 2, g = flGrabEl.offsetHeight;
-    if(n <= 0) return g + bd;
-    if(n === 1){ var last = flAddsEl.hidden ? flGo : flAddsEl; return last.offsetTop + last.offsetHeight + 12 + bd; }
-    var full = flInner.offsetTop + flInner.offsetHeight + bd, foot = nextBar.parentNode;
-    return Math.max(stageH(1), Math.min(full, foot.offsetTop - 24));
+    // measure with that height's layout (the minimised box hides the camera row)
+    var cur = nextBar.dataset.stage, bd = 2, h;
+    nextBar.dataset.stage = n;
+    if(n <= 0) h = flGo.offsetTop + flGo.offsetHeight + 12 + bd;
+    else if(n === 1){ var last = flAddsEl.hidden ? flGo : flAddsEl; h = last.offsetTop + last.offsetHeight + 12 + bd; }
+    else { var foot = nextBar.parentNode; h = flInner.offsetTop + flInner.offsetHeight + bd; nextBar.dataset.stage = cur; return Math.max(stageH(1), Math.min(h, foot.offsetTop - 24)); }
+    nextBar.dataset.stage = cur; return h;
   }
   function setStage(n){ stage = n; nextBar.dataset.stage = n; if(n < 2) nextBar.scrollTop = 0; nextBar.style.height = stageH(n) + "px"; reserve(); }
   // Landscape is short: the clock shrinks a little so the box's middle height never covers it
