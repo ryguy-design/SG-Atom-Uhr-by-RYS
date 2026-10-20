@@ -1,6 +1,6 @@
 {
-  "name": "Ryan's SG Atomic Hr",
-  "short_name": "Ryan's SG Atomic Hr",
+  "name": "Camera check/Atomic Clock by RYS",
+  "short_name": "Camera check/Atomic Clock by RYS",
   "description": "Atomic Clock Web Application",
   "start_url": "./index.html",
   "display": "standalone",
