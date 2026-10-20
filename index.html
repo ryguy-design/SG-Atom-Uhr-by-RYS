@@ -63,6 +63,7 @@ html.land main{gap:calc(var(--u)*.16)}
 #place b{color:var(--fg); font-weight:600}
 
 footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:.8rem 1rem; text-align:left; font-size:.8rem; color:var(--muted)}
+.cam[hidden]{display:none}
 .cam{width:100%; display:flex; justify-content:center; align-items:center; gap:.5rem; min-width:0}
 .cam select,.cam input{font:inherit; font-size:.95rem; color:var(--fg); background:var(--line); border:1px solid transparent; border-radius:8px; padding:.45rem .6rem; min-width:0}
 .cam input{width:7.5rem; flex-shrink:0; text-transform:uppercase; letter-spacing:.06em}
@@ -1191,6 +1192,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   }
   function renderStrips(){
     stripEl.classList.add("only");
+    var cw = stripEl.parentNode; cw.hidden = !kit.empty && kit.cams.length > 0;
     stripEl.textContent = ""; tabsEl.textContent = "";
     // The main screen only has the + : the cameras live in the floating camera box
     kit.cams.forEach(function(c){
@@ -1442,7 +1444,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   flR.addEventListener("click", function(){ if(act_r) act_r(); });
   document.getElementById("flX").addEventListener("click", function(){ setStage(0); });
   // ---- The camera box has three heights: 0 = just the line, 1 = camera row + main button, 2 = everything ----
-  var showRaise = true, stage = 0, lastSig = "", flGrabEl = document.getElementById("flGrab"), flInner = nextBar.querySelector(".fl-inner"), flAddsEl = document.getElementById("flAdds");
+  var showRaise = false, stage = 0, lastSig = "", flGrabEl = document.getElementById("flGrab"), flInner = nextBar.querySelector(".fl-inner"), flAddsEl = document.getElementById("flAdds");
   function hasCams(){ return !kit.empty && kit.cams.length > 0; }
   function stageH(n){
     var bd = 2, g = flGrabEl.offsetHeight;
@@ -1542,7 +1544,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   function stepOf(c){ var k = photoKey(c); return at[k] || (photos[k] || skipped[k] ? 4 : shotClock[k] ? 2 : 1); }
   function go(c, n){ var k = photoKey(c); if(n === 4) delete at[k]; else at[k] = n; showNext(c); }
   function showNext(a, quiet){
-    bannerCam = a; var k = photoKey(a), rec = photos[k], name = key(a), st = stepOf(a), up = !quiet; showRaise = up;
+    bannerCam = a; var k = photoKey(a), rec = photos[k], name = key(a), st = stepOf(a), up = false; showRaise = false;
     if(!isDone(a)){
       var n = countOf(a), has = !!findCam(a.b, a.m);
       panel({step: -1, kick: name + " · camera check", head: has ? n + " of 4 settings ticked" : "Choose the brand and model",
