@@ -106,6 +106,19 @@ body.photo .showhint{display:block}
 #detail{font-variant-numeric:tabular-nums}
 .controls{display:flex; align-items:center; gap:1.1rem; flex-shrink:0}
 .controls button{font:inherit; color:var(--fg); background:none; border:0; padding:.3rem 0; text-decoration:underline; text-underline-offset:3px; cursor:pointer}
+.guidebtn{font-weight:700}
+/* How-to guide */
+.guide .g-top{flex-direction:row; align-items:center; justify-content:space-between}
+.g-close{font:inherit; font-size:1rem; color:var(--muted); background:none; border:1px solid #3a444b; border-radius:50%; width:2.2rem; height:2.2rem; cursor:pointer}
+.g-list{flex:1; min-height:0; overflow:auto; list-style:none; margin:0; padding:1rem max(16px, env(safe-area-inset-right,0px)) 1.5rem max(16px, env(safe-area-inset-left,0px)); display:flex; flex-direction:column; gap:1.4rem; background:#0b0f12}
+.g-step{display:flex; gap:.8rem; align-items:flex-start; max-width:34rem; margin:0 auto; width:100%}
+.g-num{flex-shrink:0; width:2rem; height:2rem; border-radius:50%; background:var(--ok); color:#06210e; font-weight:800; display:flex; align-items:center; justify-content:center}
+.g-body{flex:1; min-width:0; text-align:left}
+.g-body > b{display:block; font-size:1.08rem; color:var(--fg); margin:.2rem 0 .3rem}
+.g-body p{margin:0 0 .7rem; font-size:.92rem; line-height:1.45; color:#c9d1d5}
+.g-body p b{color:var(--fg)}
+html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
+.g-body img{display:block; width:min(100%, 15rem); height:auto; border-radius:14px; border:1px solid #2c363d; background:#000}
 .switch{display:inline-flex; align-items:center; gap:.5rem; color:var(--fg); cursor:pointer; position:relative}
 .switch input{position:absolute; opacity:0; width:1px; height:1px}
 .switch .track{width:2.4rem; height:1.4rem; border-radius:999px; background:var(--line); position:relative; transition:background .15s}
@@ -490,11 +503,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     <button id="initBtn" class="initbtn" type="button" aria-label="Edit your initials"></button>
     <button id="resync" type="button">Sync now</button>
     <button id="clearMain" class="clearmain" type="button">Reset app</button>
-    <label class="switch" for="locToggle">
-      <span>Location</span>
-      <input id="locToggle" type="checkbox" role="switch" aria-controls="place">
-      <span class="track" aria-hidden="true"><span class="knob"></span></span>
-    </label>
+    <button id="guideBtn" class="guidebtn" type="button">How to use</button>
   </div>
 </footer>
 
@@ -565,6 +574,31 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   <div id="sWarn" class="s-warn" hidden>Sending is locked until every camera has its photo.</div>
   <div id="sList" class="send-list"></div>
   <div class="view-bar"><button id="sBack" class="nb-btn" type="button">↩ Back</button><button id="sGo" class="nb-next" type="button"></button></div>
+</div>
+
+<!-- How to use: step-by-step guide with screenshots -->
+<div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
+  <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
+  <ol class="g-list">
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/1.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Enter your initials</b><p>Only the first time. They go on every camera label and photo name. Change them later with your initials at the bottom of the screen.</p><img src="guide/2.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Point your camera at the clock and take a shot. Then tap <b>Done, I shot it →</b> in the box at the bottom.</p><img src="guide/5.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The camera box</b><p>Drag its line up for more: the middle height shows your cameras, the progress line and ✎ 🗑 ✕. All the way up shows the instructions and ← Back links. Drag it down or tap ✕ to make it small again. The green button always stays on show.</p><img src="guide/6.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📷 Take photo</b>, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera or add one</b><p>Tap <b>Next camera →</b> for the next one in your list. Tap <b>+ 📷</b> next to the green button to add another hand cam or LS.</p><img src="guide/9.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send photos →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>In the middle height of the box: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=1" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Good to know</b><p>
+      · <b>Sync now</b> re-checks the time server; the line above it shows how far off your phone's own clock is.<br>
+      · <b>Tap the clock</b> to hide the buttons for a clean shot; tap again to bring them back.<br>
+      · The <b>rotate button</b> (top right) turns the app sideways even when your phone's rotation is locked.<br>
+      · Your cameras stay saved. Ticks and photos clear 12 hours after you send (or the next day if nothing was sent).<br>
+      · <b>Reset app</b> (tap twice) clears everything and starts fresh.</p></div></li>
+  </ol>
+  <div class="view-bar"><button id="gDone" class="nb-next" type="button">Got it</button></div>
 </div>
 
 <!-- After a camera's 4 ticks: one step at a time, one big button per step -->
@@ -752,7 +786,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     var html = document.documentElement, W = window.innerWidth, H = window.innerHeight;
     // The keyboard and dropdown menus belong to the phone and can't be turned,
     // so the camera check sheet always opens upright; rotation comes back when it closes
-    var upright = ["sheet","cam","viewer","sendView","initDlg"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
+    var upright = ["sheet","cam","viewer","sendView","initDlg","guide"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
     var rot = rotated && !upright;   // the check, the camera and the photo screens always show upright
     html.classList.toggle("rot", rot);
     html.style.setProperty("--rw", H + "px"); html.style.setProperty("--rh", W + "px");
@@ -844,9 +878,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
 
   // ================= Location =================
   var placeEl = document.getElementById("place"), subEl = document.getElementById("suburb"), coEl = document.getElementById("coords");
-  var locBtn = document.getElementById("locToggle");
-  var watchId = null, lastGeo = null, showLoc = false;
-  try{ showLoc = localStorage.getItem("acLoc") === "1"; }catch(e){}
+  var watchId = null, lastGeo = null, showLoc = false;   // location display retired: the place name never shows
   function fmt(v,pos,neg){ return Math.abs(v).toFixed(4) + "°" + (v>=0?pos:neg); }
 
   function reverse(lat, lon){
@@ -876,12 +908,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   }
   // GPS is switched fully off while hidden, to save battery
   function stopGeo(){ if(watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId); watchId = null; }
-  function applyLoc(){ placeEl.hidden = !showLoc; locBtn.checked = showLoc; if(showLoc) startGeo(); else stopGeo(); fit(); }
-  locBtn.addEventListener("change", function(){
-    showLoc = locBtn.checked;
-    try{ localStorage.setItem("acLoc", showLoc ? "1" : "0"); }catch(e){}
-    applyLoc();
-  });
+  function applyLoc(){ placeEl.hidden = !showLoc; if(showLoc) startGeo(); else stopGeo(); fit(); }
 
   // ================= Camera label =================
   var camLabelEl = document.getElementById("camLabel");
@@ -1641,7 +1668,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     sendBtn.hidden = true;   // sending lives in the camera box, not in the camera check
   }
   // Rotated app: these full screens show upright, so refit whenever one opens or closes
-  if(window.MutationObserver) ["cam","viewer","sendView","initDlg"].forEach(function(id){
+  if(window.MutationObserver) ["cam","viewer","sendView","initDlg","guide"].forEach(function(id){
     new MutationObserver(function(){ if(rotated) fit(); }).observe(document.getElementById(id), {attributes: true, attributeFilter: ["hidden"]});
   });
 
@@ -2355,6 +2382,14 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     }
   });
   sendBtn.addEventListener("click", sendAll);
+  // How to use
+  var guide = document.getElementById("guide");
+  function openGuide(){ guide.hidden = false; guide.querySelector(".g-list").scrollTop = 0; document.getElementById("gClose").focus(); }
+  function closeGuide(){ guide.hidden = true; document.getElementById("guideBtn").focus(); }
+  document.getElementById("guideBtn").addEventListener("click", openGuide);
+  document.getElementById("gClose").addEventListener("click", closeGuide);
+  document.getElementById("gDone").addEventListener("click", closeGuide);
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !guide.hidden) closeGuide(); });
 
   function openSheet(){ hideNext(); clearTimeout(sheetT); sheet.classList.remove("leaving"); goScreen(screenFor(act())); sheet.hidden = false; if(rotated) fit(); document.getElementById("sheetClose").focus(); }
   var sheetT = null;
