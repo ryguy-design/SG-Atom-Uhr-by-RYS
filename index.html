@@ -180,7 +180,7 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
   box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px #262f35}
 .pop-head{display:flex; align-items:center; gap:.6rem; touch-action:none}
 .pop-grab{height:1.1rem; margin:-.5rem 0 -.4rem}
-.sheet-panel.pop.dragging{animation:none!important; transition:none}
+.sheet-panel.pop.dragging{animation:none!important; transition:none; user-select:none; -webkit-user-select:none}
 .sheet-panel.pop.snap{transition:transform .4s var(--spring)}
 .pop-back{width:2.4rem; height:2.4rem; flex-shrink:0; border-radius:50%; border:1px solid #3a444b; background:none; color:var(--fg); font:inherit; font-size:1.2rem; cursor:pointer}
 .pop-back[hidden]{visibility:hidden; display:block}
@@ -608,8 +608,8 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       <button id="pCamCard" class="camcard" type="button"><span id="pCamName"></span><span class="chg">Change ›</span></button>
       <div class="ckhead"><span id="ckCount"></span><div class="ckbar"><i id="ckFill"></i></div></div>
       <ol id="checklist" class="checklist"></ol>
-      <button id="sheetGo" class="fl-go" type="button" hidden></button>
       <button id="pAddCam" class="addcam" type="button">+ Add camera</button>
+      <button id="sheetGo" class="fl-go" type="button" hidden></button>
       <div id="photoRow" class="photorow" hidden><img id="photoThumb" alt="Photo of the camera back"><span>Camera-back photo saved</span><button id="photoRetake" class="addbtn" type="button">Retake</button><button id="photoDel" class="addbtn del" type="button">Delete</button></div>
       <p id="sheetNote" class="sheet-note"></p>
       <button id="sendPhotos" class="resetbtn send" type="button" hidden></button>
@@ -654,18 +654,18 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Type your initials</b><p>Tap the white box with the ✎ at the top and type them in, then tap <b>Done</b> on the keyboard. A camera can only be added once they're in. They go on every camera label and photo name. Tap the box again any time to change them.</p><img src="guide/1.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/2.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. More cameras? Tap <b>+ Add camera</b> and check each one. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Every camera shoots the clock, one after another. The white box shows whose turn it is: take the shot with that camera, then tap <b>Shot → next</b> on the green bubble (<b>Done →</b> after the last one).</p><img src="guide/5.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The green bubble</b><p>The bubble always shows your next step: just tap it. Drag it anywhere on the screen to keep the clock clear. Tap the <b>⤢ arrows</b> to open the camera box: your cameras, progress, ✎ 🗑 ✕, the instructions and ← Back links. Tap its line, tap ✕ or slide it down to turn it back into the bubble.</p><img src="guide/6.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📷 Shoot</b>, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera's screen</b><p>Tap <b>Next camera →</b> to photograph the next camera's screen. Forgot one? Tap <b>+ 📷</b> on the bubble to add another hand cam or LS.</p><img src="guide/9.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>Open the box with the ⤢ arrows: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">12</div><div class="g-body"><b>Change Hand cam / LS</b><p>Tap the camera name in the white box (e.g. <b>· HAND CAM 1</b>). Under <b>Change cam to:</b> pick <b>Hand cam</b> or <b>LS</b>. Its ticks and photo move with it.</p><img src="guide/12.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Type your initials</b><p>Tap the white box with the ✎ at the top and type them in, then tap <b>Done</b> on the keyboard. A camera can only be added once they're in. They go on every camera label and photo name. Tap the box again any time to change them.</p><img src="guide/1.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/2.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. More cameras? Tap <b>+ Add camera</b> and check each one. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Every camera shoots the clock, one after another. The white box shows whose turn it is: take the shot with that camera, then tap <b>Shot → next</b> on the green bubble (<b>Done →</b> after the last one).</p><img src="guide/5.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The green bubble</b><p>The bubble always shows your next step: just tap it. Drag it anywhere on the screen to keep the clock clear. Tap the <b>⤢ arrows</b> to open the camera box: your cameras, progress, ✎ 🗑 ✕, the instructions and ← Back links. Tap its line, tap ✕ or slide it down to turn it back into the bubble.</p><img src="guide/6.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📱→📷</b> on the green bubble, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera's screen</b><p>Tap <b>Next camera →</b> to photograph the next camera's screen. Forgot one? Tap <b>+ 📷</b> on the bubble to add another hand cam or LS.</p><img src="guide/9.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>Open the box with the ⤢ arrows: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">12</div><div class="g-body"><b>Change Hand cam / LS</b><p>Tap the camera name in the white box (e.g. <b>· HAND CAM 1</b>). Under <b>Change cam to:</b> pick <b>Hand cam</b> or <b>LS</b>. Its ticks and photo move with it.</p><img src="guide/12.webp?v=7" alt="" loading="lazy" width="390" height="844"></div></li>
     <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Good to know</b><p>
       · <b>Sync now</b> re-checks the time server; the line above it shows how far off your phone's own clock is.<br>
       · <b>Tap the clock</b> to hide the buttons for a clean shot; tap again to bring them back.<br>
@@ -1803,7 +1803,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
           l: ["← Back", function(){ go(a, 1); }], r: ["📷 Retake", function(){ bannerCam = a; takePhoto(); }]});
       } else {
         panel({step: 1, kick: name + " · step 2", head: "Camera screen photo", sub: "",
-          go: ["📷 Shoot", function(){ bannerCam = a; takePhoto(); }],
+          go: ["📱→📷", function(){ bannerCam = a; takePhoto(); }],
           l: ["← Back", function(){ go(a, 1); }],
           r: ["Skip →", function(){ skipped[k] = true; go(a, 4); }]});
       }
@@ -2625,30 +2625,47 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     }
     closeSheet(); setTimeout(function(){ pop.style.transform = ""; }, 260);
   }
+  // Slide the pop-up down from anywhere on it. In a list it only takes over when the list is at the top and the
+  // finger moves down, so scrolling, the sideways camera row and taps keep working; a slide never ticks or taps anything.
   (function(){
-    var y0 = 0, t0 = 0, dy = 0, down = false, moved = false, src = null;
-    function along(e){ return document.documentElement.classList.contains("rot") ? -e.clientX : e.clientY; }
-    function start(e){
-      var bt = e.target.closest("button"); if(bt && bt.id !== "pGrab") return;   // header buttons keep working
-      down = true; moved = false; dy = 0; y0 = along(e); t0 = Date.now(); src = e.currentTarget;
-      try{ src.setPointerCapture(e.pointerId); }catch(_){}
+    var y0 = 0, x0 = 0, t0 = 0, dy = 0, down = false, moved = false, dead = false, scroller = null, skipClick = false;
+    function rot(){ return document.documentElement.classList.contains("rot"); }
+    function pt(e){ var t = e.touches ? e.touches[0] : e; return rot() ? [-t.clientX, t.clientY] : [t.clientY, t.clientX]; }   // [down, across] in app terms
+    function begin(e){
+      if(sheet.hidden) return;
+      var p = pt(e); down = true; moved = false; dead = false; dy = 0; y0 = p[0]; x0 = p[1]; t0 = Date.now();
+      scroller = e.target.closest(".pop-sc");
     }
-    function move(e){
-      if(!down) return; dy = along(e) - y0; if(Math.abs(dy) > 6 && !moved){ moved = true; pop.classList.add("dragging"); pop.classList.remove("snap"); }
-      if(!moved) return; var y = dy < 0 ? dy * .2 : dy; pop.style.transform = "translateY(" + y + "px)";
+    function track(e){
+      if(!down || dead) return;
+      var p = pt(e), d = p[0] - y0, dx = p[1] - x0;
+      if(!moved){
+        if(Math.abs(d) < 8 && Math.abs(dx) < 8) return;
+        if(Math.abs(dx) > Math.abs(d) || d < 0 || (scroller && scroller.scrollTop > 0)){ dead = true; return; }   // leave it to scrolling
+        moved = true; y0 = p[0]; pop.classList.add("dragging"); pop.classList.remove("snap");
+      }
+      if(e.cancelable) e.preventDefault();
+      dy = p[0] - y0; pop.style.transform = "translateY(" + (dy < 0 ? dy * .2 : dy) + "px)";
     }
-    function end(){
+    function finish(){
       if(!down) return; down = false;
-      if(!moved){ if(src && src.id === "pGrab") slideAway(); return; }
+      if(!moved) return;
+      skipClick = true; setTimeout(function(){ skipClick = false; }, 350);
       pop.classList.remove("dragging");
       var v = dy / Math.max(1, Date.now() - t0);
       if(dy > 110 || v > .6){ pop.classList.add("snap"); pop.style.transform = "translateY(110%)"; setTimeout(function(){ pop.classList.remove("snap"); slideAway(); }, 220); }
       else { pop.classList.add("snap"); pop.style.transform = ""; setTimeout(function(){ pop.classList.remove("snap"); }, 400); }
     }
-    [document.getElementById("pGrab"), pop.querySelector(".pop-head")].forEach(function(el){
-      el.addEventListener("pointerdown", start); el.addEventListener("pointermove", move);
-      el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
-    });
+    pop.addEventListener("touchstart", begin, {passive: true});
+    pop.addEventListener("touchmove", track, {passive: false});
+    pop.addEventListener("touchend", finish); pop.addEventListener("touchcancel", finish);
+    // Mouse (computer): same, with pointer events
+    pop.addEventListener("pointerdown", function(e){ if(e.pointerType === "mouse" && e.button === 0) begin(e); });
+    window.addEventListener("pointermove", function(e){ if(e.pointerType === "mouse") track(e); });
+    window.addEventListener("pointerup", function(e){ if(e.pointerType === "mouse") finish(); });
+    // The click at the end of a slide is swallowed, so nothing under the finger gets ticked or pressed
+    pop.addEventListener("click", function(e){ if(skipClick){ skipClick = false; e.preventDefault(); e.stopPropagation(); } }, true);
+    document.getElementById("pGrab").addEventListener("click", function(){ slideAway(); });
   })();
   document.getElementById("sheetClose").addEventListener("click", closeSheet);
   sheet.addEventListener("click", function(e){ if(e.target === sheet) closeSheet(); });
