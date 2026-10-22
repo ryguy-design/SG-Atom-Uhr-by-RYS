@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022174314">
+<meta name="app-ver" content="20261022174927">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -1080,7 +1080,12 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   // Taps on the white box never toggle photo mode; the box's edges also put the cursor in the initials
   camLabelEl.addEventListener("click", function(e){
     e.stopPropagation();
-    if(e.target === camTypeEl){ camInit.blur(); openTypeSwitch(); return; }
+    if(e.target === camTypeEl || camTypeEl.contains(e.target)){
+      // The start of the camera part (the " · " and a bit more) still counts as the initials: easier to hit
+      var em = parseFloat(getComputedStyle(camTypeEl).fontSize) || 16, x = e.target === camTypeEl ? e.offsetX : 9999;
+      if(x < 1.6 * em){ camInit.focus(); return; }
+      camInit.blur(); openTypeSwitch(); return;
+    }
     if(e.target !== camInit) camInit.focus();
   });
 
