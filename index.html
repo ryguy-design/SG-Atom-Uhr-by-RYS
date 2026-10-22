@@ -280,8 +280,6 @@ footer{position:relative}
 .fl-inner{display:flex; flex-direction:column; align-items:stretch; gap:.4rem; padding-bottom:12px}
 .fl-more{display:flex; flex-direction:column; gap:.35rem}
 /* Landscape has spare width, not height: the box floats on the right and the clock centres in the space left of it */
-html.land main{padding-right:var(--boxres,0px)}
-body.photo main{padding-right:0}
 html.land .nextbar{left:auto; right:max(12px, env(safe-area-inset-right,0px)); width:min(17.5rem, 36%); margin:0}
 html.land .fl-go{font-size:.98rem; padding:.7rem .6rem}
 html.land .fl-adds{flex-direction:column; gap:.4rem}
@@ -404,9 +402,10 @@ html.narrow .nb-next{font-size:.92rem; padding:.5rem .7rem}
 .resetbtn:focus-visible{outline:2px solid var(--fg); outline-offset:2px}
 .sheet button:focus-visible,.sheet select:focus-visible,.checklist input:focus-visible{outline:2px solid var(--fg); outline-offset:2px}
 /* Landscape: everything at the bottom on one compact line, so the clock gets the height */
-html.land footer{flex-wrap:nowrap; align-items:center; gap:.9rem}
+html.land footer{flex-direction:column; flex-wrap:nowrap; align-items:center; gap:.3rem; text-align:center}
+html.land .taphint{margin-bottom:.2rem}
 html.land .cam{width:auto; flex:1 1 auto; min-width:0; max-width:55%}
-html.land #status{flex:1; min-width:0}
+html.land #status{align-items:center; text-align:center}
 html.land #syncText{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 html.land #detail,html.land .applink{display:none}
 html.narrow footer{flex-direction:column; align-items:center; text-align:center}
@@ -417,15 +416,27 @@ html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); 
 /* ---- Motion: soft, slightly springy ("liquid") ---- */
 :root{--spring:cubic-bezier(.2,1.25,.3,1); --ease:cubic-bezier(.2,.8,.2,1)}
 /* Bottom panel: slides up, can be dragged down to a small peek, and back up */
-.nextbar{transition:height .45s var(--spring), opacity .25s var(--ease); touch-action:pan-x}
+.nextbar{touch-action:pan-x}
 .nextbar:not([hidden]){animation:panelIn .5s var(--spring)}
 .nextbar.leaving{opacity:0; transform:translateY(20px); transition:opacity .25s var(--ease), transform .25s var(--ease)}
 .nextbar.dragging{transition:none}
 .nextbar[data-stage="2"]{overflow-y:auto}
 .nextbar:not([data-stage="2"]) .fl-more{opacity:.0; transition:opacity .2s}
 .nextbar[data-stage="2"] .fl-more{opacity:1; transition:opacity .35s .1s}
-/* Minimised: just the line and the green button, so the next step is always one tap away */
-.nextbar[data-stage="0"] .fl-top,.nextbar[data-stage="0"] .fl-steps,.nextbar[data-stage="0"] .fl-adds{display:none}
+/* Put away: the box hides and the green bubble takes its place */
+.nextbar[data-stage="0"]{visibility:hidden; opacity:0; pointer-events:none}
+.nextbar{transition:height .45s var(--spring), opacity .25s var(--ease), visibility .25s}
+.bubble{position:fixed; z-index:9; left:0; top:0; display:flex; align-items:center; max-width:calc(100% - 24px); border-radius:999px; background:var(--ok); color:#06210e;
+  box-shadow:0 10px 28px rgba(0,0,0,.55), 0 0 0 4px rgba(46,204,90,.18); touch-action:none; -webkit-user-select:none; user-select:none; animation:panelIn .45s var(--spring)}
+.bubble[hidden]{display:none}
+.bubble.dragging{box-shadow:0 16px 36px rgba(0,0,0,.6), 0 0 0 6px rgba(46,204,90,.25); cursor:grabbing}
+.bb-go{min-width:0; font:inherit; font-size:1rem; font-weight:800; color:inherit; background:none; border:0; padding:.8rem .4rem .8rem 1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer}
+.bb-add{flex-shrink:0; font:inherit; font-size:.95rem; font-weight:800; color:#06210e; background:rgba(0,0,0,.12); border:0; border-radius:999px; padding:.55rem .7rem; margin-left:.2rem; cursor:pointer; white-space:nowrap}
+.bb-add[hidden]{display:none}
+.bb-exp{flex-shrink:0; width:2.5rem; height:2.5rem; margin:.3rem .3rem .3rem .1rem; border-radius:50%; border:0; background:rgba(0,0,0,.16); color:#06210e; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0}
+.bb-exp svg{width:1.05rem; height:1.05rem}
+.bb-go:focus-visible,.bb-exp:focus-visible{outline:2px solid #fff; outline-offset:2px; border-radius:999px}
+body.photo .bubble{display:none}
 .fl-inner{transition:opacity .25s var(--ease)}
 .fl-grab{flex-shrink:0; align-self:center; display:flex; align-items:center; justify-content:center; width:100%; height:1.6rem; padding:0; background:none; border:0; cursor:grab; touch-action:none}
 .fl-grab i{display:block; width:2.6rem; height:5px; border-radius:3px; background:#56626a}
@@ -479,6 +490,12 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 
 <div id="tapHint" class="taphint">Tap the clock to hide the buttons</div>
 <div id="showHint" class="showhint">Tap to show buttons</div>
+<!-- Camera check bubble: the box when it's put away. Drag it anywhere; the arrows open the box -->
+<div id="bubble" class="bubble" hidden>
+  <button id="bbGo" class="bb-go" type="button"></button>
+  <button id="bbAdd" class="bb-add" type="button" hidden aria-label="Add another camera">+ 📷</button>
+  <button id="bbExp" class="bb-exp" type="button" aria-label="Open the camera box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+</div>
 <footer>
 <div id="nextBar" class="nextbar" hidden role="region" aria-label="Camera steps" data-stage="0">
   <button id="flGrab" class="fl-grab" type="button" aria-label="Slide the camera box up or down"><i></i></button>
@@ -591,17 +608,17 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/1.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Enter your initials</b><p>Only the first time. They go on every camera label and photo name. Change them later with your initials at the bottom of the screen.</p><img src="guide/2.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Point your camera at the clock and take a shot. Then tap <b>Done, I shot it →</b> in the box at the bottom.</p><img src="guide/5.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The camera box</b><p>Drag its line up for more: the middle height shows your cameras, the progress line and ✎ 🗑 ✕. All the way up shows the instructions and ← Back links. Drag it down or tap ✕ to make it small again. The green button always stays on show.</p><img src="guide/6.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📷 Take photo</b>, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera or add one</b><p>Tap <b>Next camera →</b> for the next one in your list. Tap <b>+ 📷</b> next to the green button to add another hand cam or LS.</p><img src="guide/9.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send photos →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>In the middle height of the box: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/1.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Enter your initials</b><p>Only the first time. They go on every camera label and photo name. Change them later with your initials at the bottom of the screen.</p><img src="guide/2.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Point your camera at the clock and take a shot. Then tap <b>Done, I shot it →</b> on the green bubble.</p><img src="guide/5.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The green bubble</b><p>The bubble always shows your next step: just tap it. Drag it anywhere on the screen to keep the clock clear. Tap the <b>⤢ arrows</b> to open the camera box (your cameras, progress, ✎ 🗑 ✕); tap its line for the instructions and ← Back links. ✕ or a drag down turns it back into the bubble.</p><img src="guide/6.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📷 Take photo</b>, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera or add one</b><p>Tap <b>Next camera →</b> for the next one in your list. Tap <b>+ 📷</b> on the bubble to add another hand cam or LS.</p><img src="guide/9.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send photos →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>Open the box with the ⤢ arrows: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
     <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Good to know</b><p>
       · <b>Sync now</b> re-checks the time server; the line above it shows how far off your phone's own clock is.<br>
       · <b>Tap the clock</b> to hide the buttons for a clean shot; tap again to bring them back.<br>
@@ -1500,14 +1517,58 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     nextBar.dataset.stage = cur; return h;
   }
   function setStage(n){ stage = n; nextBar.dataset.stage = n; if(n < 2) nextBar.scrollTop = 0; var h = stageH(n); nextBar.style.height = h + "px";
-    document.documentElement.style.setProperty("--boxh", (h + 10) + "px"); document.documentElement.classList.toggle("boxfull", n === 2); reserve(); }
+    document.documentElement.style.setProperty("--boxh", (n ? h + 10 : 0) + "px"); document.documentElement.classList.toggle("boxfull", n === 2); updateBubble(); }
   // Landscape is short: the clock shrinks a little so the box's middle height never covers it
-  var reserved = -1;
-  function reserve(){
-    if(!flGrabEl) return;
-    var v = (!nextBar.hidden && document.documentElement.classList.contains("land")) ? nextBar.offsetWidth + 20 : 0;
-    if(v === reserved) return; reserved = v; document.documentElement.style.setProperty("--boxres", v + "px"); fit();
+  function reserve(){}   // the clock always stays centred now; nothing is reserved for the box
+  // ---- The bubble: the camera check when put away. Green, shows the next step, drag it anywhere, arrows open the box ----
+  var bubble = document.getElementById("bubble"), bbGo = document.getElementById("bbGo"), bubPos = null;
+  try{ bubPos = JSON.parse(localStorage.getItem("acBub") || "null"); }catch(e){}
+  function appSize(){ var rot = document.documentElement.classList.contains("rot"); return rot ? [document.body.clientWidth, document.body.clientHeight] : [window.innerWidth, window.innerHeight]; }
+  function placeBubble(){
+    if(bubble.hidden) return;
+    var sz = appSize(), W = sz[0], H = sz[1], bw = bubble.offsetWidth, bh = bubble.offsetHeight, foot = document.querySelector("footer"), x, y;
+    if(bubPos){ x = bubPos[0] * W - bw / 2; y = bubPos[1] * H - bh / 2; }
+    else if(document.documentElement.classList.contains("land")){ x = W - bw - 16; y = H - bh - 14; }   // first time, sideways: bottom-right corner, clear of the clock
+    else { x = (W - bw) / 2; y = foot.offsetTop - bh - 34; }   // first time, upright: centred just above the bottom text
+    x = Math.max(8, Math.min(W - bw - 8, x)); y = Math.max(8, Math.min(H - bh - 8, y));
+    bubble.style.transform = "translate(" + Math.round(x) + "px," + Math.round(y) + "px)";
+    bubble.dataset.x = x; bubble.dataset.y = y;
   }
+  function updateBubble(){
+    var show = !nextBar.hidden && !nextBar.classList.contains("leaving") && stage === 0;
+    bbGo.textContent = flGo.textContent; bbGo.setAttribute("aria-label", flGo.textContent);
+    document.getElementById("bbAdd").hidden = document.getElementById("flGoAdd").hidden;
+    if(bubble.hidden === !show){ if(show) placeBubble(); return; }
+    bubble.hidden = !show; if(show) placeBubble();
+  }
+  window.addEventListener("resize", function(){ setTimeout(placeBubble, 60); });
+  (function(){
+    var sx = 0, sy = 0, x0 = 0, y0 = 0, down = false, moved = false, skipClick = false;
+    function pt(e){ var rot = document.documentElement.classList.contains("rot"); return rot ? [e.clientY, -e.clientX] : [e.clientX, e.clientY]; }
+    bubble.addEventListener("pointerdown", function(e){
+      down = true; moved = false; var p = pt(e); sx = p[0]; sy = p[1]; x0 = +bubble.dataset.x || 0; y0 = +bubble.dataset.y || 0;
+    });
+    bubble.addEventListener("pointermove", function(e){
+      if(!down) return; var p = pt(e), dx = p[0] - sx, dy = p[1] - sy;
+      if(!moved && Math.hypot(dx, dy) < 8) return;
+      if(!moved){ moved = true; bubble.classList.add("dragging"); try{ bubble.setPointerCapture(e.pointerId); }catch(_){} }   // only a real drag takes the finger; taps reach the buttons
+      var sz = appSize(), bw = bubble.offsetWidth, bh = bubble.offsetHeight;
+      var x = Math.max(8, Math.min(sz[0] - bw - 8, x0 + dx)), y = Math.max(8, Math.min(sz[1] - bh - 8, y0 + dy));
+      bubble.style.transform = "translate(" + Math.round(x) + "px," + Math.round(y) + "px)"; bubble.dataset.x = x; bubble.dataset.y = y;
+    });
+    function end(){
+      if(!down) return; down = false; bubble.classList.remove("dragging");
+      if(moved){
+        skipClick = true; setTimeout(function(){ skipClick = false; }, 50);
+        var sz = appSize(); bubPos = [(+bubble.dataset.x + bubble.offsetWidth / 2) / sz[0], (+bubble.dataset.y + bubble.offsetHeight / 2) / sz[1]];
+        try{ localStorage.setItem("acBub", JSON.stringify(bubPos)); }catch(_){}
+      }
+    }
+    bubble.addEventListener("pointerup", end); bubble.addEventListener("pointercancel", end);
+    bbGo.addEventListener("click", function(e){ if(skipClick){ e.preventDefault(); return; } if(act_go) act_go(); });
+    document.getElementById("bbExp").addEventListener("click", function(e){ if(skipClick) return; setStage(1); });
+    document.getElementById("bbAdd").addEventListener("click", function(e){ if(skipClick) return; document.getElementById("flGoAdd").click(); });
+  })();
   window.addEventListener("resize", function(){ if(!nextBar.hidden) setStage(stage); });
   // Whenever the box's contents change size (new step, photo loaded, fonts), fit its height again
   if(window.ResizeObserver) new ResizeObserver(function(){ if(!nextBar.hidden && !nextBar.classList.contains("dragging")) setStage(stage); }).observe(flInner);
@@ -1529,12 +1590,12 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       if(!down) return; dy = along(e) - y0; if(Math.abs(dy) > 4) moved = true; if(!moved) return;
       var lo = stageH(0), hi = stageH(2), h = h0 - dy;
       if(h > hi) h = hi + (h - hi) * .25; if(h < lo) h = lo - (lo - h) * .25;   // a little stretch past the ends, like pulling something soft
-      nextBar.dataset.stage = h > stageH(1) + 8 ? 2 : h > lo + 8 ? 1 : 0;
+      nextBar.dataset.stage = h > stageH(1) + 8 ? 2 : 1;
       nextBar.style.height = h + "px"; document.documentElement.style.setProperty("--boxh", (h + 10) + "px");
     });
     function end(){
       if(!down) return; down = false; nextBar.classList.remove("dragging");
-      if(!moved){ setStage(stage === 0 ? 1 : stage === 1 ? 2 : 1); return; }
+      if(!moved){ setStage(stage === 1 ? 2 : 1); return; }
       var v = -dy / Math.max(1, Date.now() - t0), h = nextBar.offsetHeight, hs = [stageH(0), stageH(1), stageH(2)], n = 0;
       for(var i = 1; i < 3; i++) if(Math.abs(hs[i] - h) < Math.abs(hs[n] - h)) n = i;
       if(v > .5) n = hs[2] > h + 4 ? (hs[1] > h + 4 ? 1 : 2) : 2;          // flicked up
@@ -1586,7 +1647,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   function hideNext(force){
     if(nextBar.hidden || (!force && hasCams())) return;   // the box stays; pop-ups and the camera simply cover it
     nextBar.classList.add("leaving"); clearTimeout(hideT);
-    hideT = setTimeout(function(){ nextBar.hidden = true; nextBar.classList.remove("leaving"); nextBar.style.transform = ""; stage = 0; document.documentElement.style.setProperty("--boxh", "0px"); reserve(); }, 260);
+    hideT = setTimeout(function(){ nextBar.hidden = true; nextBar.classList.remove("leaving"); nextBar.style.transform = ""; stage = 0; document.documentElement.style.setProperty("--boxh", "0px"); updateBubble(); }, 260);
   }
   function doneCount(){ var n = 0; kit.cams.forEach(function(c){ if(isDone(c) && (photos[photoKey(c)] || skipped[photoKey(c)])) n++; }); return n; }
   function goNext(){
@@ -2507,7 +2568,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   twoTap(document.getElementById("clearMain"), "Reset app", "Sure? Resets everything", resetApp);
   // Reset the whole app to a fresh start: no cameras, no initials, no ticks or photos, location off, not rotated
   function resetApp(){
-    try{ ["acCam","acModel","acRecent","acTicks","acKit","acEvent","acLoc","acRot"].forEach(function(k){ localStorage.removeItem(k); }); }catch(e){}
+    try{ ["acCam","acModel","acRecent","acTicks","acKit","acEvent","acLoc","acRot","acBub"].forEach(function(k){ localStorage.removeItem(k); }); }catch(e){}
     camInit.value = ""; updateInitBtn(); kit = defaultKit(); ev = {day: today(), ticks: {}, id: String(Date.now())}; recent = []; dbClear();
     shotClock = {}; skipped = {}; at = {};
     save(); hideNext(); refresh();
