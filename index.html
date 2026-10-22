@@ -522,7 +522,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   </div>
   <div id="typeSwitcher" class="typeswitcher" hidden role="dialog" aria-label="Change camera type">
     <div class="typeswitcher-panel">
-      <div class="typeswitcher-title">Change cam to:</div>
+      <div class="typeswitcher-title" id="typeTitle">Change cam to:</div>
       <button type="button" data-type="HAND CAM">Hand cam</button>
       <button type="button" data-type="LS">LS</button>
       <button type="button" id="typeCancel" class="ts-cancel">Cancel</button>
@@ -1040,6 +1040,10 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   function openTypeSwitch(){
     if(kit.empty) return;
     var a = act();
+    // With several cameras, name the one being changed (and its brand) so it's clear what to change back
+    document.getElementById("typeTitle").textContent = kit.cams.length > 1
+      ? "Change " + short(a) + (a.b && a.b !== "Other" ? " " + a.b : "") + " to:"
+      : "Change cam to:";
     [].forEach.call(typeSwitcherEl.querySelectorAll("[data-type]"), function(bt){
       var t = bt.dataset.type, full = t !== a.type && kit.cams.filter(function(c){ return c.type === t; }).length >= MAXN;
       bt.classList.toggle("on", t === a.type); bt.disabled = full;
