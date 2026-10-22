@@ -77,7 +77,10 @@ footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 .ini::after{content:attr(data-v); grid-area:1/1; visibility:hidden; white-space:pre; letter-spacing:inherit}
 .ini input{grid-area:1/1; width:0; min-width:100%; appearance:none; -webkit-appearance:none; font:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; caret-color:var(--ok);
   background:transparent; border:0; border-radius:0; padding:0; margin:0; text-transform:uppercase; outline:none}
-.ini input::placeholder{color:rgba(11,15,18,.35); opacity:1}
+.ini input::placeholder{color:var(--bg); opacity:.75}
+/* Initials needed before a camera can be added: red ring and a red line under the box */
+.camlabel.need,.camlabel.need:focus-within{box-shadow:0 0 0 .08em var(--bad)}
+.cammodel.need{color:var(--bad)}
 .camlabel:focus-within{box-shadow:0 0 0 .07em var(--ok)}
 .camtype{font:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; background:none; border:0; padding:0; margin:0; white-space:pre; cursor:pointer}
 .camtype[hidden]{display:none}
@@ -510,7 +513,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 </button>
 <main aria-live="off">
   <div class="camwrap">
-    <div id="camLabel" class="camlabel"><label id="iniWrap" class="ini" data-v="INITIALS"><input id="camInit" type="text" size="1" maxlength="6" placeholder="INITIALS" aria-label="Your initials" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><button id="camType" class="camtype" type="button" aria-label="Change camera type" hidden></button></div>
+    <div id="camLabel" class="camlabel"><label id="iniWrap" class="ini" data-v="✎"><input id="camInit" type="text" size="1" maxlength="6" placeholder="✎" aria-label="Your initials" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><button id="camType" class="camtype" type="button" aria-label="Change camera type" hidden></button></div>
     <div id="camModel" class="cammodel" aria-label="Camera model"></div>
     <div id="camSet" class="camset" aria-label="Camera settings"></div>
   </div>
@@ -651,7 +654,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Type your initials</b><p>Tap the white box at the top and type them in, then tap <b>Done</b> on the keyboard. They go on every camera label and photo name. Tap the box again any time to change them.</p><img src="guide/1.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Type your initials</b><p>Tap the white box with the ✎ at the top and type them in, then tap <b>Done</b> on the keyboard. A camera can only be added once they're in. They go on every camera label and photo name. Tap the box again any time to change them.</p><img src="guide/1.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
     <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/2.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
     <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
     <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. More cameras? Tap <b>+ Add camera</b> and check each one. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=6" alt="" loading="lazy" width="390" height="844"></div></li>
@@ -983,7 +986,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     camTypeEl.hidden = kit.empty;
     camTypeEl.textContent = kit.empty ? "" : " · " + a.type + " " + a.n;
     camLabelEl.classList.toggle("noinit", !v);
-    document.getElementById("camModel").textContent =
+    var need = !!pendingAdd && !v, modelEl = document.getElementById("camModel");
+    camLabelEl.classList.toggle("need", need); modelEl.classList.toggle("need", need);
+    modelEl.textContent = need ? "Type your initials first" :
       !findCam(a.b, a.m) ? "" : a.m === OTHER ? (a.b === "Other" ? "Other camera" : "Other " + a.b + " model") : a.b + " " + shortName(a.m);
     var setEl = document.getElementById("camSet"), cc = findCam(a.b, a.m), n = countOf(a);
     setEl.textContent = kit.empty ? "" : n === 4 ? "✓ " + summary(a.b, cc) : "CAMERA CHECK " + n + "/4 — NOT DONE";
@@ -994,13 +999,24 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     }catch(e){}
     fit();
   }
-  var iniBefore = "";
-  camInit.addEventListener("focus", function(){ iniBefore = camInit.value; closeTypeSwitch(); });
+  var iniBefore = "", pendingAdd = null, iniDone = false;
+  camInit.addEventListener("focus", function(){ iniBefore = camInit.value; iniDone = false; closeTypeSwitch(); });
   camInit.addEventListener("input", updateCam);
   camInit.addEventListener("keydown", function(e){
-    if(e.key === "Enter"){ e.preventDefault(); camInit.blur(); }                    // done: keyboard goes away
-    else if(e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); camInit.value = iniBefore; updateCam(); camInit.blur(); }
+    if(e.key === "Enter"){ e.preventDefault(); iniDone = true; camInit.blur(); }   // done: keyboard goes away
+    else if(e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); camInit.value = iniBefore; pendingAdd = null; updateCam(); camInit.blur(); }
   });
+  camInit.addEventListener("blur", function(){
+    if(!camInit.value && iniBefore){ camInit.value = iniBefore; }   // initials can't be emptied once set
+    var t = pendingAdd; pendingAdd = null;
+    updateCam();
+    if(t && iniDone && camInit.value) addFirst(t);   // Done on the keyboard: carry on adding the camera that was asked for
+  });
+  // No initials yet: the camera isn't added; the cursor goes into the white box instead
+  function askInitials(type){
+    pendingAdd = type; if(!sheet.hidden) closeSheet();
+    updateCam(); camInit.focus();
+  }
   // Taps on the white box never toggle photo mode; the box's edges also put the cursor in the initials
   camLabelEl.addEventListener("click", function(e){
     e.stopPropagation();
@@ -1507,7 +1523,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 
   // ---- Add / remove cameras ----
   // Adding a camera from the main screen
-  function addFirst(type){ addCam(type); openSheet(); }   // initials are typed into the white box, no extra step
+  function addFirst(type){ if(!camInit.value){ askInitials(type); return; } addCam(type); openSheet(); }   // initials first, typed into the white box
   var addedFrom = null, addedKey = null;
   function addCam(type){
     if(kit.empty){ var c0 = kit.cams[0]; c0.type = type; c0.n = 1; c0.b = ""; c0.m = ""; kit.empty = false; kit.active = key(c0); save(); refresh(); return; }
