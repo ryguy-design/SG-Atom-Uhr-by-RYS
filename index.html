@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022164227">
+<meta name="app-ver" content="20261022164411">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -1844,7 +1844,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       var n = countOf(a), has = !!findCam(a.b, a.m);
       panel({step: -1, kick: name + " · camera check", head: has ? n + " of 4 ticked" : "Pick brand & model",
         sub: "", raise: up,
-        go: [has ? "Camera check " + n + "/4 →" : "Start camera check →", function(){ openSheet(); }]});
+        go: ["📷✓ " + (has ? n : 0) + "/4", function(){ openSheet(); }]});
       return;
     }
     if(st === 1){
