@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022173826">
+<meta name="app-ver" content="20261022174314">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -76,7 +76,7 @@ footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 /* Initials are typed straight into the white box: the field grows with the text */
 .ini{display:inline-grid; cursor:text}
 .ini::after{content:attr(data-v); grid-area:1/1; visibility:hidden; white-space:pre; letter-spacing:inherit}
-.ini input{grid-area:1/1; width:0; min-width:100%; appearance:none; -webkit-appearance:none; font:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; caret-color:var(--ok);
+.ini input{text-transform:uppercase; grid-area:1/1; width:0; min-width:100%; appearance:none; -webkit-appearance:none; font:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; caret-color:var(--ok);
   background:transparent; border:0; border-radius:0; padding:0; margin:0; text-transform:uppercase; outline:none}
 .ini input::placeholder{color:var(--bg); opacity:.75}
 /* Initials needed before a camera can be added: red ring and a red line under the box */
@@ -1006,7 +1006,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   try{ var saved = JSON.parse(localStorage.getItem("acCam") || "{}"); if(saved.i) camInit.value = saved.i; }catch(e){}
   function updateCam(){
     var v = iniClean(camInit.value);
-    if(v !== camInit.value && !iniComposing) setIni(v);
+    // While typing only fix what must go (digits, symbols, a 7th letter); case and spaces are tidied on leaving
+    var raw = camInit.value, letters = raw.replace(/[^A-Za-z]/g, "").length;
+    if(!iniComposing && raw !== v && (/[^A-Za-z ]/.test(raw) || letters > 6 || document.activeElement !== camInit)) setIni(v);
     iniWrap.dataset.v = v || camInit.placeholder;   // sizes the field to the text
     var a = act();
     camTypeEl.hidden = kit.empty;
@@ -1045,12 +1047,15 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   camInit.addEventListener("beforeinput", function(e){
     if(e.isComposing || e.inputType === "insertCompositionText") return;   // handled when the word is finished
     if(!/^insert/.test(e.inputType) || e.data == null) return;
-    if(/^[A-Za-z]*$/.test(e.data)) return;
-    e.preventDefault();   // space, digit or symbol: blocked; any letters in it still go in
-    var add = e.data.replace(/[^A-Za-z]/g, "");
+    // Letters, and the space a keyboard adds after a picked suggestion, go in as typed. The space must stay
+    // until the keyboard is done: on OK it deletes "its" space again, and if the space was blocked that delete
+    // takes the last letter instead. Spaces are stripped when the field is left.
+    if(/^[A-Za-z ]*$/.test(e.data)) return;
+    e.preventDefault();   // digit or symbol: blocked; any letters in it still go in
+    var add = e.data.replace(/[^A-Za-z ]/g, "");
     if(!add) return;
     var s = camInit.selectionStart, en = camInit.selectionEnd;
-    try{ camInit.setRangeText(add.toUpperCase(), s, en, "end"); }catch(_){ camInit.value += add; }
+    try{ camInit.setRangeText(add, s, en, "end"); }catch(_){ camInit.value += add; }
     updateCam();
   });
   camInit.addEventListener("compositionstart", function(){ iniComposing = true; });
@@ -1062,7 +1067,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   });
   camInit.addEventListener("blur", function(){
     iniComposing = false;
-    if(!camInit.value && iniBefore){ camInit.value = iniBefore; }   // initials can't be emptied once set
+    if(!iniClean(camInit.value) && iniBefore){ camInit.value = iniBefore; }   // initials can't be emptied once set
     var t = pendingAdd; pendingAdd = null;
     updateCam();
     if(t && iniDone && camInit.value) addFirst(t);   // Done on the keyboard: carry on adding the camera that was asked for
