@@ -71,8 +71,11 @@ footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 .cam select:focus-visible,.cam input:focus-visible{outline:2px solid var(--fg); outline-offset:1px}
 /* Camera label shown on the clock face, so every sync photo says which camera it is */
 .camlabel{font-family:var(--sans); font-weight:900; font-size:calc(var(--u)*var(--labk,.68)); line-height:1; letter-spacing:.04em; white-space:nowrap;
-  background:var(--fg); color:var(--bg); padding:.14em .38em .12em; border-radius:.14em}
+  background:var(--fg); color:var(--bg); padding:.14em .38em .12em; border-radius:.14em; cursor:pointer}
 .camlabel:empty{display:none}
+.camlabel input{appearance:none; -webkit-appearance:none; font:inherit; font-weight:900; font-size:1em; color:var(--bg); background:transparent; border:0; text-align:center; text-transform:uppercase; letter-spacing:.04em; padding:0; margin:0; width:100%}
+.camlabel input:focus-visible{outline:none}
+.camlabel input::placeholder{color:rgba(11,15,18,.6)}
 /* Brand and model, small and grey under the white label */
 .camwrap{display:flex; flex-direction:column; align-items:center; gap:calc(var(--u)*.07)}
 .cammodel{font-family:var(--sans); font-weight:600; font-size:calc(var(--u)*.2); letter-spacing:.04em; color:var(--muted); white-space:nowrap}
@@ -198,6 +201,7 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .typeswitcher{position:fixed; inset:0; z-index:11; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; padding:1rem}
 .typeswitcher[hidden]{display:none}
 .typeswitcher-panel{display:flex; flex-direction:column; gap:.6rem; background:#151b1f; border-radius:16px; padding:1rem; min-width:12rem; box-shadow:0 10px 30px rgba(0,0,0,.6), 0 0 0 1px #262f35}
+.typeswitcher-title{font:inherit; font-weight:800; font-size:.95rem; color:var(--muted); text-align:center; margin-bottom:.2rem}
 .typeswitcher button{font:inherit; font-weight:800; font-size:1rem; color:var(--fg); background:#1d252a; border:2px solid transparent; border-radius:12px; padding:.7rem; cursor:pointer; transition:background-color .2s, border-color .2s, transform .25s var(--spring)}
 .typeswitcher button:active{transform:scale(.97)}
 /* Tiles: brands and models */
@@ -492,12 +496,13 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 </button>
 <main aria-live="off">
   <div class="camwrap">
-    <div id="camLabel" class="camlabel" aria-label="Camera"></div>
+    <div id="camLabel" class="camlabel" aria-label="Camera initials"><input id="camInit" type="text" maxlength="6" placeholder="tap to enter" autocomplete="off" autocapitalize="characters" spellcheck="false" hidden></div>
     <div id="camModel" class="cammodel" aria-label="Camera model"></div>
     <div id="camSet" class="camset" aria-label="Camera settings"></div>
   </div>
   <div id="typeSwitcher" class="typeswitcher" hidden role="dialog" aria-label="Change camera type">
     <div class="typeswitcher-panel">
+      <div class="typeswitcher-title">Change cam to:</div>
       <button type="button" data-type="HAND CAM">Hand cam</button>
       <button type="button" data-type="LS">LS</button>
     </div>
@@ -550,7 +555,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     <a id="appLink" class="applink" href="https://ryguy-design.github.io/SG-Atom-Uhr-by-RYS/" target="_blank" rel="noopener">ryguy-design.github.io/SG-Atom-Uhr-by-RYS</a>
   </div>
   <div class="controls">
-    <button id="initBtn" class="initbtn" type="button" aria-label="Edit your initials"></button>
+    <button id="initBtn" class="initbtn" type="button" aria-label="Edit your initials" hidden></button>
     <button id="resync" type="button">Sync now</button>
     <button id="clearMain" class="clearmain" type="button">Reset app</button>
     <button id="guideBtn" class="guidebtn" type="button">How to use</button>
@@ -654,7 +659,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 
 <!-- After a camera's 4 ticks: one step at a time, one big button per step -->
 <!-- Initials: one photographer for every camera, so they live here, not in each camera's check -->
-<div id="initDlg" class="sheet" hidden>
+<div id="initDlg" class="sheet" hidden style="display:none">
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="initTitle">
     <div class="sheet-head"><h2 id="initTitle">Your SG initials</h2></div>
     <p class="sheet-note" style="margin:0">Shown on the clock for every camera, e.g. RK · HAND CAM 1. Up to 6 letters.</p>
@@ -969,7 +974,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     var a = act(), parts = [];
     parts.push(camInit.value || "✎");   // no initials yet: the white box still shows, with a pencil to add them
     if(!kit.empty) parts.push(a.type + " " + a.n);
-    camLabelEl.textContent = parts.join(" · ");
+    if(camInit.hidden){ camLabelEl.textContent = parts.join(" · "); }   // only set text when input is hidden
     camLabelEl.classList.toggle("noinit", !camInit.value);
     document.getElementById("camModel").textContent =
       !findCam(a.b, a.m) ? "" : a.m === OTHER ? (a.b === "Other" ? "Other camera" : "Other " + a.b + " model") : a.b + " " + shortName(a.m);
@@ -983,22 +988,22 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     fit();
   }
   camInit.addEventListener("input", updateCam);
-  // ---- Initials dialog: asked once with the first camera; edit any time from the label or the bottom row ----
-  var initDlg = document.getElementById("initDlg"), initBtn = document.getElementById("initBtn"), initBefore = "", initThen = null;
-  function updateInitBtn(){ initBtn.textContent = camInit.value ? camInit.value + " ✎" : "Initials ✎"; }
-  function openInit(then){
-    initBefore = camInit.value; initThen = then || null; initDlg.hidden = false;
-    setTimeout(function(){ camInit.focus(); camInit.select(); }, 50);
+  // ---- Inline initials editing: tap the white box to type initials ----
+  camInit.hidden = true;
+  function editInitials(){
+    camInit.hidden = false; camInit.focus(); camInit.select();
+    camLabelEl.textContent = "";   // clear text so input is visible
   }
-  function closeInit(keep){
-    if(!keep){ camInit.value = initBefore; updateCam(); }
-    initDlg.hidden = true; camInit.blur(); updateInitBtn();
-    var t = initThen; initThen = null; if(t) t();
+  function finishInitials(save){
+    if(!save) camInit.value = camInit.dataset.before;
+    updateCam();
+    camInit.hidden = true;
   }
-  document.getElementById("initSave").addEventListener("click", function(){ closeInit(true); });
-  document.getElementById("initCancel").addEventListener("click", function(){ closeInit(false); });
-  initDlg.addEventListener("click", function(e){ if(e.target === initDlg) closeInit(false); });
-  initBtn.addEventListener("click", function(){ openInit(); });
+  camInit.addEventListener("blur", function(){ finishInitials(true); });
+  camInit.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ camInit.blur(); }
+    else if(e.key === "Escape"){ finishInitials(false); }
+  });
   // Type switcher: change camera type quickly from the main screen
   var typeSwitcherEl = document.getElementById("typeSwitcher");
   function closeTypeSwitch(){ typeSwitcherEl.hidden = true; }
@@ -1028,10 +1033,10 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   typeSwitcherEl.addEventListener("click", function(e){ if(e.target === typeSwitcherEl) closeTypeSwitch(); });
   camLabelEl.addEventListener("click", function(e){
     e.stopPropagation();
-    if(kit.empty || !findCam(act().b, act().m)){ openInit(); }
+    camInit.dataset.before = camInit.value;
+    if(kit.empty || !findCam(act().b, act().m)){ editInitials(); }
     else { typeSwitcherEl.hidden = false; }
-  });   // tapping the label shows type switcher if camera is set up, else opens initials
-  updateInitBtn();
+  });   // tapping the label shows type switcher if camera is set up, else shows initials input
   // Done typing: drop the keyboard so the clock is fully visible again
   camInit.addEventListener("keydown", function(e){ if(e.key === "Enter") closeInit(true); });
 
@@ -1627,7 +1632,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   // Whenever the box's contents change size (new step, photo loaded, fonts), fit its height again
   if(window.ResizeObserver) new ResizeObserver(function(){ if(!nextBar.hidden && !nextBar.classList.contains("dragging")) setStage(stage); }).observe(flInner);
   // Heights measured while a full screen (camera, review, send list) covers the app can be off: measure again when it closes
-  if(window.MutationObserver) ["cam","viewer","sendView","sheet","initDlg"].forEach(function(id){
+  if(window.MutationObserver) ["cam","viewer","sendView","sheet"].forEach(function(id){
     var el = document.getElementById(id); if(!el) return;
     new MutationObserver(function(){ if(!nextBar.hidden) requestAnimationFrame(function(){ setStage(stage); }); }).observe(el, {attributes: true, attributeFilter: ["hidden"]});
   });
@@ -1794,7 +1799,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     sendBtn.hidden = true;   // sending lives in the camera box, not in the camera check
   }
   // Rotated app: these full screens show upright, so refit whenever one opens or closes
-  if(window.MutationObserver) ["cam","viewer","sendView","initDlg","guide"].forEach(function(id){
+  if(window.MutationObserver) ["cam","viewer","sendView","guide"].forEach(function(id){
     new MutationObserver(function(){ if(rotated) fit(); }).observe(document.getElementById(id), {attributes: true, attributeFilter: ["hidden"]});
   });
 
@@ -2607,7 +2612,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   document.getElementById("photoRetake").addEventListener("click", function(){ bannerCam = act(); takePhoto(); });
   document.addEventListener("keydown", function(e){
     if(e.key !== "Escape") return;
-    if(!initDlg.hidden){ e.stopPropagation(); closeInit(false); return; }
+    if(!camInit.hidden){ e.stopPropagation(); finishInitials(false); camInit.hidden = true; updateCam(); return; }
     if(!camEl.hidden){ e.stopPropagation(); var c = bannerCam; closeCam(true); if(c) showNext(c); return; }
     if(!viewer.hidden){ e.stopPropagation(); if(viewFrom === "review"){ pending = null; } closeViewer(); }
     else if(!sendView.hidden){ e.stopPropagation(); sendView.hidden = true; }
