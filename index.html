@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022175246">
+<meta name="app-ver" content="20261022175633">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -198,6 +198,9 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .pop[data-screen="brand"] [data-sc="brand"], .pop[data-screen="model"] [data-sc="model"], .pop[data-screen="checks"] [data-sc="checks"]{display:flex; animation:scIn .42s var(--spring)}
 .pop.back-anim .pop-sc{animation-name:scBack!important}
 @keyframes scIn{from{opacity:0; transform:translateX(28px)}} @keyframes scBack{from{opacity:0; transform:translateX(-28px)}}
+/* After a sideways swipe the next page slides all the way in from the side it came from */
+@keyframes scSwipeIn{from{opacity:.3; transform:translateX(70%)}} @keyframes scSwipeBack{from{opacity:.3; transform:translateX(-70%)}}
+.pop.swipe-in .pop-sc{animation:scSwipeIn .34s var(--spring)!important} .pop.swipe-back .pop-sc{animation:scSwipeBack .34s var(--spring)!important}
 .pop-label{font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-top:.2rem}
 .pop-label[hidden]{display:none}
 .pop-sc > *{flex-shrink:0}   /* nothing in a popup screen gets squashed (the camera row was being cut in half) */
@@ -2725,29 +2728,73 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   // Slide the pop-up down from anywhere on it. In a list it only takes over when the list is at the top and the
   // finger moves down, so scrolling, the sideways camera row and taps keep working; a slide never ticks or taps anything.
   (function(){
-    var y0 = 0, x0 = 0, t0 = 0, dy = 0, down = false, moved = false, dead = false, scroller = null, skipClick = false;
+    var y0 = 0, x0 = 0, t0 = 0, dy = 0, dx = 0, down = false, moved = false, dead = false, scroller = null, skipClick = false, hmode = false, hEl = null;
     function rot(){ return document.documentElement.classList.contains("rot"); }
     function pt(e){ var t = e.touches ? e.touches[0] : e; return rot() ? [-t.clientX, t.clientY] : [t.clientY, t.clientX]; }   // [down, across] in app terms
     function begin(e){
       if(sheet.hidden) return;
-      var p = pt(e); down = true; moved = false; dead = false; dy = 0; y0 = p[0]; x0 = p[1]; t0 = Date.now();
-      scroller = e.target.closest(".pop-sc");
+      var p = pt(e); down = true; moved = false; dead = false; hmode = false; dy = 0; dx = 0; y0 = p[0]; x0 = p[1]; t0 = Date.now();
+      scroller = e.target.closest(".pop-sc"); downTarget = e.target;
+    }
+    var downTarget = null;
+    function sideScroller(el){
+      for(; el && el !== pop; el = el.parentElement){ if(el.scrollWidth > el.clientWidth + 2 && /auto|scroll/.test(getComputedStyle(el).overflowX)) return el; }
+      return null;
+    }
+    // Where a swipe goes: dir 1 = forward (finger moves left), -1 = back. Forward only to a page already chosen.
+    function swipeTarget(dir){
+      var a = act(), sc = pop.dataset.screen;
+      if(dir > 0){
+        if(sc === "brand") return !a.b ? null : a.b === "Other" ? (findCam(a.b, a.m) ? "checks" : null) : "model";
+        if(sc === "model") return findCam(a.b, a.m) ? "checks" : null;
+        return null;
+      }
+      if(sc === "checks") return a.b !== "Other" ? "model" : "brand";
+      if(sc === "model") return "brand";
+      return null;
+    }
+    function finishSwipe(){
+      var el = hEl, v = dx / Math.max(1, Date.now() - t0), dir = dx < 0 ? 1 : -1, tgt = swipeTarget(dir), W = el.offsetWidth || 300;
+      if(tgt && (Math.abs(dx) > W * .25 || Math.abs(v) > .45)){
+        el.style.transition = "transform .16s ease-in, opacity .16s ease-in"; el.style.transform = "translateX(" + (-dir * W) + "px)"; el.style.opacity = "0";
+        setTimeout(function(){
+          el.style.transition = el.style.transform = el.style.opacity = el.style.animation = "";
+          pop.classList.add(dir > 0 ? "swipe-in" : "swipe-back"); goScreen(tgt, dir < 0); buzz();
+          setTimeout(function(){ pop.classList.remove("swipe-in", "swipe-back"); }, 420);
+        }, 160);
+      } else {
+        el.style.transition = "transform .3s var(--spring), opacity .3s"; el.style.transform = ""; el.style.opacity = "";
+        setTimeout(function(){ el.style.transition = el.style.animation = ""; }, 320);
+      }
+      hmode = false; hEl = null;
     }
     function track(e){
       if(!down || dead) return;
-      var p = pt(e), d = p[0] - y0, dx = p[1] - x0;
+      var p = pt(e), d = p[0] - y0; dx = p[1] - x0;
       if(!moved){
         if(Math.abs(d) < 8 && Math.abs(dx) < 8) return;
-        if(Math.abs(dx) > Math.abs(d) || d < 0 || (scroller && scroller.scrollTop > 0)){ dead = true; return; }   // leave it to scrolling
-        moved = true; y0 = p[0]; pop.classList.add("dragging"); pop.classList.remove("snap");
+        if(Math.abs(dx) > Math.abs(d)){
+          // Sideways: page between Brand / Model / Check, unless the finger is on a row that scrolls sideways itself
+          if(sideScroller(downTarget) || !scroller){ dead = true; return; }
+          hmode = true; moved = true; x0 = p[1]; dx = 0; hEl = scroller; hEl.style.transition = "none"; hEl.style.animation = "none";
+        } else {
+          if(d < 0 || (scroller && scroller.scrollTop > 0)){ dead = true; return; }   // leave it to scrolling
+          moved = true; y0 = p[0]; pop.classList.add("dragging"); pop.classList.remove("snap");
+        }
       }
       if(e.cancelable) e.preventDefault();
+      if(hmode){
+        dx = p[1] - x0; var tgt = swipeTarget(dx < 0 ? 1 : -1), mv = tgt ? dx : dx * .22;   // nowhere to go: it only gives a little
+        hEl.style.transform = "translateX(" + mv + "px)"; hEl.style.opacity = String(1 - Math.min(.5, Math.abs(mv) / 600));
+        return;
+      }
       dy = p[0] - y0; pop.style.transform = "translateY(" + (dy < 0 ? dy * .2 : dy) + "px)";
     }
     function finish(){
       if(!down) return; down = false;
       if(!moved) return;
       skipClick = true; setTimeout(function(){ skipClick = false; }, 350);
+      if(hmode){ finishSwipe(); return; }
       pop.classList.remove("dragging");
       var v = dy / Math.max(1, Date.now() - t0);
       if(dy > 110 || v > .6){ pop.classList.add("snap"); pop.style.transform = "translateY(110%)"; setTimeout(function(){ pop.classList.remove("snap"); slideAway(); }, 220); }
