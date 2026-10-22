@@ -167,7 +167,10 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .sheet{align-items:center; padding:max(10px,env(safe-area-inset-top,0px)) 10px max(10px,env(safe-area-inset-bottom,0px))}
 .sheet-panel.pop{border-radius:22px; max-height:100%; height:min(100%, 46rem); max-width:30rem; padding:.9rem 1rem 1.1rem; gap:.75rem; display:flex; flex-direction:column; overflow:hidden;
   box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px #262f35}
-.pop-head{display:flex; align-items:center; gap:.6rem}
+.pop-head{display:flex; align-items:center; gap:.6rem; touch-action:none}
+.pop-grab{height:1.1rem; margin:-.5rem 0 -.4rem}
+.sheet-panel.pop.dragging{animation:none!important; transition:none}
+.sheet-panel.pop.snap{transition:transform .4s var(--spring)}
 .pop-back{width:2.4rem; height:2.4rem; flex-shrink:0; border-radius:50%; border:1px solid #3a444b; background:none; color:var(--fg); font:inherit; font-size:1.2rem; cursor:pointer}
 .pop-back[hidden]{visibility:hidden; display:block}
 .pop-titles{flex:1; min-width:0; display:flex; flex-direction:column}
@@ -516,6 +519,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 
 <div id="sheet" class="sheet" hidden>
   <div class="sheet-panel pop" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" data-screen="brand">
+    <button id="pGrab" class="fl-grab pop-grab" type="button" aria-label="Slide down to close"><i></i></button>
     <div class="pop-head">
       <button id="pBack" class="pop-back" type="button" aria-label="Back">←</button>
       <div class="pop-titles"><h2 id="sheetTitle"></h2><span id="pSub"></span></div>
@@ -1397,12 +1401,14 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   // ---- Add / remove cameras ----
   // Adding a camera from the main screen; with no initials saved yet, ask for them first
   function addFirst(type){ addCam(type); if(!camInit.value) openInit(openSheet); else openSheet(); }
+  var addedFrom = null, addedKey = null;
   function addCam(type){
     if(kit.empty){ var c0 = kit.cams[0]; c0.type = type; c0.n = 1; c0.b = ""; c0.m = ""; kit.empty = false; kit.active = key(c0); save(); refresh(); return; }
     var used = kit.cams.filter(function(c){ return c.type === type; }).map(function(c){ return c.n; });
     for(var n = 1; n <= MAXN; n++) if(used.indexOf(n) < 0) break;
     if(n > MAXN) return;
-    var c = {type:type, n:n, b:"", m:""}; kit.cams.push(c); sortKit(); kit.active = key(c); save(); refresh();
+    addedFrom = kit.active;   // slide the new camera's check down to drop it and go back to this one
+    var c = {type:type, n:n, b:"", m:""}; kit.cams.push(c); sortKit(); kit.active = key(c); addedKey = key(c); save(); refresh();
   }
   document.getElementById("addHC").addEventListener("click", function(){ addCam("HAND CAM"); });
   document.getElementById("addLS").addEventListener("click", function(){ addCam("LS"); });
@@ -2415,6 +2421,43 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     sheetGo.textContent = st === 1 ? "Continue: shoot the clock →" : st === 2 ? "Continue: photo of the screen →" : "Continue →";
   }
   sheetGo.addEventListener("click", function(){ var a = act(); closeSheet(); showNext(a); });
+  // Slide the camera pop-up down to put it away. A camera you just added and haven't started is dropped,
+  // and you're back on the check of the camera you were on.
+  function slideAway(){
+    var a = act(), prev = addedFrom && kit.cams.some(function(c){ return key(c) === addedFrom; }) ? addedFrom : null;
+    if(prev && key(a) === addedKey && !a.b){
+      addedFrom = addedKey = null;
+      removeCamera(a); setActive(prev); goScreen(screenFor(act()), true);
+      pop.classList.add("snap"); pop.style.transform = ""; setTimeout(function(){ pop.classList.remove("snap"); }, 420);   // the other camera's check rises back in
+      return;
+    }
+    closeSheet(); setTimeout(function(){ pop.style.transform = ""; }, 260);
+  }
+  (function(){
+    var y0 = 0, t0 = 0, dy = 0, down = false, moved = false, src = null;
+    function along(e){ return document.documentElement.classList.contains("rot") ? -e.clientX : e.clientY; }
+    function start(e){
+      var bt = e.target.closest("button"); if(bt && bt.id !== "pGrab") return;   // header buttons keep working
+      down = true; moved = false; dy = 0; y0 = along(e); t0 = Date.now(); src = e.currentTarget;
+      try{ src.setPointerCapture(e.pointerId); }catch(_){}
+    }
+    function move(e){
+      if(!down) return; dy = along(e) - y0; if(Math.abs(dy) > 6 && !moved){ moved = true; pop.classList.add("dragging"); pop.classList.remove("snap"); }
+      if(!moved) return; var y = dy < 0 ? dy * .2 : dy; pop.style.transform = "translateY(" + y + "px)";
+    }
+    function end(){
+      if(!down) return; down = false;
+      if(!moved){ if(src && src.id === "pGrab") slideAway(); return; }
+      pop.classList.remove("dragging");
+      var v = dy / Math.max(1, Date.now() - t0);
+      if(dy > 110 || v > .6){ pop.classList.add("snap"); pop.style.transform = "translateY(110%)"; setTimeout(function(){ pop.classList.remove("snap"); slideAway(); }, 220); }
+      else { pop.classList.add("snap"); pop.style.transform = ""; setTimeout(function(){ pop.classList.remove("snap"); }, 400); }
+    }
+    [document.getElementById("pGrab"), pop.querySelector(".pop-head")].forEach(function(el){
+      el.addEventListener("pointerdown", start); el.addEventListener("pointermove", move);
+      el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
+    });
+  })();
   document.getElementById("sheetClose").addEventListener("click", closeSheet);
   sheet.addEventListener("click", function(e){ if(e.target === sheet) closeSheet(); });
   document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !sheet.hidden) closeSheet(); });
