@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022164411">
+<meta name="app-ver" content="20261022164717">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -507,6 +507,8 @@ footer,.taphint{transition:opacity .3s var(--ease)}
 html.boxfull:not(.land) .taphint{opacity:0}
 html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); transition:opacity .3s var(--ease), transform .45s var(--spring)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+/* Every emoji / symbol sits in the same fixed-width slot, so the gaps between them are always even */
+.em{display:inline-block; width:1.3em; text-align:center; text-indent:0; line-height:1; font-style:normal}
 </style>
 </head>
 <body>
@@ -2846,6 +2848,39 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');
     }
+    // Even emoji spacing everywhere: each emoji or symbol (📷 ✓ ❗ → 🕒 …) is put in its own .em slot, also for text the
+    // app sets later. Text is only re-wrapped, never changed, so what's read back (textContent) stays the same.
+    (function(){
+      var RE = /(?:[\u2190-\u2199\u2713\u2714\u2717\u2715\u270E\u2934-\u2935\u2922\u2B05-\u2B07]|(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic})\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*/gu;
+      var SKIP = {SCRIPT:1, STYLE:1, TEXTAREA:1, INPUT:1, OPTION:1, TITLE:1};
+      function wrapText(t){
+        var p = t.parentNode, s = t.nodeValue;
+        if(!p || SKIP[p.nodeName] || (p.classList && p.classList.contains("em"))) return;
+        RE.lastIndex = 0; if(!RE.test(s)) return; RE.lastIndex = 0;
+        var f = document.createDocumentFragment(), last = 0, m;
+        while((m = RE.exec(s))){
+          if(m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
+          var sp = document.createElement("span"); sp.className = "em"; sp.textContent = m[0]; f.appendChild(sp);
+          last = m.index + m[0].length;
+        }
+        if(last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
+        p.replaceChild(f, t);
+      }
+      function walk(n){
+        if(n.nodeType === 3){ wrapText(n); return; }
+        if(n.nodeType !== 1 || SKIP[n.nodeName] || (n.classList && n.classList.contains("em"))) return;
+        var w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT), list = [], t;
+        while((t = w.nextNode())) list.push(t);
+        list.forEach(wrapText);
+      }
+      walk(document.body);
+      if(window.MutationObserver) new MutationObserver(function(ms){
+        ms.forEach(function(m){
+          if(m.type === "characterData") wrapText(m.target);
+          else [].forEach.call(m.addedNodes, walk);
+        });
+      }).observe(document.body, {childList: true, characterData: true, subtree: true});
+    })();
     // Update check: when the app opens or comes back to the front, fetch the page fresh (a unique ?u= skips every
     // cache) and compare its version. Newer: reload onto ?v=<version>, a URL no cache has seen. Never mid-photo.
     (function(){
