@@ -447,6 +447,9 @@ html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); 
 .chip:active,.fl-go:active,.fl-add:active,.fl-x:active,.resetbtn:active{transform:scale(.95)}
 .camwrap,.camset,.cammodel{transition:opacity .3s var(--ease)}
 footer,.taphint{transition:opacity .3s var(--ease)}
+/* Portrait: the caption rides just above the camera box so the box never hides it */
+html.boxfull:not(.land) .taphint{opacity:0}
+html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); transition:opacity .3s var(--ease), transform .45s var(--spring)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
 </style>
 </head>
@@ -584,17 +587,17 @@ footer,.taphint{transition:opacity .3s var(--ease)}
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/1.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Enter your initials</b><p>Only the first time. They go on every camera label and photo name. Change them later with your initials at the bottom of the screen.</p><img src="guide/2.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Point your camera at the clock and take a shot. Then tap <b>Done, I shot it →</b> in the box at the bottom.</p><img src="guide/5.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The camera box</b><p>Drag its line up for more: the middle height shows your cameras, the progress line and ✎ 🗑 ✕. All the way up shows the instructions and ← Back links. Drag it down or tap ✕ to make it small again. The green button always stays on show.</p><img src="guide/6.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📷 Take photo</b>, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera or add one</b><p>Tap <b>Next camera →</b> for the next one in your list. Tap <b>+ 📷</b> next to the green button to add another hand cam or LS.</p><img src="guide/9.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send photos →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>In the middle height of the box: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=2" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/1.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Enter your initials</b><p>Only the first time. They go on every camera label and photo name. Change them later with your initials at the bottom of the screen.</p><img src="guide/2.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Point your camera at the clock and take a shot. Then tap <b>Done, I shot it →</b> in the box at the bottom.</p><img src="guide/5.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The camera box</b><p>Drag its line up for more: the middle height shows your cameras, the progress line and ✎ 🗑 ✕. All the way up shows the instructions and ← Back links. Drag it down or tap ✕ to make it small again. The green button always stays on show.</p><img src="guide/6.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📷 Take photo</b>, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera or add one</b><p>Tap <b>Next camera →</b> for the next one in your list. Tap <b>+ 📷</b> next to the green button to add another hand cam or LS.</p><img src="guide/9.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send photos →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>In the middle height of the box: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=3" alt="" loading="lazy" width="390" height="844"></div></li>
     <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Good to know</b><p>
       · <b>Sync now</b> re-checks the time server; the line above it shows how far off your phone's own clock is.<br>
       · <b>Tap the clock</b> to hide the buttons for a clean shot; tap again to bring them back.<br>
@@ -1490,7 +1493,8 @@ footer,.taphint{transition:opacity .3s var(--ease)}
     else { var foot = nextBar.parentNode; h = flInner.offsetTop + flInner.offsetHeight + bd; nextBar.dataset.stage = cur; return Math.max(stageH(1), Math.min(h, foot.offsetTop - 24)); }
     nextBar.dataset.stage = cur; return h;
   }
-  function setStage(n){ stage = n; nextBar.dataset.stage = n; if(n < 2) nextBar.scrollTop = 0; nextBar.style.height = stageH(n) + "px"; reserve(); }
+  function setStage(n){ stage = n; nextBar.dataset.stage = n; if(n < 2) nextBar.scrollTop = 0; var h = stageH(n); nextBar.style.height = h + "px";
+    document.documentElement.style.setProperty("--boxh", (h + 10) + "px"); document.documentElement.classList.toggle("boxfull", n === 2); reserve(); }
   // Landscape is short: the clock shrinks a little so the box's middle height never covers it
   var reserved = -1;
   function reserve(){
@@ -1520,7 +1524,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
       var lo = stageH(0), hi = stageH(2), h = h0 - dy;
       if(h > hi) h = hi + (h - hi) * .25; if(h < lo) h = lo - (lo - h) * .25;   // a little stretch past the ends, like pulling something soft
       nextBar.dataset.stage = h > stageH(1) + 8 ? 2 : h > lo + 8 ? 1 : 0;
-      nextBar.style.height = h + "px";
+      nextBar.style.height = h + "px"; document.documentElement.style.setProperty("--boxh", (h + 10) + "px");
     });
     function end(){
       if(!down) return; down = false; nextBar.classList.remove("dragging");
@@ -1576,7 +1580,7 @@ footer,.taphint{transition:opacity .3s var(--ease)}
   function hideNext(force){
     if(nextBar.hidden || (!force && hasCams())) return;   // the box stays; pop-ups and the camera simply cover it
     nextBar.classList.add("leaving"); clearTimeout(hideT);
-    hideT = setTimeout(function(){ nextBar.hidden = true; nextBar.classList.remove("leaving"); nextBar.style.transform = ""; stage = 0; reserve(); }, 260);
+    hideT = setTimeout(function(){ nextBar.hidden = true; nextBar.classList.remove("leaving"); nextBar.style.transform = ""; stage = 0; document.documentElement.style.setProperty("--boxh", "0px"); reserve(); }, 260);
   }
   function doneCount(){ var n = 0; kit.cams.forEach(function(c){ if(isDone(c) && (photos[photoKey(c)] || skipped[photoKey(c)])) n++; }); return n; }
   function goNext(){
