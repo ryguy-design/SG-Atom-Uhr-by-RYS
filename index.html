@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022173331">
+<meta name="app-ver" content="20261022173826">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -211,6 +211,12 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .seg button{flex:1; font:inherit; font-weight:800; font-size:1rem; color:var(--muted); background:none; border:0; border-radius:10px; padding:.75rem; cursor:pointer; transition:background-color .25s, color .25s, transform .25s var(--spring)}
 .seg button.on{background:var(--fg); color:var(--bg)}
 .seg button:active{transform:scale(.96)}
+/* Hand cam / LS in the camera check: same tiles as the brand buttons (green ring + tick when picked) */
+#pType.seg{display:grid; grid-template-columns:repeat(2, 1fr); gap:.6rem; background:none; padding:0; border-radius:0}
+#pType.seg button{position:relative; min-height:4.2rem; font-size:1.35rem; letter-spacing:.02em; color:var(--fg); background:#1d252a; border:2px solid transparent; border-radius:16px; padding:.75rem .9rem; transition:transform .3s var(--spring), border-color .2s, background-color .2s}
+#pType.seg button.on{border-color:var(--ok); background:#163222; color:var(--fg)}
+#pType.seg button.on::after{content:""; position:absolute; top:.5rem; right:.6rem; width:.75em; height:.75em; background:var(--ok); -webkit-mask:var(--tick) center/contain no-repeat; mask:var(--tick) center/contain no-repeat}
+#pType.seg button:active{transform:scale(.95)}
 /* Type switcher popup */
 .typeswitcher{position:fixed; inset:0; z-index:11; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; padding:1rem}
 .typeswitcher[hidden]{display:none}
