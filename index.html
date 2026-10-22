@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022175633">
+<meta name="app-ver" content="20261022175910">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -200,7 +200,7 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 @keyframes scIn{from{opacity:0; transform:translateX(28px)}} @keyframes scBack{from{opacity:0; transform:translateX(-28px)}}
 /* After a sideways swipe the next page slides all the way in from the side it came from */
 @keyframes scSwipeIn{from{opacity:.3; transform:translateX(70%)}} @keyframes scSwipeBack{from{opacity:.3; transform:translateX(-70%)}}
-.pop.swipe-in .pop-sc{animation:scSwipeIn .34s var(--spring)!important} .pop.swipe-back .pop-sc{animation:scSwipeBack .34s var(--spring)!important}
+.pop.swipe-in .pop-sc{animation:scSwipeIn .3s cubic-bezier(.2,.8,.2,1)!important} .pop.swipe-back .pop-sc{animation:scSwipeBack .3s cubic-bezier(.2,.8,.2,1)!important}
 .pop-label{font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-top:.2rem}
 .pop-label[hidden]{display:none}
 .pop-sc > *{flex-shrink:0}   /* nothing in a popup screen gets squashed (the camera row was being cut in half) */
@@ -1520,6 +1520,8 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }   // light haptic tap (not the clock's tick)
   function screenFor(a){ return !a.b ? "brand" : !findCam(a.b, a.m) ? "model" : "checks"; }
   function goScreen(sc, back){
+    pop.classList.remove("swipe-in", "swipe-back");
+    [].forEach.call(pop.querySelectorAll(".pop-sc"), function(s){ s.style.animation = ""; });
     pop.classList.toggle("back-anim", !!back); pop.dataset.screen = sc;
     var order = ["brand", "model", "checks"], n = order.indexOf(sc);
     [].forEach.call(pop.querySelectorAll(".pop-steps i"), function(el, i){ el.className = i < n ? "on" : i === n ? "cur" : ""; });
@@ -2759,12 +2761,11 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
         el.style.transition = "transform .16s ease-in, opacity .16s ease-in"; el.style.transform = "translateX(" + (-dir * W) + "px)"; el.style.opacity = "0";
         setTimeout(function(){
           el.style.transition = el.style.transform = el.style.opacity = el.style.animation = "";
-          pop.classList.add(dir > 0 ? "swipe-in" : "swipe-back"); goScreen(tgt, dir < 0); buzz();
-          setTimeout(function(){ pop.classList.remove("swipe-in", "swipe-back"); }, 420);
+          goScreen(tgt, dir < 0); pop.classList.add(dir > 0 ? "swipe-in" : "swipe-back"); buzz();   // class stays until the next page change, so the arrival never replays
         }, 160);
       } else {
         el.style.transition = "transform .3s var(--spring), opacity .3s"; el.style.transform = ""; el.style.opacity = "";
-        setTimeout(function(){ el.style.transition = el.style.animation = ""; }, 320);
+        setTimeout(function(){ el.style.transition = ""; }, 320);   // animation stays off: clearing it would replay the page's entrance
       }
       hmode = false; hEl = null;
     }
