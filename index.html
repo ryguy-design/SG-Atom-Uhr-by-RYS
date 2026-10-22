@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022172641">
+<meta name="app-ver" content="20261022172931">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -470,7 +470,8 @@ html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); 
 .bubble[hidden]{display:none}
 .bubble.dragging{box-shadow:0 16px 36px rgba(0,0,0,.6), 0 0 0 6px rgba(46,204,90,.25)}
 .bb-go{min-width:0; font:inherit; font-size:1rem; font-weight:800; color:inherit; background:none; border:0; padding:.8rem .4rem .8rem 1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer}
-.bb-add{flex-shrink:0; font:inherit; font-size:.95rem; font-weight:800; color:#06210e; background:rgba(0,0,0,.12); border:0; border-radius:999px; padding:.55rem .7rem; margin-left:.2rem; cursor:pointer; white-space:nowrap}
+/* + : a small clear dotted bubble just to the right of the green one */
+.bb-add{position:absolute; left:calc(100% + .7rem); top:50%; transform:translateY(-50%); width:2.6rem; height:2.6rem; padding:0; border-radius:50%; background:transparent; border:2px dashed #56626a; color:var(--fg); font:inherit; font-size:1.3rem; font-weight:800; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer}
 .bb-add[hidden]{display:none}
 .bb-exp{flex-shrink:0; width:2.5rem; height:2.5rem; margin:.3rem .3rem .3rem .1rem; border-radius:50%; border:0; background:rgba(0,0,0,.16); color:#06210e; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0}
 .bb-exp svg{width:1.05rem; height:1.05rem}
@@ -557,7 +558,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <!-- Camera check bubble: the box when it's put away. Drag it anywhere; the arrows open the box -->
 <div id="bubble" class="bubble" hidden>
   <button id="bbGo" class="bb-go" type="button"></button>
-  <button id="bbAdd" class="bb-add" type="button" hidden aria-label="Add another camera">+ 📷</button>
+  <button id="bbAdd" class="bb-add" type="button" hidden aria-label="Add another camera">+</button>
   <button id="bbExp" class="bb-exp" type="button" aria-label="Open the camera box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
 </div>
 <footer>
