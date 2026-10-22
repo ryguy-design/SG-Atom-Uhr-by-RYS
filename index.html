@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022172931">
+<meta name="app-ver" content="20261022173331">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -471,7 +471,7 @@ html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); 
 .bubble.dragging{box-shadow:0 16px 36px rgba(0,0,0,.6), 0 0 0 6px rgba(46,204,90,.25)}
 .bb-go{min-width:0; font:inherit; font-size:1rem; font-weight:800; color:inherit; background:none; border:0; padding:.8rem .4rem .8rem 1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer}
 /* + : a small clear dotted bubble just to the right of the green one */
-.bb-add{position:absolute; left:calc(100% + .7rem); top:50%; transform:translateY(-50%); width:2.6rem; height:2.6rem; padding:0; border-radius:50%; background:transparent; border:2px dashed #56626a; color:var(--fg); font:inherit; font-size:1.3rem; font-weight:800; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer}
+.bb-add{position:absolute; left:calc(100% + .7rem); top:50%; transform:translateY(-50%); width:2.6rem; height:2.6rem; padding:0; border-radius:50%; background:transparent; border:2px dashed var(--ok); color:var(--ok); font:inherit; font-size:1.3rem; font-weight:800; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer}
 .bb-add[hidden]{display:none}
 .bb-exp{flex-shrink:0; width:2.5rem; height:2.5rem; margin:.3rem .3rem .3rem .1rem; border-radius:50%; border:0; background:rgba(0,0,0,.16); color:#06210e; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0}
 .bb-exp svg{width:1.05rem; height:1.05rem}
@@ -1577,13 +1577,14 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   // ---- Add / remove cameras ----
   // Adding a camera from the main screen
   function addFirst(type){ if(!camInit.value){ askInitials(type); return; } addCam(type); openSheet(); }   // initials first, typed into the white box
-  var addedFrom = null, addedKey = null;
+  var addedFrom = null, addedKey = null, addedInSheet = false;
   function addCam(type){
     if(kit.empty){ var c0 = kit.cams[0]; c0.type = type; c0.n = 1; c0.b = ""; c0.m = ""; kit.empty = false; kit.active = key(c0); save(); refresh(); return; }
     var used = kit.cams.filter(function(c){ return c.type === type; }).map(function(c){ return c.n; });
     for(var n = 1; n <= MAXN; n++) if(used.indexOf(n) < 0) break;
     if(n > MAXN) return;
     addedFrom = kit.active;   // slide the new camera's check down to drop it and go back to this one
+    addedInSheet = !sheet.hidden;   // added from the clock screen (bubble +): sliding down goes back to the clock
     var c = {type:type, n:n, b:"", m:""}; kit.cams.push(c); sortKit(); kit.active = key(c); addedKey = key(c); save(); refresh();
   }
   document.getElementById("addHC").addEventListener("click", function(){ addCam("HAND CAM"); });
@@ -2698,6 +2699,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     var a = act(), prev = addedFrom && kit.cams.some(function(c){ return key(c) === addedFrom; }) ? addedFrom : null;
     if(prev && key(a) === addedKey && !a.b){
       addedFrom = addedKey = null;
+      if(!addedInSheet){ kit.active = prev; removeCamera(a); setActive(prev); closeSheet(); setTimeout(function(){ pop.style.transform = ""; }, 260); return; }
       removeCamera(a); setActive(prev); goScreen(screenFor(act()), true);
       pop.classList.add("snap"); pop.style.transform = ""; setTimeout(function(){ pop.classList.remove("snap"); }, 420);   // the other camera's check rises back in
       return;
