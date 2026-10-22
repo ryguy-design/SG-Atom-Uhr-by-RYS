@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022165103">
+<meta name="app-ver" content="20261022165316">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -513,6 +513,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 .em.chev{-webkit-text-fill-color:transparent}
 .em.chev::after{content:""; position:absolute; left:50%; top:50%; width:.36em; height:.36em; border:solid currentColor; border-width:.14em .14em 0 0; border-radius:.04em; transform:translate(-65%,-50%) rotate(45deg)}
 .em.chev.l::after{transform:translate(-35%,-50%) rotate(-135deg)}
+.bb-red{color:#c4001a}
 </style>
 </head>
 <body>
@@ -1694,6 +1695,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     var hb = hasCams() && !nextBar.hidden, root = document.documentElement;
     if(root.classList.contains("hasbox") !== hb){ root.classList.toggle("hasbox", hb); fit(); }
     bbGo.textContent = flGo.textContent; bbGo.setAttribute("aria-label", flGo.textContent);
+    // Camera check not done: the count (0/4 – 3/4) in red on the floating button
+    var cm = /^(.*?)([0-3]\/4)$/.exec(flGo.textContent);
+    if(cm){ bbGo.textContent = cm[1]; var rc = document.createElement("span"); rc.className = "bb-red"; rc.textContent = cm[2]; bbGo.appendChild(rc); }
     document.getElementById("bbAdd").hidden = document.getElementById("flGoAdd").hidden;
     if(bubble.hidden === !show){ if(show) placeBubble(); return; }
     if(show){ bubble.style.visibility = "hidden"; bubble.hidden = false; placeBubble(); bubble.style.visibility = ""; } else bubble.hidden = true;   // placed before it's seen
