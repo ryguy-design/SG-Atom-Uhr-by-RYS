@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022171133">
+<meta name="app-ver" content="20261022171612">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -510,16 +510,16 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 /* Every emoji / symbol sits in the same fixed-width slot, so the gaps between them are always even */
 .em{display:inline-flex; align-items:center; justify-content:center; height:1.2em; padding:0 .17em; vertical-align:baseline; text-indent:0; line-height:1; font-style:normal; position:relative; box-sizing:content-box}
 /* Drawn symbols get a slot as wide as their ink, so the gap to the next emoji is the same everywhere */
-.em.chev,.em.tick{-webkit-text-fill-color:transparent; width:.4em; overflow:visible}
-.em.tick{width:.66em}
+.em.chev,.em.tick{-webkit-text-fill-color:transparent; overflow:visible}
+.em.chev{width:.48em} .em.tick{width:.8em}
 .em>i{font-style:normal; display:inline-block}
-/* Arrows: a thick chevron (the arrow character stays in the text, just unseen) */
-.em.chev::after{content:""; position:absolute; left:50%; top:50%; width:.36em; height:.36em; border:solid currentColor; border-width:.14em .14em 0 0; border-radius:.04em; transform:translate(-65%,-50%) rotate(45deg)}
-.em.chev.l::after{transform:translate(-35%,-50%) rotate(-135deg)}
-/* Tick: drawn, thick and straight (the ✓ stays in the text, just unseen) */
-.em.tick::after{content:""; position:absolute; left:50%; top:50%; width:.92em; height:.92em; background:currentColor; -webkit-mask:var(--tick) center/contain no-repeat; mask:var(--tick) center/contain no-repeat; transform:translate(-50%,-50%)}
-.bb-red{color:#c4001a}
-:root{--tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 10.6l4.9 4.9L17.6 5.8' fill='none' stroke='%23000' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E")}  /* the one tick used everywhere */
+/* Arrows and ticks are drawn from tight shapes: the slot is exactly the ink, so every gap matches */
+.em.chev::after,.em.tick::after{content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:currentColor}
+.em.chev::after{width:.48em; height:.68em; -webkit-mask:var(--chev) center/contain no-repeat; mask:var(--chev) center/contain no-repeat}
+.em.chev.l::after{transform:translate(-50%,-50%) scaleX(-1)}
+.em.tick::after{width:.8em; height:.65em; -webkit-mask:var(--tick) center/contain no-repeat; mask:var(--tick) center/contain no-repeat}
+.bb-red{color:#c4001a; margin-left:.18em}
+:root{--tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.44 4.24 17.72 14.37'%3E%3Cpath d='M3 10.6l4.9 4.9L17.6 5.8' fill='none' stroke='%23000' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E"); --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-1.556 -1.556 10.67 15.11'%3E%3Cpath d='M0 0l6 6L0 12' fill='none' stroke='%23000' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E")}  /* the one tick used everywhere */
 </style>
 </head>
 <body>
@@ -1859,7 +1859,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       var n = countOf(a), has = !!findCam(a.b, a.m);
       panel({step: -1, kick: name + " · camera check", head: has ? n + " of 4 ticked" : "Pick brand & model",
         sub: "", raise: up,
-        go: ["📷✓ " + (has ? n : 0) + "/4", function(){ openSheet(); }]});
+        go: ["📷✓" + (has ? n : 0) + "/4", function(){ openSheet(); }]});
       return;
     }
     if(st === 1){
@@ -2869,14 +2869,21 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       var cv = document.createElement("canvas").getContext("2d"), inkCache = {};
       function fitInk(sp){
         if(/\b(chev|tick)\b/.test(sp.className)) return;
-        var gi = sp.firstChild, cs = getComputedStyle(sp), fam = cs.fontFamily, k = gi.textContent + "|" + fam, r = inkCache[k];
-        if(!r){
-          cv.font = "100px " + fam; var mt = cv.measureText(gi.textContent);
-          if(!mt || mt.actualBoundingBoxRight == null) return;
-          var L = mt.actualBoundingBoxLeft, R = mt.actualBoundingBoxRight, A = mt.width;
-          if(!(R + L > 0)) return;
-          r = inkCache[k] = {w: (R + L) / 100, shift: (A / 2 - (R - L) / 2) / 100};
+        var gi = sp.firstChild, fam = getComputedStyle(sp).fontFamily, g = gi.textContent, k = g + "|" + fam, r = inkCache[k];
+        if(r === undefined){
+          // Draw the glyph and find its visible pixels (works for colour emoji too, whose font boxes are all the same)
+          r = null;
+          try{
+            var S = 100, c = cv.canvas; c.width = 3 * S; c.height = 2 * S;
+            cv.clearRect(0, 0, c.width, c.height); cv.font = S + "px " + fam; cv.textBaseline = "middle"; cv.textAlign = "left"; cv.fillStyle = "#000";
+            cv.fillText(g, S, S); var A = cv.measureText(g).width;
+            var d = cv.getImageData(0, 0, c.width, c.height).data, W = c.width, H = c.height, lo = W, hi = -1;
+            for(var x = 0; x < W; x++){ for(var y = 0; y < H; y++){ if(d[(y * W + x) * 4 + 3] > 24){ if(x < lo) lo = x; hi = x; break; } } }
+            if(hi >= lo && A > 0){ var iL = lo - S, iR = hi + 1 - S; r = {w: (iR - iL) / S, shift: (A / 2 - (iL + iR) / 2) / S}; }
+          }catch(_){}
+          inkCache[k] = r;
         }
+        if(!r) return;
         sp.style.width = r.w.toFixed(3) + "em"; gi.style.transform = "translateX(" + r.shift.toFixed(3) + "em)";
       }
       var SKIP = {SCRIPT:1, STYLE:1, TEXTAREA:1, INPUT:1, OPTION:1, TITLE:1};
