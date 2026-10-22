@@ -1820,11 +1820,10 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       return;
     }
     if(st === 1){
-      var q = clockQueue();
-      panel({step: 0, kick: (q.length > 1 ? q.map(short).join(" · ") : name) + " · step 1", head: "Shoot the clock" + (q.length > 1 ? " with every camera" : ""), sub: "",
-        go: ["📷→🕒", function(){ showNext(shootClocks()); }],
-        l: ["← Back", function(){ hideNext(); setActive(key(a)); openSheet(); }],
-        r: rec || skipped[k] ? ["Next →", function(){ go(a, 4); }] : null});
+      // 📷→🕒 lives in the camera check only: no box of its own. Going to step 1 reopens the check;
+      // closing the check (or loading the app) on step 1 leaves the clock clear
+      if(quiet){ hideNext(true); return; }
+      hideNext(true); setActive(key(a)); openSheet();
       return;
     }
     if(st === 2){
@@ -2626,7 +2625,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     if(sheet.hidden) return;
     sheet.classList.add("leaving"); clearTimeout(sheetT);
     sheetT = setTimeout(function(){ sheet.hidden = true; sheet.classList.remove("leaving"); if(rotated) fit(); }, 230);
-    if(hasCams()) showNext(act());   // back on the clock: the camera box shows this camera's next step
+    if(hasCams()) showNext(act(), true);   // back on the clock: the camera box shows this camera's next step
   }
   // All 4 ticked: a big Continue button in the check takes you back into the steps (no need to untick and re-tick)
   var sheetGo = document.getElementById("sheetGo");
