@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="app-ver" content="20261022164227">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -2845,6 +2846,26 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');
     }
+    // Update check: when the app opens or comes back to the front, fetch the page fresh (a unique ?u= skips every
+    // cache) and compare its version. Newer: reload onto ?v=<version>, a URL no cache has seen. Never mid-photo.
+    (function(){
+      function mine(){ var m = document.querySelector('meta[name="app-ver"]'); return m ? m.content : ""; }
+      function busy(){ return ["cam","viewer","sendView"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; }); }
+      var checking = false;
+      function check(){
+        if(checking || !navigator.onLine || busy()) return; checking = true;
+        fetch("./?u=" + Date.now(), {cache: "no-store"}).then(function(r){ return r.ok ? r.text() : ""; }).then(function(t){
+          checking = false;
+          var m = /<meta name="app-ver" content="([^"]*)"/.exec(t), v = m && m[1];
+          if(!v || v === mine()) return;
+          try{ if(sessionStorage.getItem("appVerTried") === v) return; sessionStorage.setItem("appVerTried", v); }catch(e){}
+          location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash);
+        }).catch(function(){ checking = false; });
+      }
+      setTimeout(check, 1500);
+      document.addEventListener("visibilitychange", function(){ if(document.visibilityState === "visible") check(); });
+      window.addEventListener("online", check);
+    })();
     // Installed app: release any orientation lock left over from an older install
     try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
   </script>
