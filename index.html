@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022165729">
+<meta name="app-ver" content="20261022170252">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -219,7 +219,7 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .typeswitcher button{font:inherit; font-weight:800; font-size:1rem; color:var(--fg); background:#1d252a; border:2px solid transparent; border-radius:12px; padding:.7rem; cursor:pointer; transition:background-color .2s, border-color .2s, transform .25s var(--spring)}
 .typeswitcher button:active{transform:scale(.97)}
 .typeswitcher button.on{border-color:var(--ok); background:#163222}
-.typeswitcher button.on::after{content:" ✓"; color:var(--ok)}
+.typeswitcher button.on::after{content:""; display:inline-block; width:.8em; height:.8em; margin-left:.35em; vertical-align:-.08em; background:var(--ok); -webkit-mask:var(--tick) center/contain no-repeat; mask:var(--tick) center/contain no-repeat}
 .typeswitcher button:disabled{opacity:.35; cursor:default}
 .typeswitcher .ts-cancel{background:none; color:var(--muted); font-weight:700; font-size:.9rem; padding:.4rem}
 /* Tiles: brands and models */
@@ -230,7 +230,7 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .tile b{font-size:1.05rem; font-weight:800; line-height:1.15}
 .tile small{font-size:.75rem; color:var(--muted)}
 .tile.sel{border-color:var(--ok); background:#163222}
-.tile.sel::after{content:"✓"; position:absolute; top:.45rem; right:.6rem; font-weight:900; color:var(--ok)}
+.tile.sel::after{content:""; position:absolute; top:.5rem; right:.6rem; width:1em; height:1em; background:var(--ok); -webkit-mask:var(--tick) center/contain no-repeat; mask:var(--tick) center/contain no-repeat}
 .brands .tile{min-height:5.2rem; align-items:center; text-align:center}
 .brands .tile b{font-size:1.35rem; letter-spacing:.02em}
 .brands .tile.other{grid-column:1 / -1; min-height:3.4rem; background:transparent; border:2px dashed #3a444b}
@@ -252,7 +252,7 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
   transition:background-color .25s, border-color .25s, transform .3s var(--spring)}
 .checklist label:active{transform:scale(.97)}
 .checklist input{appearance:none; -webkit-appearance:none; width:2rem; height:2rem; margin:0; flex-shrink:0; border-radius:50%; border:2.5px solid #56626a; display:grid; place-content:center; transition:background-color .2s, border-color .2s, transform .35s var(--spring)}
-.checklist input::after{content:"✓"; font-weight:900; font-size:1.1rem; color:#06210e; transform:scale(0); transition:transform .35s var(--spring)}
+.checklist input::after{content:""; width:1.15rem; height:1.15rem; background:#06210e; -webkit-mask:var(--tick) center/contain no-repeat; mask:var(--tick) center/contain no-repeat; transform:scale(0); transition:transform .35s var(--spring)}
 .checklist input:checked{background:var(--ok); border-color:var(--ok); transform:scale(1.08)}
 .checklist input:checked::after{transform:scale(1)}
 .checklist label:has(input:checked){background:#14301f; border-color:#2a6b3b}
@@ -319,7 +319,7 @@ html.land .fl-add{padding:.5rem}
 .nb-next{flex-shrink:0; font:inherit; font-weight:800; font-size:1rem; color:#06210e; background:var(--ok); border:0; border-radius:10px; padding:.6rem 1rem; cursor:pointer}
 .nb-next:focus-visible,.nb-photo:focus-visible{outline:2px solid var(--fg); outline-offset:2px}
 .nb-photo{flex-shrink:0; font:inherit; font-size:1.25rem; line-height:1; color:var(--fg); background:transparent; border:2px solid var(--ok); border-radius:10px; padding:.4rem .7rem; cursor:pointer; position:relative}
-.nb-photo.done::after{content:"✓"; position:absolute; top:-.45rem; right:-.45rem; font-size:.7rem; font-weight:900; color:#06210e; background:var(--ok); border-radius:50%; width:1.1rem; height:1.1rem; line-height:1.1rem; text-align:center}
+.nb-photo.done::after{content:""; position:absolute; top:-.45rem; right:-.45rem; width:1.1rem; height:1.1rem; border-radius:50%; background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 10.6l4.9 4.9L17.6 5.8' fill='none' stroke='%2306210e' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E") center/62% no-repeat}
 .nextbar{background:#151b1f}
 .fl-top{display:flex; align-items:center; gap:.4rem}
 .fl-cams{flex:1; min-width:0; display:flex; gap:.35rem; overflow-x:auto; scrollbar-width:none}
@@ -517,8 +517,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 .em.chev::after{content:""; position:absolute; left:50%; top:50%; width:.36em; height:.36em; border:solid currentColor; border-width:.14em .14em 0 0; border-radius:.04em; transform:translate(-65%,-50%) rotate(45deg)}
 .em.chev.l::after{transform:translate(-35%,-50%) rotate(-135deg)}
 /* Tick: drawn, thick and straight (the ✓ stays in the text, just unseen) */
-.em.tick::after{content:""; position:absolute; left:50%; top:50%; width:.24em; height:.66em; border:solid currentColor; border-width:0 .17em .17em 0; transform:translate(-50%,-62%) rotate(45deg)}
+.em.tick::after{content:""; position:absolute; left:50%; top:50%; width:.92em; height:.92em; background:currentColor; -webkit-mask:var(--tick) center/contain no-repeat; mask:var(--tick) center/contain no-repeat; transform:translate(-50%,-50%)}
 .bb-red{color:#c4001a}
+:root{--tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 10.6l4.9 4.9L17.6 5.8' fill='none' stroke='%23000' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E")}  /* the one tick used everywhere */
 </style>
 </head>
 <body>
