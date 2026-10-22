@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022165316">
+<meta name="app-ver" content="20261022165729">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -508,11 +508,16 @@ html.boxfull:not(.land) .taphint{opacity:0}
 html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); transition:opacity .3s var(--ease), transform .45s var(--spring)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
 /* Every emoji / symbol sits in the same fixed-width slot, so the gaps between them are always even */
-.em{display:inline-flex; align-items:center; justify-content:center; width:1.3em; height:1.2em; vertical-align:baseline; text-indent:0; line-height:1; font-style:normal; position:relative}
-/* Arrows are drawn as a thick chevron to match the ✓ (the arrow character stays in the text, just unseen) */
-.em.chev{-webkit-text-fill-color:transparent}
+.em{display:inline-flex; align-items:center; justify-content:center; height:1.2em; padding:0 .17em; vertical-align:baseline; text-indent:0; line-height:1; font-style:normal; position:relative; box-sizing:content-box}
+/* Drawn symbols get a slot as wide as their ink, so the gap to the next emoji is the same everywhere */
+.em.chev,.em.tick{-webkit-text-fill-color:transparent; width:.4em; overflow:visible}
+.em.tick{width:.66em}
+.em>i{font-style:normal; display:inline-block}
+/* Arrows: a thick chevron (the arrow character stays in the text, just unseen) */
 .em.chev::after{content:""; position:absolute; left:50%; top:50%; width:.36em; height:.36em; border:solid currentColor; border-width:.14em .14em 0 0; border-radius:.04em; transform:translate(-65%,-50%) rotate(45deg)}
 .em.chev.l::after{transform:translate(-35%,-50%) rotate(-135deg)}
+/* Tick: drawn, thick and straight (the ✓ stays in the text, just unseen) */
+.em.tick::after{content:""; position:absolute; left:50%; top:50%; width:.24em; height:.66em; border:solid currentColor; border-width:0 .17em .17em 0; transform:translate(-50%,-62%) rotate(45deg)}
 .bb-red{color:#c4001a}
 </style>
 </head>
@@ -2860,23 +2865,39 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     // app sets later. Text is only re-wrapped, never changed, so what's read back (textContent) stays the same.
     (function(){
       var RE = /(?:[\u2190-\u2199\u2713\u2714\u2717\u2715\u270E\u2934-\u2935\u2922\u2B05-\u2B07]|(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic})\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*/gu;
+      // Emoji fonts leave different blank space around each glyph (❗ is thin, 📷 is wide). Measure the visible ink
+      // and make each slot exactly that wide, centred on the ink, so the gap between any two symbols is the same.
+      var cv = document.createElement("canvas").getContext("2d"), inkCache = {};
+      function fitInk(sp){
+        if(/\b(chev|tick)\b/.test(sp.className)) return;
+        var gi = sp.firstChild, cs = getComputedStyle(sp), fam = cs.fontFamily, k = gi.textContent + "|" + fam, r = inkCache[k];
+        if(!r){
+          cv.font = "100px " + fam; var mt = cv.measureText(gi.textContent);
+          if(!mt || mt.actualBoundingBoxRight == null) return;
+          var L = mt.actualBoundingBoxLeft, R = mt.actualBoundingBoxRight, A = mt.width;
+          if(!(R + L > 0)) return;
+          r = inkCache[k] = {w: (R + L) / 100, shift: (A / 2 - (R - L) / 2) / 100};
+        }
+        sp.style.width = r.w.toFixed(3) + "em"; gi.style.transform = "translateX(" + r.shift.toFixed(3) + "em)";
+      }
       var SKIP = {SCRIPT:1, STYLE:1, TEXTAREA:1, INPUT:1, OPTION:1, TITLE:1};
       function wrapText(t){
         var p = t.parentNode, s = t.nodeValue;
-        if(!p || SKIP[p.nodeName] || (p.classList && p.classList.contains("em"))) return;
+        if(!p || SKIP[p.nodeName] || (p.closest && p.closest(".em"))) return;
         RE.lastIndex = 0; if(!RE.test(s)) return; RE.lastIndex = 0;
-        var f = document.createDocumentFragment(), last = 0, m;
+        var f = document.createDocumentFragment(), last = 0, m, news = [];
         while((m = RE.exec(s))){
           if(m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
-          var sp = document.createElement("span"); sp.className = "em" + (m[0] === "\u2192" ? " chev" : m[0] === "\u2190" ? " chev l" : ""); sp.textContent = m[0]; f.appendChild(sp);
+          var sp = document.createElement("span"); sp.className = "em" + (m[0] === "\u2192" ? " chev" : m[0] === "\u2190" ? " chev l" : /^[\u2713\u2714]/.test(m[0]) ? " tick" : ""); var gi = document.createElement("i"); gi.textContent = m[0]; sp.appendChild(gi); f.appendChild(sp); news.push(sp);
           last = m.index + m[0].length;
         }
         if(last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
         p.replaceChild(f, t);
+        news.forEach(fitInk);
       }
       function walk(n){
         if(n.nodeType === 3){ wrapText(n); return; }
-        if(n.nodeType !== 1 || SKIP[n.nodeName] || (n.classList && n.classList.contains("em"))) return;
+        if(n.nodeType !== 1 || SKIP[n.nodeName] || (n.closest && n.closest(".em"))) return;
         var w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT), list = [], t;
         while((t = w.nextNode())) list.push(t);
         list.forEach(wrapText);
