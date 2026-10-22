@@ -194,6 +194,12 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .seg button{flex:1; font:inherit; font-weight:800; font-size:1rem; color:var(--muted); background:none; border:0; border-radius:10px; padding:.75rem; cursor:pointer; transition:background-color .25s, color .25s, transform .25s var(--spring)}
 .seg button.on{background:var(--fg); color:var(--bg)}
 .seg button:active{transform:scale(.96)}
+/* Type switcher popup */
+.typeswitcher{position:fixed; inset:0; z-index:11; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; padding:1rem}
+.typeswitcher[hidden]{display:none}
+.typeswitcher-panel{display:flex; flex-direction:column; gap:.6rem; background:#151b1f; border-radius:16px; padding:1rem; min-width:12rem; box-shadow:0 10px 30px rgba(0,0,0,.6), 0 0 0 1px #262f35}
+.typeswitcher button{font:inherit; font-weight:800; font-size:1rem; color:var(--fg); background:#1d252a; border:2px solid transparent; border-radius:12px; padding:.7rem; cursor:pointer; transition:background-color .2s, border-color .2s, transform .25s var(--spring)}
+.typeswitcher button:active{transform:scale(.97)}
 /* Tiles: brands and models */
 .tiles{display:grid; grid-template-columns:repeat(2, 1fr); gap:.6rem}
 .tile{position:relative; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:.15rem; min-height:4.2rem; font:inherit; text-align:left; color:var(--fg);
@@ -371,6 +377,9 @@ html.narrow .nb-next{font-size:.92rem; padding:.5rem .7rem}
 .view-top span b{font-size:inherit; color:var(--fg)}
 .cam-box{flex:1; min-height:0; position:relative; background:#000; display:flex; align-items:center; justify-content:center; overflow:hidden}
 .cam-box video{width:100%; height:100%; object-fit:contain}
+/* App turned with the rotate button: the controls turn, the live picture stays level with the real world */
+html.rot .cam-box{container-type:size}
+html.rot .cam-box video{position:absolute; left:50%; top:50%; width:100cqh; height:100cqw; transform:translate(-50%,-50%) rotate(-90deg)}
 .cam-clock{position:absolute; left:50%; bottom:.6rem; transform:translateX(-50%); font:700 1rem/1 var(--sans); font-variant-numeric:tabular-nums; color:#fff; background:rgba(0,0,0,.55); padding:.3rem .6rem; border-radius:999px}
 .cam-bar{display:flex; align-items:center; justify-content:space-between; gap:.6rem; background:#151b1f;
   padding-block:.9rem max(.9rem, env(safe-area-inset-bottom,0px)); padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px))}
@@ -410,6 +419,14 @@ html.land #syncText{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 html.land #detail,html.land .applink{display:none}
 html.narrow footer{flex-direction:column; align-items:center; text-align:center}
 html.narrow #status{align-items:center}
+/* Desktop/wide browser: centre content with max-width */
+@media (min-width:900px){
+  body{max-width:850px; margin:0 auto}
+  .nextbar{left:auto; right:auto; width:100%; max-width:100%; margin:0 auto}
+  .sheet{padding:max(20px,env(safe-area-inset-top,0px)) 20px}
+  .sheet-panel.pop{max-width:100%; height:auto; max-height:90%}
+  #bubble{bottom:max(14px,env(safe-area-inset-bottom,0px)); right:auto; left:50%; transform:translateX(-50%)}
+}
 /* Rotate button: turns the whole app 90°, works even with the phone's rotation lock on */
 html.rot{overflow:hidden}
 html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); transform-origin:0 0; transform:translateX(var(--rh)) rotate(90deg)}
@@ -478,6 +495,12 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     <div id="camLabel" class="camlabel" aria-label="Camera"></div>
     <div id="camModel" class="cammodel" aria-label="Camera model"></div>
     <div id="camSet" class="camset" aria-label="Camera settings"></div>
+  </div>
+  <div id="typeSwitcher" class="typeswitcher" hidden role="dialog" aria-label="Change camera type">
+    <div class="typeswitcher-panel">
+      <button type="button" data-type="HAND CAM">Hand cam</button>
+      <button type="button" data-type="LS">LS</button>
+    </div>
   </div>
   <div class="daydate">
     <div class="row" id="dayRow" aria-label="Day"></div>
@@ -814,8 +837,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     var html = document.documentElement, W = window.innerWidth, H = window.innerHeight;
     // The keyboard and dropdown menus belong to the phone and can't be turned,
     // so the camera check sheet always opens upright; rotation comes back when it closes
-    var upright = ["cam","viewer","sendView","initDlg","guide"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
-    var rot = rotated && !upright;   // the check, the camera and the photo screens always show upright
+    var rot = rotated;   // every screen follows the sideways view
     html.classList.toggle("rot", rot);
     html.style.setProperty("--rw", H + "px"); html.style.setProperty("--rh", W + "px");
     var w = rot ? H : W, h = rot ? W : H;
@@ -977,7 +999,38 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   document.getElementById("initCancel").addEventListener("click", function(){ closeInit(false); });
   initDlg.addEventListener("click", function(e){ if(e.target === initDlg) closeInit(false); });
   initBtn.addEventListener("click", function(){ openInit(); });
-  camLabelEl.addEventListener("click", function(e){ e.stopPropagation(); openInit(); });   // tapping the label doesn't toggle photo mode
+  // Type switcher: change camera type quickly from the main screen
+  var typeSwitcherEl = document.getElementById("typeSwitcher");
+  function closeTypeSwitch(){ typeSwitcherEl.hidden = true; }
+  function changeType(newType){
+    var a = act();
+    if(a.type === newType){ closeTypeSwitch(); return; }
+    // Migrate all data from the old type+number to the new type+number
+    var oldK = photoKey(a), oldType = a.type;
+    var used = kit.cams.filter(function(c){ return c.type === newType; }).map(function(c){ return c.n; });
+    var newN = a.n;
+    for(var n = 1; n <= MAXN; n++) if(used.indexOf(n) < 0){ newN = n; break; }
+    // Update the camera in kit
+    a.type = newType; a.n = newN;
+    var newK = photoKey(a);
+    // Migrate data
+    var move = function(obj, o, n){ if(obj[o] !== undefined){ obj[n] = obj[o]; delete obj[o]; } };
+    move(ev.ticks, oldK, newK); move(shotClock, oldK, newK); move(skipped, oldK, newK); move(at, oldK, newK);
+    if(photos[oldK]){
+      var rec = photos[oldK]; rec.cam = key(a); photos[newK] = rec; delete photos[oldK];
+      db(function(d){ try{ var st = d.transaction("p","readwrite").objectStore("p"); st.delete(oldK); st.put(rec, newK); }catch(e){} });
+    }
+    sortKit(); kit.active = key(a); save(); updateCam(); refresh(); closeTypeSwitch();
+  }
+  document.querySelectorAll(".typeswitcher button").forEach(function(bt){
+    bt.addEventListener("click", function(){ changeType(bt.dataset.type); });
+  });
+  typeSwitcherEl.addEventListener("click", function(e){ if(e.target === typeSwitcherEl) closeTypeSwitch(); });
+  camLabelEl.addEventListener("click", function(e){
+    e.stopPropagation();
+    if(kit.empty || !findCam(act().b, act().m)){ openInit(); }
+    else { typeSwitcherEl.hidden = false; }
+  });   // tapping the label shows type switcher if camera is set up, else opens initials
   updateInitBtn();
   // Done typing: drop the keyboard so the clock is fully visible again
   camInit.addEventListener("keydown", function(e){ if(e.key === "Enter") closeInit(true); });
@@ -1661,29 +1714,29 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     bannerCam = a; var k = photoKey(a), rec = photos[k], name = key(a), st = stepOf(a), up = false; showRaise = false;
     if(!isDone(a)){
       var n = countOf(a), has = !!findCam(a.b, a.m);
-      panel({step: -1, kick: name + " · camera check", head: has ? n + " of 4 settings ticked" : "Choose the brand and model",
-        sub: "Tick the 4 settings on " + name + ", then shoot the clock.", raise: up,
-        go: [has ? "Camera check " + n + "/4 →" : "Start camera check →", function(){ openSheet(); }]});
+      panel({step: -1, kick: name + " · camera check", head: has ? n + " of 4 ticked" : "Pick brand & model",
+        sub: "", raise: up,
+        go: [has ? "Check " + n + "/4 →" : "Start →", function(){ openSheet(); }]});
       return;
     }
     if(st === 1){
-      panel({step: 0, kick: name + " · step 1 of 3", head: "Shoot the clock with your camera", sub: "Point " + name + " at this screen and take a shot.",
-        go: ["Done, I shot it →", function(){ shotClock[k] = true; go(a, 2); }],
-        l: ["← Camera check", function(){ hideNext(); setActive(key(a)); openSheet(); }],
-        r: rec || skipped[k] ? ["Skip ahead →", function(){ go(a, 4); }] : null});
+      panel({step: 0, kick: name + " · step 1", head: "Shoot the clock", sub: "",
+        go: ["Done →", function(){ shotClock[k] = true; go(a, 2); }],
+        l: ["← Back", function(){ hideNext(); setActive(key(a)); openSheet(); }],
+        r: rec || skipped[k] ? ["Next →", function(){ go(a, 4); }] : null});
       return;
     }
     if(st === 2){
       if(rec){
         // Came back here with a photo already taken: keep it (check it again) or retake
-        panel({step: 1, kick: name + " · step 2 of 3", head: "Photo of the camera's screen", thumb: rec, thumbText: "Your photo · tap to view",
-          go: ["Check this photo →", function(){ reviewSaved(a); }],
+        panel({step: 1, kick: name + " · step 2", head: "Camera screen photo", thumb: rec, thumbText: "Your photo · tap to view",
+          go: ["Review →", function(){ reviewSaved(a); }],
           l: ["← Back", function(){ go(a, 1); }], r: ["📷 Retake", function(){ bannerCam = a; takePhoto(); }]});
       } else {
-        panel({step: 1, kick: name + " · step 2 of 3", head: "Photograph the camera's screen", sub: "Show the shot of the clock and the camera's time. You'll check it next.",
-          go: ["📷 Take photo", function(){ bannerCam = a; takePhoto(); }],
+        panel({step: 1, kick: name + " · step 2", head: "Camera screen photo", sub: "",
+          go: ["📷 Shoot", function(){ bannerCam = a; takePhoto(); }],
           l: ["← Back", function(){ go(a, 1); }],
-          r: ["Skip photo →", function(){ skipped[k] = true; go(a, 4); }]});
+          r: ["Skip →", function(){ skipped[k] = true; go(a, 4); }]});
       }
       return;
     }
@@ -1698,10 +1751,10 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
         go: ["Next camera: " + key(nextTarget) + " →", goNext],
         l: back, r: null});   // sending only once every camera has its photo
     } else {
-      panel({step: 3, kick: "All " + tot + " camera" + (tot > 1 ? "s" : "") + " done ✓", thumb: rec, thumbText: thumbText,
-        head: missN ? "⚠ " + missN + " camera" + (missN > 1 ? "s" : "") + " still need" + (missN > 1 ? "" : "s") + " a photo" : "Send the photos to your group",
-        sub: missN ? "Every camera needs its camera-back photo before sending." : "You'll see them all once more before they go.",
-        go: missN ? ["Fix missing photo" + (missN > 1 ? "s" : "") + " →", sendAll] : ["Send " + n + " photo" + (n > 1 ? "s" : "") + " →", sendAll],
+      panel({step: 3, kick: "✓ All done", thumb: rec, thumbText: thumbText,
+        head: missN ? "⚠ " + missN + " camera" + (missN > 1 ? "s" : "") + " need photos" : "Ready to send",
+        sub: "",
+        go: missN ? ["Get missing photo" + (missN > 1 ? "s" : "") + " →", sendAll] : ["Send →", sendAll],
         adds: true, l: back});
     }
   }
@@ -1800,10 +1853,12 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     var base = document.createElement("canvas"); base.width = Math.round(w * k); base.height = Math.round(h * k);
     base.getContext("2d").drawImage(camVid, 0, 0, base.width, base.height);
     var full = document.createElement("canvas"); full.width = w; full.height = h; full.getContext("2d").drawImage(camVid, 0, 0, w, h);
+    if(rotated){ base = turnLeft(base); full = turnLeft(full); }   // phone held sideways with the app turned: save the photo the right way up
     var c = bannerCam || act(); closeCam(false);
     pending = {c: c, base: base, full: full, t: new Date(at + offset), exact: true};
     setActive(key(c)); hideNext(); openReview();
   });
+  function turnLeft(cv){ var o = document.createElement("canvas"); o.width = cv.height; o.height = cv.width; var x = o.getContext("2d"); x.translate(0, cv.width); x.rotate(-Math.PI / 2); x.drawImage(cv, 0, 0); return o; }
   document.getElementById("camCancel").addEventListener("click", function(){ var c = bannerCam; closeCam(true); if(c) showNext(c); });
   document.getElementById("camAlt").addEventListener("click", function(){ closeCam(true); photoIn.value = ""; photoIn.click(); });
 
@@ -2297,10 +2352,10 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     vBar.appendChild(row);
     (vBar.querySelector(".fl-go") || row.firstChild).focus();
   }
-  var CHECK = "Zoom in on the camera's screen: the <b>clock in its photo</b> and the <b>camera's own time</b> should show the same second.";
+  var CHECK = "Check: <b>clock photo</b> and <b>camera time</b> — same second?";
   function openReview(){
     var c = pending.c; viewFrom = "review";
-    vTitle.textContent = key(c) + " · step 3 of 3: same second on both?";
+    vTitle.textContent = key(c) + " · step 3: review";
     var backTo2 = function(){ pending = null; stopStream(); closeViewer(); go(c, 2); };
     vSub.innerHTML = pending.exact ? CHECK + " Tap the photo to zoom." :
       "<b>⚠ This photo's time can't be trusted to the second</b> (the phone camera didn't record it). Retake it with the in-app camera.";
