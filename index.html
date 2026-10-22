@@ -1596,9 +1596,12 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   var photoIn = document.getElementById("photoIn"), sendBtn = document.getElementById("sendPhotos");
   var flSteps = document.getElementById("flSteps").children, flKick = document.getElementById("flKick"), flHead = document.getElementById("flHead"), flSub = document.getElementById("flSub");
   var flThumb = document.getElementById("flThumb"), flGo = document.getElementById("flGo"), flL = document.getElementById("flL"), flR = document.getElementById("flR"), flThumbUrl = null;
-  var act_go = null, act_l = null, act_r = null;
+  var act_go = null, act_l = null, act_r = null, clockBubble = false;
+  // Opening the bubble: on the 📷→🕒 step it goes back to the check instead of opening the box
+  function openBox(n){ if(clockBubble && act_go){ act_go(); return; } setStage(n); }
   function panel(o){
     if(o.raise === undefined) o.raise = showRaise;
+    clockBubble = !!o.clock;
     for(var i = 0; i < 3; i++) flSteps[i].className = i < o.step ? "on" : i === o.step ? "cur" : "";
     flKick.textContent = o.kick || ""; flHead.textContent = o.head || ""; flSub.textContent = o.sub || "";
     if(flThumbUrl){ URL.revokeObjectURL(flThumbUrl); flThumbUrl = null; }
@@ -1684,12 +1687,12 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       bubble.classList.remove("dragging"); bubble.style.transform = "";
       skipClick = true; setTimeout(function(){ skipClick = false; }, 350);
       var v = -dy / Math.max(1, Date.now() - t0);
-      if(dy < -30 || v > .4) setStage(2);   // swiped up: the box opens
+      if(dy < -30 || v > .4) openBox(2);   // swiped up: the box opens
     }
     bubble.addEventListener("pointerup", end); bubble.addEventListener("pointercancel", end);
     bubble.addEventListener("click", function(e){ if(skipClick){ skipClick = false; e.preventDefault(); e.stopPropagation(); } }, true);
     bbGo.addEventListener("click", function(){ if(act_go) act_go(); });
-    document.getElementById("bbExp").addEventListener("click", function(){ setStage(1); });
+    document.getElementById("bbExp").addEventListener("click", function(){ openBox(1); });
     document.getElementById("bbAdd").addEventListener("click", function(){ document.getElementById("flGoAdd").click(); });
   })();
   window.addEventListener("resize", function(){ if(!nextBar.hidden) setStage(stage); });
@@ -1822,8 +1825,11 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     if(st === 1){
       // 📷→🕒 lives in the camera check only: no box of its own. Going to step 1 reopens the check;
       // closing the check (or loading the app) on step 1 leaves the clock clear
-      if(quiet){ hideNext(true); return; }
-      hideNext(true); setActive(key(a)); openSheet();
+      var toCheck = function(){ hideNext(true); setActive(key(a)); openSheet(); };
+      if(!quiet){ toCheck(); return; }
+      // Check closed / swiped down: only the bubble, 📷→🕒. Tapping or opening it brings the check back
+      stage = 0;
+      panel({step: 0, kick: "", head: "", sub: "", go: ["📷→🕒", toCheck], clock: true});
       return;
     }
     if(st === 2){
