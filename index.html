@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022164717">
+<meta name="app-ver" content="20261022165103">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -508,7 +508,11 @@ html.boxfull:not(.land) .taphint{opacity:0}
 html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); transition:opacity .3s var(--ease), transform .45s var(--spring)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
 /* Every emoji / symbol sits in the same fixed-width slot, so the gaps between them are always even */
-.em{display:inline-block; width:1.3em; text-align:center; text-indent:0; line-height:1; font-style:normal}
+.em{display:inline-flex; align-items:center; justify-content:center; width:1.3em; height:1.2em; vertical-align:baseline; text-indent:0; line-height:1; font-style:normal; position:relative}
+/* Arrows are drawn as a thick chevron to match the ✓ (the arrow character stays in the text, just unseen) */
+.em.chev{-webkit-text-fill-color:transparent}
+.em.chev::after{content:""; position:absolute; left:50%; top:50%; width:.36em; height:.36em; border:solid currentColor; border-width:.14em .14em 0 0; border-radius:.04em; transform:translate(-65%,-50%) rotate(45deg)}
+.em.chev.l::after{transform:translate(-35%,-50%) rotate(-135deg)}
 </style>
 </head>
 <body>
@@ -2860,7 +2864,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
         var f = document.createDocumentFragment(), last = 0, m;
         while((m = RE.exec(s))){
           if(m.index > last) f.appendChild(document.createTextNode(s.slice(last, m.index)));
-          var sp = document.createElement("span"); sp.className = "em"; sp.textContent = m[0]; f.appendChild(sp);
+          var sp = document.createElement("span"); sp.className = "em" + (m[0] === "\u2192" ? " chev" : m[0] === "\u2190" ? " chev l" : ""); sp.textContent = m[0]; f.appendChild(sp);
           last = m.index + m[0].length;
         }
         if(last < s.length) f.appendChild(document.createTextNode(s.slice(last)));
