@@ -71,11 +71,16 @@ footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 .cam select:focus-visible,.cam input:focus-visible{outline:2px solid var(--fg); outline-offset:1px}
 /* Camera label shown on the clock face, so every sync photo says which camera it is */
 .camlabel{font-family:var(--sans); font-weight:900; font-size:calc(var(--u)*var(--labk,.68)); line-height:1; letter-spacing:.04em; white-space:nowrap;
-  background:var(--fg); color:var(--bg); padding:.14em .38em .12em; border-radius:.14em; cursor:pointer}
-.camlabel:empty{display:none}
-.camlabel input{appearance:none; -webkit-appearance:none; font:inherit; font-weight:900; font-size:1em; color:var(--bg); background:transparent; border:0; text-align:center; text-transform:uppercase; letter-spacing:.04em; padding:0; margin:0; width:100%}
-.camlabel input:focus-visible{outline:none}
-.camlabel input::placeholder{color:rgba(11,15,18,.6)}
+  background:var(--fg); color:var(--bg); padding:.14em .38em .12em; border-radius:.14em; display:inline-flex; align-items:baseline; cursor:text}
+/* Initials are typed straight into the white box: the field grows with the text */
+.ini{display:inline-grid; cursor:text}
+.ini::after{content:attr(data-v); grid-area:1/1; visibility:hidden; white-space:pre; letter-spacing:inherit}
+.ini input{grid-area:1/1; width:0; min-width:100%; appearance:none; -webkit-appearance:none; font:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; caret-color:var(--ok);
+  background:transparent; border:0; border-radius:0; padding:0; margin:0; text-transform:uppercase; outline:none}
+.ini input::placeholder{color:rgba(11,15,18,.35); opacity:1}
+.camlabel:focus-within{box-shadow:0 0 0 .07em var(--ok)}
+.camtype{font:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; background:none; border:0; padding:0; margin:0; white-space:pre; cursor:pointer}
+.camtype[hidden]{display:none}
 /* Brand and model, small and grey under the white label */
 .camwrap{display:flex; flex-direction:column; align-items:center; gap:calc(var(--u)*.07)}
 .cammodel{font-family:var(--sans); font-weight:600; font-size:calc(var(--u)*.2); letter-spacing:.04em; color:var(--muted); white-space:nowrap}
@@ -204,6 +209,10 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .typeswitcher-title{font:inherit; font-weight:800; font-size:.95rem; color:var(--muted); text-align:center; margin-bottom:.2rem}
 .typeswitcher button{font:inherit; font-weight:800; font-size:1rem; color:var(--fg); background:#1d252a; border:2px solid transparent; border-radius:12px; padding:.7rem; cursor:pointer; transition:background-color .2s, border-color .2s, transform .25s var(--spring)}
 .typeswitcher button:active{transform:scale(.97)}
+.typeswitcher button.on{border-color:var(--ok); background:#163222}
+.typeswitcher button.on::after{content:" ✓"; color:var(--ok)}
+.typeswitcher button:disabled{opacity:.35; cursor:default}
+.typeswitcher .ts-cancel{background:none; color:var(--muted); font-weight:700; font-size:.9rem; padding:.4rem}
 /* Tiles: brands and models */
 .tiles{display:grid; grid-template-columns:repeat(2, 1fr); gap:.6rem}
 .tile{position:relative; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:.15rem; min-height:4.2rem; font:inherit; text-align:left; color:var(--fg);
@@ -496,7 +505,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 </button>
 <main aria-live="off">
   <div class="camwrap">
-    <div id="camLabel" class="camlabel" aria-label="Camera initials"><input id="camInit" type="text" maxlength="6" placeholder="tap to enter" autocomplete="off" autocapitalize="characters" spellcheck="false" hidden></div>
+    <div id="camLabel" class="camlabel"><label id="iniWrap" class="ini" data-v="INITIALS"><input id="camInit" type="text" size="1" maxlength="6" placeholder="INITIALS" aria-label="Your initials" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><button id="camType" class="camtype" type="button" aria-label="Change camera type" hidden></button></div>
     <div id="camModel" class="cammodel" aria-label="Camera model"></div>
     <div id="camSet" class="camset" aria-label="Camera settings"></div>
   </div>
@@ -505,6 +514,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       <div class="typeswitcher-title">Change cam to:</div>
       <button type="button" data-type="HAND CAM">Hand cam</button>
       <button type="button" data-type="LS">LS</button>
+      <button type="button" id="typeCancel" class="ts-cancel">Cancel</button>
     </div>
   </div>
   <div class="daydate">
@@ -555,7 +565,6 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     <a id="appLink" class="applink" href="https://ryguy-design.github.io/SG-Atom-Uhr-by-RYS/" target="_blank" rel="noopener">ryguy-design.github.io/SG-Atom-Uhr-by-RYS</a>
   </div>
   <div class="controls">
-    <button id="initBtn" class="initbtn" type="button" aria-label="Edit your initials" hidden></button>
     <button id="resync" type="button">Sync now</button>
     <button id="clearMain" class="clearmain" type="button">Reset app</button>
     <button id="guideBtn" class="guidebtn" type="button">How to use</button>
@@ -636,17 +645,18 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/1.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Enter your initials</b><p>Only the first time. They go on every camera label and photo name. Change them later with your initials at the bottom of the screen.</p><img src="guide/2.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Point your camera at the clock and take a shot. Then tap <b>Done, I shot it →</b> on the green bubble.</p><img src="guide/5.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The green bubble</b><p>The bubble always shows your next step: just tap it. Drag it anywhere on the screen to keep the clock clear. Tap the <b>⤢ arrows</b> to open the camera box: your cameras, progress, ✎ 🗑 ✕, the instructions and ← Back links. Tap its line, tap ✕ or slide it down to turn it back into the bubble.</p><img src="guide/6.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📷 Take photo</b>, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera or add one</b><p>Tap <b>Next camera →</b> for the next one in your list. Tap <b>+ 📷</b> on the bubble to add another hand cam or LS.</p><img src="guide/9.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send photos →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>Open the box with the ⤢ arrows: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=4" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Type your initials</b><p>Tap the white box at the top and type them in, then tap <b>Done</b> on the keyboard. They go on every camera label and photo name. Tap the box again any time to change them.</p><img src="guide/1.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/2.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. Then tap <b>Continue: shoot the clock →</b>.</p><img src="guide/4.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Point your camera at the clock and take a shot. Then tap <b>Done →</b> on the green bubble.</p><img src="guide/5.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The green bubble</b><p>The bubble always shows your next step: just tap it. Drag it anywhere on the screen to keep the clock clear. Tap the <b>⤢ arrows</b> to open the camera box: your cameras, progress, ✎ 🗑 ✕, the instructions and ← Back links. Tap its line, tap ✕ or slide it down to turn it back into the bubble.</p><img src="guide/6.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📷 Shoot</b>, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera or add one</b><p>Tap <b>Next camera →</b> for the next one in your list. Tap <b>+ 📷</b> on the bubble to add another hand cam or LS.</p><img src="guide/9.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>Open the box with the ⤢ arrows: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">12</div><div class="g-body"><b>Change Hand cam / LS</b><p>Tap the camera name in the white box (e.g. <b>· HAND CAM 1</b>). Under <b>Change cam to:</b> pick <b>Hand cam</b> or <b>LS</b>. Its ticks and photo move with it.</p><img src="guide/12.webp?v=5" alt="" loading="lazy" width="390" height="844"></div></li>
     <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Good to know</b><p>
       · <b>Sync now</b> re-checks the time server; the line above it shows how far off your phone's own clock is.<br>
       · <b>Tap the clock</b> to hide the buttons for a clean shot; tap again to bring them back.<br>
@@ -658,17 +668,6 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 </div>
 
 <!-- After a camera's 4 ticks: one step at a time, one big button per step -->
-<!-- Initials: one photographer for every camera, so they live here, not in each camera's check -->
-<div id="initDlg" class="sheet" hidden style="display:none">
-  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="initTitle">
-    <div class="sheet-head"><h2 id="initTitle">Your SG initials</h2></div>
-    <p class="sheet-note" style="margin:0">Shown on the clock for every camera, e.g. RK · HAND CAM 1. Up to 6 letters.</p>
-    <label class="initrow">Initials
-      <input id="camInit" type="text" maxlength="6" placeholder="e.g. RK" autocomplete="off" autocapitalize="characters" spellcheck="false">
-    </label>
-    <div class="endrow"><button id="initCancel" class="resetbtn neutral" type="button">Cancel</button><button id="initSave" class="resetbtn send" type="button">Save</button></div>
-  </div>
-</div>
 
 
 <script>
@@ -966,79 +965,104 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   function applyLoc(){ placeEl.hidden = !showLoc; if(showLoc) startGeo(); else stopGeo(); fit(); }
 
   // ================= Camera label =================
+  // The white box: initials are typed straight into it (tap → cursor), the camera part opens "Change cam to:"
   var camLabelEl = document.getElementById("camLabel");
-  var camInit = document.getElementById("camInit");
+  var camInit = document.getElementById("camInit"), iniWrap = document.getElementById("iniWrap"), camTypeEl = document.getElementById("camType");
   try{ var saved = JSON.parse(localStorage.getItem("acCam") || "{}"); if(saved.i) camInit.value = saved.i; }catch(e){}
   function updateCam(){
-    camInit.value = camInit.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
-    var a = act(), parts = [];
-    parts.push(camInit.value || "✎");   // no initials yet: the white box still shows, with a pencil to add them
-    if(!kit.empty) parts.push(a.type + " " + a.n);
-    if(camInit.hidden){ camLabelEl.textContent = parts.join(" · "); }   // only set text when input is hidden
-    camLabelEl.classList.toggle("noinit", !camInit.value);
+    var v = camInit.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
+    if(v !== camInit.value) camInit.value = v;
+    iniWrap.dataset.v = v || camInit.placeholder;   // sizes the field to the text
+    var a = act();
+    camTypeEl.hidden = kit.empty;
+    camTypeEl.textContent = kit.empty ? "" : " · " + a.type + " " + a.n;
+    camLabelEl.classList.toggle("noinit", !v);
     document.getElementById("camModel").textContent =
       !findCam(a.b, a.m) ? "" : a.m === OTHER ? (a.b === "Other" ? "Other camera" : "Other " + a.b + " model") : a.b + " " + shortName(a.m);
     var setEl = document.getElementById("camSet"), cc = findCam(a.b, a.m), n = countOf(a);
     setEl.textContent = kit.empty ? "" : n === 4 ? "✓ " + summary(a.b, cc) : "CAMERA CHECK " + n + "/4 — NOT DONE";
     setEl.className = "camset" + (n === 4 ? " ok" : "");
     try{
-      var old = JSON.parse(localStorage.getItem("acCam") || "{}"); old.i = camInit.value;
+      var old = JSON.parse(localStorage.getItem("acCam") || "{}"); old.i = v;
       localStorage.setItem("acCam", JSON.stringify(old));
     }catch(e){}
     fit();
   }
+  var iniBefore = "";
+  camInit.addEventListener("focus", function(){ iniBefore = camInit.value; closeTypeSwitch(); });
   camInit.addEventListener("input", updateCam);
-  // ---- Inline initials editing: tap the white box to type initials ----
-  camInit.hidden = true;
-  function editInitials(){
-    camInit.hidden = false; camInit.focus(); camInit.select();
-    camLabelEl.textContent = "";   // clear text so input is visible
-  }
-  function finishInitials(save){
-    if(!save) camInit.value = camInit.dataset.before;
-    updateCam();
-    camInit.hidden = true;
-  }
-  camInit.addEventListener("blur", function(){ finishInitials(true); });
   camInit.addEventListener("keydown", function(e){
-    if(e.key === "Enter"){ camInit.blur(); }
-    else if(e.key === "Escape"){ finishInitials(false); }
+    if(e.key === "Enter"){ e.preventDefault(); camInit.blur(); }                    // done: keyboard goes away
+    else if(e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); camInit.value = iniBefore; updateCam(); camInit.blur(); }
   });
-  // Type switcher: change camera type quickly from the main screen
-  var typeSwitcherEl = document.getElementById("typeSwitcher");
-  function closeTypeSwitch(){ typeSwitcherEl.hidden = true; }
-  function changeType(newType){
-    var a = act();
-    if(a.type === newType){ closeTypeSwitch(); return; }
-    // Migrate all data from the old type+number to the new type+number
-    var oldK = photoKey(a), oldType = a.type;
-    var used = kit.cams.filter(function(c){ return c.type === newType; }).map(function(c){ return c.n; });
-    var newN = a.n;
-    for(var n = 1; n <= MAXN; n++) if(used.indexOf(n) < 0){ newN = n; break; }
-    // Update the camera in kit
-    a.type = newType; a.n = newN;
-    var newK = photoKey(a);
-    // Migrate data
-    var move = function(obj, o, n){ if(obj[o] !== undefined){ obj[n] = obj[o]; delete obj[o]; } };
-    move(ev.ticks, oldK, newK); move(shotClock, oldK, newK); move(skipped, oldK, newK); move(at, oldK, newK);
-    if(photos[oldK]){
-      var rec = photos[oldK]; rec.cam = key(a); photos[newK] = rec; delete photos[oldK];
-      db(function(d){ try{ var st = d.transaction("p","readwrite").objectStore("p"); st.delete(oldK); st.put(rec, newK); }catch(e){} });
-    }
-    sortKit(); kit.active = key(a); save(); updateCam(); refresh(); closeTypeSwitch();
-  }
-  document.querySelectorAll(".typeswitcher button").forEach(function(bt){
-    bt.addEventListener("click", function(){ changeType(bt.dataset.type); });
-  });
-  typeSwitcherEl.addEventListener("click", function(e){ if(e.target === typeSwitcherEl) closeTypeSwitch(); });
+  // Taps on the white box never toggle photo mode; the box's edges also put the cursor in the initials
   camLabelEl.addEventListener("click", function(e){
     e.stopPropagation();
-    camInit.dataset.before = camInit.value;
-    if(kit.empty || !findCam(act().b, act().m)){ editInitials(); }
-    else { typeSwitcherEl.hidden = false; }
-  });   // tapping the label shows type switcher if camera is set up, else shows initials input
-  // Done typing: drop the keyboard so the clock is fully visible again
-  camInit.addEventListener("keydown", function(e){ if(e.key === "Enter") closeInit(true); });
+    if(e.target === camTypeEl){ camInit.blur(); openTypeSwitch(); return; }
+    if(e.target !== camInit) camInit.focus();
+  });
+
+  // ---- "Change cam to:" Hand cam / LS for the camera shown ----
+  var typeSwitcherEl = document.getElementById("typeSwitcher");
+  function openTypeSwitch(){
+    if(kit.empty) return;
+    var a = act();
+    [].forEach.call(typeSwitcherEl.querySelectorAll("[data-type]"), function(bt){
+      var t = bt.dataset.type, full = t !== a.type && kit.cams.filter(function(c){ return c.type === t; }).length >= MAXN;
+      bt.classList.toggle("on", t === a.type); bt.disabled = full;
+    });
+    typeSwitcherEl.hidden = false;
+  }
+  function closeTypeSwitch(){ typeSwitcherEl.hidden = true; }
+  // Redraw a saved photo's label strip after its camera got a new name (the untouched photo is kept for this)
+  function relabel(c, k){
+    var rec = photos[k]; if(!rec || !rec.raw) return;
+    var url = URL.createObjectURL(rec.raw), img = new Image();
+    img.onload = function(){
+      URL.revokeObjectURL(url);
+      var keepP = pending; pending = {saved: true, atomic: rec.atomic};
+      var label = stamp(c, new Date(rec.t), rec.sync, rec.exact); pending = keepP;
+      compose(img, label, rec.sync).toBlob(function(b){
+        if(!b || photos[k] !== rec) return;
+        rec.blob = b; dbPut(k, rec); updateSend(); if(bannerCam && photoKey(bannerCam) === k && !nextBar.hidden) showNext(bannerCam, true);
+      }, "image/jpeg", 0.85);
+    };
+    img.src = url;
+  }
+  function changeType(newType){
+    var a = act(), oldType = a.type;
+    if(oldType === newType){ closeTypeSwitch(); return; }
+    var used = kit.cams.filter(function(c){ return c.type === newType; }).map(function(c){ return c.n; });
+    for(var newN = 1; newN <= MAXN; newN++) if(used.indexOf(newN) < 0) break;
+    if(newN > MAXN) return;   // no free number (button is disabled anyway)
+    syncEvent();
+    var renamed = [];
+    var move = function(obj, o, n){ if(obj[o] !== undefined){ obj[n] = obj[o]; delete obj[o]; } };
+    var rename = function(c, type, n){
+      var oldK = photoKey(c), oldKey = key(c), oldShort = short(c);
+      c.type = type; c.n = n;
+      var newK = photoKey(c), newShort = short(c);
+      if(addedKey === oldKey) addedKey = key(c);
+      if(addedFrom === oldKey) addedFrom = key(c);
+      move(ev.ticks, oldK, newK); move(shotClock, oldK, newK); move(skipped, oldK, newK); move(at, oldK, newK);
+      if(photos[oldK]){
+        var rec = photos[oldK]; rec.cam = key(c); rec.name = rec.name.replace("_" + oldShort + "_", "_" + newShort + "_").replace(new RegExp("^" + oldShort + "_"), newShort + "_");
+        photos[newK] = rec; delete photos[oldK];
+        db(function(d){ try{ var st = d.transaction("p","readwrite").objectStore("p"); st.delete(oldK); st.put(rec, newK); }catch(e){} });
+        renamed.push([c, newK]);
+      }
+    };
+    rename(a, newType, newN);
+    // Close the gap it left behind (HC1, HC3 → HC1, HC2), like deleting does
+    kit.cams.filter(function(c){ return c.type === oldType; }).sort(function(x, y){ return x.n - y.n; }).forEach(function(c, i){ if(c.n !== i + 1) rename(c, oldType, i + 1); });
+    sortKit(); kit.active = key(a); save(); updateSend(); refresh(); closeTypeSwitch();
+    renamed.forEach(function(r){ relabel(r[0], r[1]); });
+  }
+  [].forEach.call(typeSwitcherEl.querySelectorAll("[data-type]"), function(bt){
+    bt.addEventListener("click", function(){ changeType(bt.dataset.type); });
+  });
+  document.getElementById("typeCancel").addEventListener("click", closeTypeSwitch);
+  typeSwitcherEl.addEventListener("click", function(e){ e.stopPropagation(); if(e.target === typeSwitcherEl) closeTypeSwitch(); });
 
   // ================= Camera settings checklist =================
   // Full frame from 2013, APS-C from 2015, plus Sony RX100 and Canon 60D (used on LS).
@@ -1474,8 +1498,8 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   modelSel.addEventListener("change", function(){ choose(act().b, modelSel.value); });
 
   // ---- Add / remove cameras ----
-  // Adding a camera from the main screen; with no initials saved yet, ask for them first
-  function addFirst(type){ addCam(type); if(!camInit.value) openInit(openSheet); else openSheet(); }
+  // Adding a camera from the main screen
+  function addFirst(type){ addCam(type); openSheet(); }   // initials are typed into the white box, no extra step
   var addedFrom = null, addedKey = null;
   function addCam(type){
     if(kit.empty){ var c0 = kit.cams[0]; c0.type = type; c0.n = 1; c0.b = ""; c0.m = ""; kit.empty = false; kit.active = key(c0); save(); refresh(); return; }
@@ -1721,7 +1745,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       var n = countOf(a), has = !!findCam(a.b, a.m);
       panel({step: -1, kick: name + " · camera check", head: has ? n + " of 4 ticked" : "Pick brand & model",
         sub: "", raise: up,
-        go: [has ? "Check " + n + "/4 →" : "Start →", function(){ openSheet(); }]});
+        go: [has ? "Camera check " + n + "/4 →" : "Start camera check →", function(){ openSheet(); }]});
       return;
     }
     if(st === 1){
@@ -2612,7 +2636,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   document.getElementById("photoRetake").addEventListener("click", function(){ bannerCam = act(); takePhoto(); });
   document.addEventListener("keydown", function(e){
     if(e.key !== "Escape") return;
-    if(!camInit.hidden){ e.stopPropagation(); finishInitials(false); camInit.hidden = true; updateCam(); return; }
+    if(!typeSwitcherEl.hidden){ e.stopPropagation(); closeTypeSwitch(); return; }
     if(!camEl.hidden){ e.stopPropagation(); var c = bannerCam; closeCam(true); if(c) showNext(c); return; }
     if(!viewer.hidden){ e.stopPropagation(); if(viewFrom === "review"){ pending = null; } closeViewer(); }
     else if(!sendView.hidden){ e.stopPropagation(); sendView.hidden = true; }
@@ -2627,7 +2651,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   // Reset the whole app to a fresh start: no cameras, no initials, no ticks or photos, location off, not rotated
   function resetApp(){
     try{ ["acCam","acModel","acRecent","acTicks","acKit","acEvent","acLoc","acRot","acBub"].forEach(function(k){ localStorage.removeItem(k); }); }catch(e){}
-    camInit.value = ""; updateInitBtn(); kit = defaultKit(); ev = {day: today(), ticks: {}, id: String(Date.now())}; recent = []; dbClear();
+    camInit.value = ""; closeTypeSwitch(); kit = defaultKit(); ev = {day: today(), ticks: {}, id: String(Date.now())}; recent = []; dbClear();
     shotClock = {}; skipped = {}; at = {};
     save(); hideNext(); refresh();
     showLoc = false; applyLoc();
