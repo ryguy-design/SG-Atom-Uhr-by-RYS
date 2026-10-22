@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022170252">
+<meta name="app-ver" content="20261022170549">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -604,7 +604,6 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       <button id="pBack" class="pop-back" type="button" aria-label="Back">←</button>
       <div class="pop-titles"><h2 id="sheetTitle"></h2><span id="pSub"></span></div>
       <button id="removeCam" class="pop-del" type="button" aria-label="Delete this camera" title="Delete camera">🗑</button>
-      <button id="sheetClose" class="pop-done" type="button">Done</button>
     </div>
     <div class="pop-steps" aria-hidden="true"><i data-s="brand">Brand</i><i data-s="model">Model</i><i data-s="checks">Check</i></div>
 
@@ -2666,7 +2665,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   document.getElementById("gDone").addEventListener("click", closeGuide);
   document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !guide.hidden) closeGuide(); });
 
-  function openSheet(){ hideNext(); clearTimeout(sheetT); sheet.classList.remove("leaving"); goScreen(screenFor(act())); sheet.hidden = false; if(rotated) fit(); document.getElementById("sheetClose").focus(); }
+  function openSheet(){ hideNext(); clearTimeout(sheetT); sheet.classList.remove("leaving"); goScreen(screenFor(act())); sheet.hidden = false; if(rotated) fit(); }
   var sheetT = null;
   function closeSheet(){
     if(sheet.hidden) return;
@@ -2745,7 +2744,6 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     pop.addEventListener("click", function(e){ if(skipClick){ skipClick = false; e.preventDefault(); e.stopPropagation(); } }, true);
     document.getElementById("pGrab").addEventListener("click", function(){ slideAway(); });
   })();
-  document.getElementById("sheetClose").addEventListener("click", closeSheet);
   sheet.addEventListener("click", function(e){ if(e.target === sheet) closeSheet(); });
   document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !sheet.hidden) closeSheet(); });
 
