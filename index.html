@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022171612">
+<meta name="app-ver" content="20261022172641">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -1633,7 +1633,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   var photoIn = document.getElementById("photoIn"), sendBtn = document.getElementById("sendPhotos");
   var flSteps = document.getElementById("flSteps").children, flKick = document.getElementById("flKick"), flHead = document.getElementById("flHead"), flSub = document.getElementById("flSub");
   var flThumb = document.getElementById("flThumb"), flGo = document.getElementById("flGo"), flL = document.getElementById("flL"), flR = document.getElementById("flR"), flThumbUrl = null;
-  var act_go = null, act_l = null, act_r = null, clockBubble = false;
+  var act_go = null, act_l = null, act_r = null, clockBubble = false, bbRoom = false;
   // Opening the bubble: on the 📷→🕒 step it goes back to the check instead of opening the box
   function openBox(n){ if(clockBubble && act_go){ act_go(); return; } setStage(n); }
   function panel(o){
@@ -1649,6 +1649,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     document.getElementById("flAdds").hidden = true;
     var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length, room = hcN < MAXN || kit.cams.length - hcN < MAXN;
     document.getElementById("flGoAdd").hidden = !(o.adds && room);
+    bbRoom = room;   // the bubble always offers + 📷 while there is room for another camera
     disarmDel(); flAdd = false; renderFlCams();
     flL.textContent = o.l ? o.l[0] : ""; act_l = o.l ? o.l[1] : null; flL.className = "fl-link" + (o.l && o.l[2] ? " " + o.l[2] : "");
     flR.textContent = o.r ? o.r[0] : ""; act_r = o.r ? o.r[1] : null; flR.className = "fl-link" + (o.r && o.r[2] ? " " + o.r[2] : "");
@@ -1703,7 +1704,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     // Camera check not done: the count (0/4 – 3/4) in red on the floating button
     var cm = /^(.*?)([0-3]\/4)$/.exec(flGo.textContent);
     if(cm){ bbGo.textContent = cm[1]; var rc = document.createElement("span"); rc.className = "bb-red"; rc.textContent = cm[2]; bbGo.appendChild(rc); }
-    document.getElementById("bbAdd").hidden = document.getElementById("flGoAdd").hidden;
+    document.getElementById("bbAdd").hidden = !bbRoom;
     if(bubble.hidden === !show){ if(show) placeBubble(); return; }
     if(show){ bubble.style.visibility = "hidden"; bubble.hidden = false; placeBubble(); bubble.style.visibility = ""; } else bubble.hidden = true;   // placed before it's seen
   }
