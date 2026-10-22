@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261022170549">
+<meta name="app-ver" content="20261022171133">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -552,7 +552,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 </main>
 
 <div id="bubSpace" class="bubspace" aria-hidden="true"></div>
-<div id="tapHint" class="taphint">Tap the clock to hide the buttons</div>
+<div id="tapHint" class="taphint">Tap clock to hide buttons</div>
 <div id="showHint" class="showhint">Tap to show buttons</div>
 <!-- Camera check bubble: the box when it's put away. Drag it anywhere; the arrows open the box -->
 <div id="bubble" class="bubble" hidden>
@@ -642,9 +642,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 
 <!-- Step 1: the app's own camera, so the shutter moment is known exactly (atomic time) -->
 <div id="cam" class="viewer camview" hidden role="dialog" aria-modal="true" aria-label="Photo of the camera back">
-  <div class="view-top"><b id="camTitle"></b><span>Fill the frame with the camera's screen, then tap the shutter.</span></div>
+  <div class="view-top"><b id="camTitle"></b><span>Fill the frame with the camera's screen.</span></div>
   <div class="cam-box"><video id="camVid" autoplay playsinline muted></video><div id="camClock" class="cam-clock"></div>
-    <div id="camMsg" class="cam-msg" hidden><b>Camera didn't start</b><span>Allow camera access for this app, or use the phone camera.</span><button id="camRetry" class="fl-go" type="button">↻ Try again</button></div></div>
+    <div id="camMsg" class="cam-msg" hidden><b>Camera didn't start</b><span>Allow camera access, or use the phone camera.</span><button id="camRetry" class="fl-go" type="button">↻ Try again</button></div></div>
   <div class="cam-bar">
     <button id="camCancel" class="nb-btn" type="button">✕ Cancel</button>
     <button id="camShut" class="cam-shut" type="button" aria-label="Take photo"></button>
@@ -661,8 +661,8 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 
 <!-- Step 3: everything that will be sent, with a last look before the share sheet -->
 <div id="sendView" class="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="sTitle">
-  <div class="view-top"><b id="sTitle"></b><span id="sSub">Tap a photo to look again.</span></div>
-  <div id="sWarn" class="s-warn" hidden>Sending is locked until every camera has its photo.</div>
+  <div class="view-top"><b id="sTitle"></b><span id="sSub">Tap a photo to view.</span></div>
+  <div id="sWarn" class="s-warn" hidden>Locked until every camera has a photo.</div>
   <div id="sList" class="send-list"></div>
   <div class="view-bar"><button id="sBack" class="nb-btn" type="button">↩ Back</button><button id="sGo" class="nb-next" type="button"></button></div>
 </div>
@@ -671,24 +671,24 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Type your initials</b><p>Tap the white box with the ✎ at the top and type them in, then tap <b>Done</b> on the keyboard. A camera can only be added once they're in. They go on every camera label and photo name. Tap the box again any time to change them.</p><img src="guide/1.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b> at the bottom of the clock screen.</p><img src="guide/2.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Choose <b>Hand cam</b> or <b>LS</b> at the top, then tap the brand and the model. Your recent cameras show at the top for one-tap picks.</p><img src="guide/3.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each setting on your camera and tick it. Every tick has to be tapped. More cameras? Tap <b>+ Add camera</b> and check each one. Then tap <b>📷→🕒</b>.</p><img src="guide/4.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Back on the clock, take a shot of it with every camera. With more than one camera the white box names them all (e.g. <b>RYS · HC1 · LS1</b>). The green bubble is already on <b>📱→📷</b> for the next step.</p><img src="guide/5.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The green bubble</b><p>The bubble always shows your next step: just tap it. It sits in the middle, just above the bottom text. Swipe it up (or tap the <b>⤢ arrows</b>) to open the camera box: your cameras, progress, ✎ 🗑 ✕, the instructions and ← Back links. Swipe the box down from anywhere, tap its line or ✕ to turn it back into the bubble.</p><img src="guide/6.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>On the camera, play back the shot of the clock with its <b>time showing</b>. Tap <b>📱→📷</b> on the green bubble, fill the frame with the camera's screen and press the shutter.</p><img src="guide/7.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>The app reads the clock in the shot and the camera's own time and tells you <b>In sync ✓</b> or how many seconds it's off. Zoom in to check by eye. In sync: tap <b>✓ Yes, in sync</b>. Not in sync: fix the camera's clock, shoot the clock again and <b>Retake</b>.</p><img src="guide/8.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera's screen</b><p>Tap <b>Next camera →</b> to photograph the next camera's screen. Forgot one? Tap <b>+ 📷</b> on the bubble to add another hand cam or LS.</p><img src="guide/9.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>When every camera has its photo, tap <b>Send →</b>. Look over the list (tap one to see it again), then tap <b>Send</b> and pick your group chat. Sending is locked until every camera has a photo; a red tile takes you to the one that's missing.</p><img src="guide/10.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>Open the box with the ⤢ arrows: tap a camera to switch to it, tap it again (or ✎) to change its check, 🗑 twice to delete it, + to add one.</p><img src="guide/11.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
-    <li class="g-step"><div class="g-num">12</div><div class="g-body"><b>Change Hand cam / LS</b><p>Tap the camera name in the white box (e.g. <b>· HAND CAM 1</b>). Under <b>Change cam to:</b> pick <b>Hand cam</b> or <b>LS</b>. Its ticks and photo move with it.</p><img src="guide/12.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><b>Type your initials</b><p>Tap the white box ✎, type them, tap <b>Done</b>. Needed before adding a camera.</p><img src="guide/1.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><b>Add your first camera</b><p>Tap <b>+ 📷</b>.</p><img src="guide/2.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><b>Pick the camera</b><p>Pick <b>Hand cam</b> or <b>LS</b>, then brand and model.</p><img src="guide/3.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><b>Set the 4 settings</b><p>Set each one on the camera and tick it. More cameras: <b>+ Add camera</b>. Then <b>📷→🕒</b>.</p><img src="guide/4.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><b>Shoot the clock</b><p>Shoot the clock with every camera.</p><img src="guide/5.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><b>The green bubble</b><p>Shows your next step: tap it. Swipe up to open, down to close.</p><img src="guide/6.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><b>Photograph the camera's screen</b><p>Play back the clock shot with the <b>time showing</b>. Tap <b>📱→📷</b>, fill the frame with the screen.</p><img src="guide/7.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><b>Check: same second?</b><p>In sync: <b>✓ Yes, in sync</b>. Not: fix the camera clock, reshoot, <b>Retake</b>.</p><img src="guide/8.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><b>Next camera's screen</b><p>Tap <b>Next camera →</b>. Forgot one? <b>+ 📷</b>.</p><img src="guide/9.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><b>Send the photos</b><p>Tap <b>Send →</b>, then <b>Send</b> to your group chat. Red tile = missing photo.</p><img src="guide/10.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">11</div><div class="g-body"><b>Change, delete or switch cameras</b><p>Open the box (⤢): tap to switch, tap again or ✎ to edit, 🗑 twice to delete, + to add.</p><img src="guide/11.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
+    <li class="g-step"><div class="g-num">12</div><div class="g-body"><b>Change Hand cam / LS</b><p>Tap the camera name in the white box, pick <b>Hand cam</b> or <b>LS</b>.</p><img src="guide/12.webp?v=9" alt="" loading="lazy" width="390" height="844"></div></li>
     <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Good to know</b><p>
-      · <b>Sync now</b> re-checks the time server; the line above it shows how far off your phone's own clock is.<br>
-      · <b>Tap the clock</b> to hide the buttons for a clean shot; tap again to bring them back.<br>
-      · The <b>rotate button</b> (top right) turns the app sideways even when your phone's rotation is locked.<br>
-      · Your cameras stay saved. Ticks and photos clear 12 hours after you send (or the next day if nothing was sent).<br>
-      · <b>Reset app</b> (tap twice) clears everything and resets.</p></div></li>
+      · <b>Sync now</b>: re-checks the time server.<br>
+      · <b>Tap the clock</b>: hides / shows the buttons.<br>
+      · <b>Rotate button</b> (top right): turns the app sideways.<br>
+      · Ticks and photos reset 12 h after sending.<br>
+      · <b>Reset app</b> (tap twice): clears everything.</p></div></li>
   </ol>
   <div class="view-bar"><button id="gDone" class="nb-next" type="button">Got it</button></div>
 </div>
@@ -1472,7 +1472,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   function renderList(){
     var a = act(), c = findCam(a.b, a.m);
     listEl.textContent = "";
-    if(!c){ noteEl.textContent = "Choose the brand and model of " + key(a) + " to see its exact menu settings."; updateCount(); return; }
+    if(!c){ noteEl.textContent = "Pick brand and model for exact settings."; updateCount(); return; }
     var t = ticksOf(a);
     checks(a.b, c).forEach(function(item, i){
       var li = document.createElement("li"), lb = document.createElement("label"), cb = document.createElement("input"), sp = document.createElement("span");
@@ -1484,7 +1484,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       sp.firstChild.textContent = item[0];
       lb.appendChild(cb); lb.appendChild(sp); li.appendChild(lb); listEl.appendChild(li);
     });
-    noteEl.textContent = "Image size is the smallest setting with a long edge of at least 4000 px. Your cameras stay saved; ticks and photos reset 12 hours after you send the photos (or the next day if nothing was sent).";
+    noteEl.textContent = "Image size: >4000 px long edge. Ticks and photos reset 12 h after sending.";
     updateCount(); updateSheetGo();
   }
   function updateCount(){ updateCam(); }
@@ -1509,7 +1509,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     var a = act(), sc = pop.dataset.screen;
     document.getElementById("pBack").hidden = sc === "brand";
     document.getElementById("sheetTitle").textContent = sc === "brand" ? (a.b ? key(a) + " · brand" : "Add " + key(a)) : sc === "model" ? (a.b || "") + " model" : key(a);
-    document.getElementById("pSub").textContent = sc === "brand" ? "Pick the brand, or tap a recent camera" : sc === "model" ? "Tap your model · flagship first" : "Tap each setting once it's set on the camera";
+    document.getElementById("pSub").textContent = sc === "brand" ? "Pick brand or a recent camera" : sc === "model" ? "Pick model" : "Tick each setting once set";
     // type switch only while the camera isn't set up yet
     var pType = document.getElementById("pType"); pType.hidden = !!(a.b && findCam(a.b, a.m));
     [].forEach.call(pType.children, function(bt){ bt.classList.toggle("on", bt.dataset.t === a.type); });
@@ -2498,13 +2498,13 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     vBar.appendChild(row);
     (vBar.querySelector(".fl-go") || row.firstChild).focus();
   }
-  var CHECK = "Check: <b>clock photo</b> and <b>camera time</b> — same second?";
+  var CHECK = "<b>Clock</b> and <b>camera time</b>: same second?";
   function openReview(){
     var c = pending.c; viewFrom = "review";
     vTitle.textContent = key(c) + " · step 3: review";
     var backTo2 = function(){ pending = null; stopStream(); closeViewer(); go(c, 2); };
-    vSub.innerHTML = pending.exact ? CHECK + " Tap the photo to zoom." :
-      "<b>⚠ This photo's time can't be trusted to the second</b> (the phone camera didn't record it). Retake it with the in-app camera.";
+    vSub.innerHTML = pending.exact ? CHECK + " Tap to zoom." :
+      "<b>⚠ Time not exact</b> (phone camera). Retake in the app.";
     showImg(compose(pending.base, stamp(c, pending.t, undefined, pending.exact)).toDataURL("image/jpeg", .85));
     viewer.hidden = false;
     runAuto(pending);
@@ -2539,7 +2539,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   function notInSync(){
     var c = pending.c;
     vTitle.textContent = "✗ " + key(c) + " not in sync";
-    vSub.innerHTML = "Set the camera's clock (phone app like SnapBridge, or the camera's date/time menu), shoot the clock again, then <b>retake</b> this photo.";
+    vSub.innerHTML = "Fix the camera clock, reshoot the clock, then <b>retake</b>.";
     flowBar(["📷 Retake", retake], [["← Back", openReview], ["Keep anyway", function(){ keep(false); }, "bad"]]);
   }
   function retake(){ var c = pending ? pending.c : act(); closeViewer(); bannerCam = c; takePhoto(); }
@@ -2619,7 +2619,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     if(miss){
       // Every camera in the list needs its photo before anything can be sent
       document.getElementById("sTitle").textContent = "⚠ " + miss + " camera" + (miss > 1 ? "s need" : " needs") + " a photo";
-      document.getElementById("sSub").textContent = "Every camera must have its camera-back photo before sending. Tap a red one to fix it.";
+      document.getElementById("sSub").textContent = "Every camera needs a photo. Tap a red one.";
       warn.hidden = false;
       sGo.textContent = "Fix " + miss + " first"; sGo.disabled = true;
     } else {
