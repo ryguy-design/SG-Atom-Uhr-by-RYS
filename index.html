@@ -516,7 +516,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 </button>
 <main aria-live="off">
   <div class="camwrap">
-    <div id="camLabel" class="camlabel"><label id="iniWrap" class="ini" data-v="✎"><input id="camInit" type="text" size="1" maxlength="6" placeholder="✎" aria-label="Your initials" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><button id="camType" class="camtype" type="button" aria-label="Change camera type" hidden></button></div>
+    <div id="camLabel" class="camlabel"><label id="iniWrap" class="ini" data-v="✎"><input id="camInit" type="text" size="1" placeholder="✎" inputmode="text" pattern="[A-Za-z]*" aria-label="Your initials" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><button id="camType" class="camtype" type="button" aria-label="Change camera type" hidden></button></div>
     <div id="camModel" class="cammodel" aria-label="Camera model"></div>
     <div id="camSet" class="camset" aria-label="Camera settings"></div>
   </div>
@@ -985,8 +985,8 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   var camInit = document.getElementById("camInit"), iniWrap = document.getElementById("iniWrap"), camTypeEl = document.getElementById("camType");
   try{ var saved = JSON.parse(localStorage.getItem("acCam") || "{}"); if(saved.i) camInit.value = saved.i; }catch(e){}
   function updateCam(){
-    var v = camInit.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
-    if(v !== camInit.value) camInit.value = v;
+    var v = iniClean(camInit.value);
+    if(v !== camInit.value && !iniComposing) setIni(v);
     iniWrap.dataset.v = v || camInit.placeholder;   // sizes the field to the text
     var a = act();
     camTypeEl.hidden = kit.empty;
@@ -1012,12 +1012,36 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   }
   var iniBefore = "", pendingAdd = null, iniDone = false;
   camInit.addEventListener("focus", function(){ iniBefore = camInit.value; iniDone = false; closeTypeSwitch(); });
-  camInit.addEventListener("input", updateCam);
+  // Initials: letters only (A–Z), no spaces, digits or symbols, max 6. Keyboards that add an automatic space
+  // (or a suggestion) mid-word are not allowed to rewrite the field while they're still composing, so the
+  // last letter is never lost; the clean-up happens once the keyboard lets go of the word.
+  var iniComposing = false;
+  function iniClean(s){ return String(s || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 6); }
+  function setIni(v){
+    var pos = camInit.selectionStart, before = camInit.value.slice(0, pos == null ? camInit.value.length : pos);
+    camInit.value = v;
+    try{ var p = iniClean(before).length; camInit.setSelectionRange(p, p); }catch(_){}
+  }
+  camInit.addEventListener("beforeinput", function(e){
+    if(e.isComposing || e.inputType === "insertCompositionText") return;   // handled when the word is finished
+    if(!/^insert/.test(e.inputType) || e.data == null) return;
+    if(/^[A-Za-z]*$/.test(e.data)) return;
+    e.preventDefault();   // space, digit or symbol: blocked; any letters in it still go in
+    var add = e.data.replace(/[^A-Za-z]/g, "");
+    if(!add) return;
+    var s = camInit.selectionStart, en = camInit.selectionEnd;
+    try{ camInit.setRangeText(add.toUpperCase(), s, en, "end"); }catch(_){ camInit.value += add; }
+    updateCam();
+  });
+  camInit.addEventListener("compositionstart", function(){ iniComposing = true; });
+  camInit.addEventListener("compositionend", function(){ iniComposing = false; setTimeout(updateCam, 0); });
+  camInit.addEventListener("input", function(e){ if(e.isComposing) iniComposing = true; updateCam(); });
   camInit.addEventListener("keydown", function(e){
     if(e.key === "Enter"){ e.preventDefault(); iniDone = true; camInit.blur(); }   // done: keyboard goes away
     else if(e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); camInit.value = iniBefore; pendingAdd = null; updateCam(); camInit.blur(); }
   });
   camInit.addEventListener("blur", function(){
+    iniComposing = false;
     if(!camInit.value && iniBefore){ camInit.value = iniBefore; }   // initials can't be emptied once set
     var t = pendingAdd; pendingAdd = null;
     updateCam();
