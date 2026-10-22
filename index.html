@@ -1827,9 +1827,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       // closing the check (or loading the app) on step 1 leaves the clock clear
       var toCheck = function(){ hideNext(true); setActive(key(a)); openSheet(); };
       if(!quiet){ toCheck(); return; }
-      // Check closed / swiped down: only the bubble, 📷→🕒. Tapping or opening it brings the check back
+      // Check closed / swiped down: only the bubble, 📷✓❗ (black tick: it opens the check, where 📷→🕒 is). Tapping or opening it brings the check back
       stage = 0;
-      panel({step: 0, kick: "", head: "", sub: "", go: ["📷→🕒", toCheck], clock: true});
+      panel({step: 0, kick: "", head: "", sub: "", go: ["📷✓❗", toCheck], clock: true});
       return;
     }
     if(st === 2){
