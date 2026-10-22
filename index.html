@@ -688,7 +688,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       · <b>Tap the clock</b> to hide the buttons for a clean shot; tap again to bring them back.<br>
       · The <b>rotate button</b> (top right) turns the app sideways even when your phone's rotation is locked.<br>
       · Your cameras stay saved. Ticks and photos clear 12 hours after you send (or the next day if nothing was sent).<br>
-      · <b>Reset app</b> (tap twice) clears everything and starts fresh.</p></div></li>
+      · <b>Reset app</b> (tap twice) clears everything and resets.</p></div></li>
   </ol>
   <div class="view-bar"><button id="gDone" class="nb-next" type="button">Got it</button></div>
 </div>
@@ -1484,7 +1484,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       sp.firstChild.textContent = item[0];
       lb.appendChild(cb); lb.appendChild(sp); li.appendChild(lb); listEl.appendChild(li);
     });
-    noteEl.textContent = "Image size is the smallest setting with a long edge of at least 4000 px. Your cameras stay saved; ticks and photos start fresh 12 hours after you send the photos (or the next day if nothing was sent).";
+    noteEl.textContent = "Image size is the smallest setting with a long edge of at least 4000 px. Your cameras stay saved; ticks and photos reset 12 hours after you send the photos (or the next day if nothing was sent).";
     updateCount(); updateSheetGo();
   }
   function updateCount(){ updateCam(); }
