@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023010835">
+<meta name="app-ver" content="20261023013444">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -535,6 +535,10 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 .em.tick::after{width:.8em; height:.65em; -webkit-mask:var(--tick) center/contain no-repeat; mask:var(--tick) center/contain no-repeat}
 .bb-red{color:#c4001a; margin-left:.18em}
 :root{--tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.44 4.24 17.72 14.37'%3E%3Cpath d='M3 10.6l4.9 4.9L17.6 5.8' fill='none' stroke='%23000' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E"); --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-1.556 -1.556 10.67 15.11'%3E%3Cpath d='M0 0l6 6L0 12' fill='none' stroke='%23000' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E")}  /* the one tick used everywhere */
+/* English / Deutsch switch under the footer links */
+.langsw{display:flex; justify-content:center; gap:.3rem; margin-top:.55rem}
+.langsw button{font:inherit; font-size:.8rem; font-weight:600; color:var(--muted); background:none; border:1px solid transparent; border-radius:999px; padding:.25rem .75rem; cursor:pointer}
+.langsw button.on{color:var(--fg); border-color:#3a444b}
 </style>
 </head>
 <body>
@@ -610,6 +614,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     <button id="clearMain" class="clearmain" type="button">Reset app</button>
     <button id="guideBtn" class="guidebtn" type="button">How to use</button>
   </div>
+  <div class="langsw" data-notr><button type="button" data-l="en">English</button><button type="button" data-l="de">Deutsch</button></div>
 </footer>
 
 <div id="sheet" class="sheet" hidden>
@@ -692,10 +697,10 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Add additional cameras if needed with <span class="gk d">+ Add camera</span>.</p><img src="guide/4.webp?v=13" alt="" loading="lazy" width="354" height="69"></div></li>
     <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Tap on <span class="gk g">📷→🕒</span> when done.</p><img src="guide/5.webp?v=13" alt="" loading="lazy" width="354" height="66"></div></li>
     <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Shoot the clock with every camera.</p><img src="guide/6.webp?v=13" alt="" loading="lazy" width="390" height="305"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/8.webp?v=13" alt="" loading="lazy" width="390" height="626"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ Yes, in sync</span>. If not, fix the camera's clock and tap <b>📷 Retake</b>.</p><img src="guide/9.webp?v=13" alt="" loading="lazy" width="390" height="526"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tap <span class="gk g">Next camera →</span> for the next camera's screen.</p><img src="guide/10.webp?v=13" alt="" loading="lazy" width="390" height="75"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tap <span class="gk g">Send →</span> and pick your group chat.</p><img src="guide/11.webp?v=13" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=13" alt="" loading="lazy" width="390" height="626"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ Yes, in sync</span>. If not, fix the camera's clock and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=13" alt="" loading="lazy" width="390" height="526"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tap <span class="gk g">Next camera →</span> for the next camera's screen.</p><img src="guide/9.webp?v=13" alt="" loading="lazy" width="390" height="75"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tap <span class="gk g">Send →</span> and pick your group chat.</p><img src="guide/10.webp?v=13" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Good to know</b><p>
       · Open the box with <span class="gk g">⤢</span> to switch, edit, delete or add cameras.<br>
       · Tap the camera name in the white box to change it to <b>Hand cam</b> or <b>LS</b>.<br>
@@ -711,6 +716,108 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <!-- After a camera's 4 ticks: one step at a time, one big button per step -->
 
 
+<script>
+// ================= Language: English / Deutsch =================
+// The choice is kept on the phone. English is written in the code; German comes from the table below.
+// Whole strings are swapped as they appear on screen (also text the app sets later); a few longer texts are
+// written in German directly where they're built (L(en, de)).
+var LANG = (function(){ try{ return localStorage.getItem("acLang") === "de" ? "de" : "en"; }catch(e){ return "en"; } })();
+document.documentElement.lang = LANG;
+function L(en, de){ return LANG === "de" ? de : en; }
+var DE = {
+  // main screen
+  "Sync now": "Jetzt synchronisieren", "Reset app": "App zurücksetzen", "How to use": "Anleitung",
+  "Sure? Resets everything": "Sicher? Setzt alles zurück", "Done ✓": "Erledigt ✓", "Sure?": "Sicher?", "Delete?": "Löschen?",
+  "Syncing with time server…": "Synchronisiere mit Zeitserver…",
+  "Offline — showing phone clock (not synced)": "Offline — Handyuhr wird angezeigt (nicht synchronisiert)",
+  "Tap clock to hide buttons": "Uhr antippen, um Tasten auszublenden", "Tap to show buttons": "Tippen, um Tasten einzublenden",
+  "Type your initials first": "Zuerst Initialen eingeben", "Change cam to:": "Kamera ändern zu:", "Cancel": "Abbrechen",
+  "✓ 4/4 SETTINGS · EVERY CAMERA": "✓ 4/4 EINSTELLUNGEN · JEDE KAMERA",
+  "Exact GPS location visible on screen": "Genauer GPS-Standort auf dem Bildschirm sichtbar", "Finding you…": "Standort wird gesucht…",
+  // labels for screen readers
+  "Users": "Nutzer", "Rotate screen": "Bildschirm drehen", "Your initials": "Deine Initialen", "Camera model": "Kameramodell",
+  "Camera settings": "Kameraeinstellungen", "Change camera type": "Kameratyp ändern", "Date": "Datum", "Day": "Tag", "Time": "Uhrzeit",
+  "Add a camera": "Kamera hinzufügen", "Add another camera": "Weitere Kamera hinzufügen", "Add camera": "Kamera hinzufügen",
+  "Edit this camera": "Diese Kamera bearbeiten", "Edit camera": "Kamera bearbeiten", "Delete this camera": "Diese Kamera löschen",
+  "Delete camera": "Kamera löschen", "Minimise": "Minimieren", "Cameras": "Kameras", "Camera steps": "Kamera-Schritte",
+  "Open the camera box": "Kamerabox öffnen", "Tap or slide down to put the camera box away": "Tippen oder nach unten wischen, um die Kamerabox zu schließen",
+  "Slide down to close": "Zum Schließen nach unten wischen", "Back": "Zurück", "Camera type": "Kameratyp", "My cameras": "Meine Kameras",
+  "Recently used cameras": "Zuletzt verwendete Kameras", "Photo of the camera back": "Foto vom Kameradisplay", "Take photo": "Foto aufnehmen",
+  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen",
+  // camera check
+  "Brand": "Marke", "Model": "Modell", "Check": "Prüfen", "Brand…": "Marke…", "Model…": "Modell…", "Quick pick": "Schnellwahl",
+  "Hand cam": "Handkamera", "Other brand": "Andere Marke", "Other brand / not listed": "Andere Marke / nicht gelistet",
+  "Pick brand or a recent camera": "Marke oder zuletzt genutzte Kamera wählen", "Pick model": "Modell wählen",
+  "Tick each setting once set": "Jede Einstellung abhaken, sobald gesetzt", "Change ›": "Ändern ›",
+  "+ Add camera": "+ Kamera hinzufügen", "+ Add hand cam": "+ Handkamera hinzufügen", "+ Add LS": "+ LS hinzufügen",
+  "+ Hand cam": "+ Handkamera", "Camera-back photo saved": "Foto vom Kameradisplay gespeichert", "Retake": "Neu aufnehmen", "Delete": "Löschen",
+  "Pick brand and model for exact settings.": "Marke und Modell wählen für die genauen Einstellungen.", "Pick brand & model": "Marke & Modell wählen",
+  "Continue →": "Weiter →", "Continue: 📱→📷": "Weiter: 📱→📷", "camera check": "Kamera-Check", "Other model": "Anderes Modell", "Other camera": "Andere Kamera",
+  "Full frame mirrorless": "Vollformat spiegellos", "Full frame A-mount": "Vollformat A-Mount", "APS-C mirrorless": "APS-C spiegellos",
+  "Compact · 1-inch": "Kompakt · 1 Zoll", "Mirrorless · full frame": "Spiegellos · Vollformat", "Mirrorless · APS-C": "Spiegellos · APS-C",
+  "DSLR · full frame": "DSLR · Vollformat", "X-H · flagship": "X-H · Flaggschiff", "X-T · pro": "X-T · Profi",
+  "X-Pro · rangefinder style": "X-Pro · Messsucher-Stil", "X-S · compact pro": "X-S · kompakt", "X-T50 / X-T30 · mid": "X-T50 / X-T30 · Mittelklasse",
+  "X-E / X-M · compact": "X-E / X-M · kompakt", "Z mirrorless · full frame": "Z spiegellos · Vollformat", "Z mirrorless · APS-C (DX)": "Z spiegellos · APS-C (DX)",
+  // step box / bubble
+  "Camera screen photo": "Foto vom Kameradisplay", "Your photo · tap to view": "Dein Foto · zum Ansehen tippen", "Review →": "Prüfen →",
+  "← Back": "← Zurück", "📷 Retake": "📷 Neu aufnehmen", "Skip →": "Überspringen →", "✓ All done": "✓ Alles erledigt", "Ready to send": "Bereit zum Senden",
+  "Send →": "Senden →", "Get missing photo →": "Fehlendes Foto holen →", "Get missing photos →": "Fehlende Fotos holen →",
+  "Saved · camera NOT in sync": "Gespeichert · Kamera NICHT synchron",
+  // camera / review / send
+  "Fill the frame with the camera's screen.": "Kameradisplay bildfüllend aufnehmen.", "Camera didn't start": "Kamera startet nicht",
+  "Allow camera access, or use the phone camera.": "Kamerazugriff erlauben oder die Handykamera nutzen.", "↻ Try again": "↻ Nochmal versuchen",
+  "✕ Cancel": "✕ Abbrechen", "Phone camera": "Handykamera", "✓ Yes, in sync": "✓ Ja, synchron", "✗ Not in sync": "✗ Nicht synchron",
+  "✗ Not in sync — fix camera": "✗ Nicht synchron — Kamera korrigieren", "✓ In sync anyway": "✓ Trotzdem synchron", "Keep anyway": "Trotzdem behalten",
+  "↩ Back to list": "↩ Zurück zur Liste", "Close": "Schließen", "↩ Back": "↩ Zurück", "Tap a photo to view.": "Tippe auf ein Foto, um es anzusehen.",
+  "Tap a photo to look again.": "Tippe auf ein Foto, um es nochmal anzusehen.", "Locked until every camera has a photo.": "Gesperrt, bis jede Kamera ein Foto hat.",
+  "Every camera needs a photo. Tap a red one.": "Jede Kamera braucht ein Foto. Tippe auf ein rotes.", "In sync ✓": "Synchron ✓", "Not in sync ✗": "Nicht synchron ✗",
+  "Not checked": "Nicht geprüft", "No photo · tap to fix": "Kein Foto · zum Beheben tippen",
+  "Checking the photo for you…": "Foto wird geprüft…", "Couldn't read the photo automatically — compare by eye.": "Foto konnte nicht automatisch gelesen werden — bitte selbst vergleichen.",
+  // guide
+  "Good to know": "Gut zu wissen", "Got it": "Verstanden"
+};
+var DE_RX = [
+  [/^👥 (\d+) users?$/, "👥 $1 Nutzer"],
+  [/^Synced less than a minute ago · (.+)$/, "Vor weniger als einer Minute synchronisiert · $1"],
+  [/^Synced (\d+) min ago · (.+)$/, "Vor $1 Min. synchronisiert · $2"],
+  [/^(.+) · phone clock exact$/, "$1 · Handyuhr genau"], [/^(.+) · phone clock (.+)$/, "$1 · Handyuhr $2"],
+  [/^CAMERA CHECK (\d)\/4 — NOT DONE$/, "KAMERA-CHECK $1/4 — NICHT FERTIG"],
+  [/^(\d+) cameras$/, "$1 Kameras"],
+  [/^Change (.+) to:$/, "$1 ändern zu:"],
+  [/^(.+) · camera check$/, "$1 · Kamera-Check"], [/^(\d) of 4 ticked$/, "$1 von 4 abgehakt"], [/^(\d) of 4 set$/, "$1 von 4 eingestellt"],
+  [/^(.+) · step 3: review$/, "$1 · Schritt 3: Prüfen"], [/^(.+) · step (\d)$/, "$1 · Schritt $2"],
+  [/^(.+): photo of the camera's screen$/, "$1: Foto vom Kameradisplay"],
+  [/^General settings for any (.+)$/, "Allgemeine Einstellungen für jede $1"], [/^Other (.+) model$/, "Anderes $1-Modell"], [/^Other (.+)$/, "Andere $1"],
+  [/^(.+) · brand$/, "$1 · Marke"], [/^Add (.+)$/, "$1 hinzufügen"], [/^(.+) model$/, "$1-Modell"],
+  [/^Next: check (.+) →$/, "Weiter: $1 prüfen →"], [/^Next camera: (.+)$/, "Nächste Kamera: $1"], [/^Delete (.+)\?$/, "$1 löschen?"],
+  [/^Photo saved · (.+)$/, "Foto gespeichert · $1"],
+  [/^(.+) (✓ in sync|✗ not in sync|no photo) · (\d+) of (\d+) cameras done$/, function(m, n, s, a, b){ return n + " " + {"✓ in sync": "✓ synchron", "✗ not in sync": "✗ nicht synchron", "no photo": "kein Foto"}[s] + " · " + a + " von " + b + " Kameras fertig"; }],
+  [/^(.+)  · (\d+) of (\d+) cameras done$/, "$1 · $2 von $3 Kameras fertig"],
+  [/^⚠ (\d+) cameras? needs? photos$/, "⚠ $1 Kamera(s) ohne Foto"], [/^⚠ (\d+) cameras? needs? a photo$/, "⚠ $1 Kamera(s) ohne Foto"],
+  [/^Send (\d+) camera photos?\?$/, "$1 Kamerafoto(s) senden?"], [/^Send (\d+) →$/, "$1 senden →"], [/^Fix (\d+) first$/, "Erst $1 beheben"],
+  [/^Tap a photo to look again\. (\d+) not confirmed in sync\.$/, "Tippe auf ein Foto, um es nochmal anzusehen. $1 nicht als synchron bestätigt."],
+  [/^✗ (.+) not in sync$/, "✗ $1 nicht synchron"], [/^(.+) · in sync ✓$/, "$1 · synchron ✓"], [/^(.+) · not in sync ✗$/, "$1 · nicht synchron ✗"],
+  [/^(.+), camera check not started$/, "$1, Kamera-Check nicht begonnen"], [/^(.+), (\d) of 4 checked$/, "$1, $2 von 4 geprüft"], [/^(.+), checked$/, "$1, geprüft"]
+];
+function T(s){
+  if(LANG !== "de" || !s || typeof s !== "string") return s;
+  var m = /^(\s*)([\s\S]*?)(\s*)$/.exec(s), a = m[1], v = m[2], z = m[3], out = DE[v];
+  if(out === undefined){
+    out = v;
+    for(var i = 0; i < DE_RX.length; i++){ if(DE_RX[i][0].test(v)){ out = v.replace(DE_RX[i][0], DE_RX[i][1]); break; } }
+  }
+  out = out.replace(/ atomic$/, " Atomzeit").replace(/(\d\d:\d\d:\d\d) phone clock$/, "$1 Handyuhr").replace(/HAND CAM/g, "HANDKAMERA").replace(/\bHand cam\b/g, "Handkamera").replace(/\bhand cam\b/g, "Handkamera");
+  return a + out + z;
+}
+// Translate a piece of the page (text and the labels screen readers use)
+function trNode(n){
+  if(LANG !== "de") return;
+  if(n.nodeType === 3){ var p = n.parentNode; if(!p || /^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName) || (p.closest && p.closest("[data-notr]"))) return; var v = n.nodeValue, t = T(v); if(t !== v) n.nodeValue = t; return; }
+  if(n.nodeType !== 1 || /^(SCRIPT|STYLE)$/.test(n.nodeName) || n.hasAttribute("data-notr")) return;
+  ["aria-label", "title", "alt"].forEach(function(at){ var v = n.getAttribute(at); if(v){ var t = T(v); if(t !== v) n.setAttribute(at, t); } });
+  for(var c = n.firstChild; c; c = c.nextSibling) trNode(c);
+}
+</script>
 <script>
 // User counter: a free, no-account counting service (Abacus). Each phone is counted once (remembered on the phone),
 // and every app open is counted separately. Nothing personal is sent. If the service is down the counter just hides.
@@ -868,7 +975,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     drawn();
     return {set:set, drawn:drawn, font:font};
   }
-  var dayR  = makeRow(dayRow,  "###", true);
+  var dayR  = makeRow(dayRow,  L("###", "##"), true);   // German weekdays have two letters (FR)
   var dateR = makeRow(dateRow, "##.##.####");
   var timeR = makeRow(timeRow, "##:##:##.%%");   // % = hundredths, drawn 30% smaller
   var tzEl = document.getElementById("tz");
@@ -896,7 +1003,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     // Label size is fixed: set by the longest possible label (6 initials + HAND CAM),
     // so the white banner just hugs whatever text is shown
     var probe = camLabelEl.cloneNode(false); probe.removeAttribute("id"); probe.setAttribute("aria-hidden","true");
-    probe.textContent = "WWWWWW · HAND CAM 4"; probe.style.cssText = "position:absolute;visibility:hidden;left:-9999px;font-size:100px";
+    probe.textContent = L("WWWWWW · HAND CAM 4", "WWWWWW · HANDKAMERA 4"); probe.style.cssText = "position:absolute;visibility:hidden;left:-9999px;font-size:100px";
     document.body.appendChild(probe);
     var tw = timeRow.scrollWidth, lw = probe.offsetWidth, lh = probe.offsetHeight;
     probe.remove();
@@ -951,11 +1058,11 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     }catch(e){}
     var m = -d.getTimezoneOffset(), sign = m >= 0 ? "+" : "−"; m = Math.abs(m);
     var off = "UTC" + sign + pad(Math.floor(m/60)) + ":" + pad(m%60);
-    return [city ? city + " TIME" : "LOCAL TIME", abbr, off].filter(Boolean).join(" · ");
+    return [city ? city + L(" TIME", "-ZEIT") : L("LOCAL TIME", "ORTSZEIT"), abbr, off].filter(Boolean).join(" · ");
   }
 
   // ================= Clock loop =================
-  var DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"]; // always capitals
+  var DAYS = L(["SUN","MON","TUE","WED","THU","FRI","SAT"], ["SO","MO","DI","MI","DO","FR","SA"]); // always capitals
   var lastDay = "", lastStatusMin = -1;
   function tick(){ render(); requestAnimationFrame(tick); }
   function render(){
@@ -1295,6 +1402,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   // The four checks, worded the way each brand's menu words them
   var SIZE_ANY = "The <b>smallest</b> JPEG size whose long edge is <b>at least 4000 px</b>. Check the pixel numbers shown in the image size menu";
   function checks(b, c){
+    if(LANG === "de") return checksDE(b, c);
     var size = c[1], px = c[2];
     if(c[0] === OTHER){
       if(b === "Sony") return [
@@ -1352,14 +1460,75 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     ];
   }
 
+
+  // The same four checks in German, with the German menu names of each maker
+  var SIZE_ANY_DE = "Die <b>kleinste</b> JPEG-Größe mit einer langen Kante von <b>mindestens 4000 px</b>. Prüfe die Pixelangaben im Menü Bildgröße";
+  var NIK_SIZE_DE = {Small: "Klein (S)", Medium: "Mittel (M)", Large: "Groß (L)"};
+  function checksDE(b, c){
+    var size = c[1], px = c[2];
+    if(c[0] === OTHER){
+      if(b === "Sony") return [
+        ["Weißabgleich", "<b>AWB</b> · falls es PriorEinst b. AWB gibt: <b>Standard</b>"],
+        ["Kreativmodus / Kreativer Look", "<b>Neutral (NT)</b>, oder <b>Standard</b>, falls es kein Neutral gibt"],
+        ["JPEG-Qualität", "Nur <b>JPEG</b> (RAW aus), Qualität <b>Standard</b>"],
+        ["Bildgröße", SIZE_ANY_DE]];
+      if(b === "Canon") return [
+        ["Weißabgleich", "<b>AWB</b> — Auto: Priorität Umgebung, nicht Priorität Weiß"],
+        ["Bildstil", "<b>Neutral (N)</b>"],
+        ["JPEG-Qualität", "Nur JPEG (RAW aus), Qualität <b>Normal</b> (das gestufte Symbol, nicht das glatte für Fein). Falls es JPEG-Qualität 1–10 gibt: <b>6/10</b>"],
+        ["Bildgröße", SIZE_ANY_DE]];
+      if(b === "Fujifilm") return [
+        ["Weißabgleich", "<b>AUTO</b> — normales AUTO, nicht Weiß- oder Ambiente-Priorität"],
+        ["Filmsimulation", "<b>PROVIA/STANDARD</b>"],
+        ["Bildqualität", "<b>NORMAL</b> (kein RAW)"],
+        ["Bildgröße", SIZE_ANY_DE + " (3:2)"]];
+      if(b === "Nikon") return [
+        ["Weißabgleich", "<b>AUTO1</b> (Normal / Gesamtatmosphäre beibehalten), oder einfach <b>Auto</b>, falls es keine Optionen gibt"],
+        ["Picture Control", "<b>Neutral (NL)</b>"],
+        ["JPEG-Qualität", "Bildqualität <b>JPEG Normal</b> (kein RAW)"],
+        ["Bildgröße", "Bildfeld <b>FX</b> (DX bei APS-C-Kameras). " + SIZE_ANY_DE]];
+      return [
+        ["Weißabgleich", "<b>Auto</b> — das normale Auto, keine Warm-/Atmosphären- oder Weiß-Priorität"],
+        ["Bildstil", "Das <b>neutralste</b> Profil (Neutral / Natürlich / Standard), keine kräftigen oder kreativen Looks"],
+        ["JPEG-Qualität", "Nur <b>JPEG</b> (RAW aus), die <b>mittlere</b> Qualität (Standard / Normal)"],
+        ["Bildgröße", SIZE_ANY_DE]];
+    }
+    if(b === "Sony") return [
+      ["Weißabgleich", has(SONY_NO_AWB_PRIORITY, c[0]) ? "<b>AWB</b> (Auto)" : "<b>AWB</b>, PriorEinst b. AWB → <b>Standard</b>"],
+      [c[3] === "style" || c[3] === "style0" ? "Kreativmodus" : "Kreativer Look",
+        c[3] === "style0" ? "<b>Standard</b> (dieses Modell hat kein Neutral)" :
+        c[3] === "style" ? "<b>Neutral (NT)</b>" :
+        c[3] === "look1" ? "<b>NT (Neutral)</b> · bei Firmware vor 2.0: Kreativmodus → Neutral" : "<b>NT (Neutral)</b>"],
+      ["JPEG-Qualität", c[3] === "style" || c[3] === "style0" ? "Qualität <b>Standard</b> (nur JPEG, nicht RAW oder RAW & JPEG)" : "Dateiformat <b>JPEG</b> (RAW aus), JPEG-Qualität <b>Standard</b>"],
+      ["Bildgröße", "JPEG-Bildgröße <b>" + size + "</b> · " + px + " px"]
+    ];
+    if(b === "Canon") return [
+      ["Weißabgleich", has(CANON_NO_AWBW, c[0]) ? "<b>AWB</b> (Auto)" : "<b>AWB</b> — Auto: Priorität Umgebung, nicht Priorität Weiß"],
+      ["Bildstil", "<b>Neutral (N)</b>"],
+      ["JPEG-Qualität", "Nur JPEG (RAW aus), Qualität <b>Normal</b> (das gestufte Symbol, nicht das glatte für Fein). Falls es JPEG-Qualität 1–10 gibt: <b>6/10</b>, die erste gestufte Stufe unter 10"],
+      ["Bildgröße", "Bildqualität <b>" + size + "</b> Normal (gestuftes Symbol) · " + px + " px"]
+    ];
+    if(b === "Fujifilm") return [
+      ["Weißabgleich", has(FUJI_AUTO_PRIORITY, c[0]) ? "<b>AUTO</b> — normales AUTO, nicht Weiß- oder Ambiente-Priorität" : "<b>AUTO</b>"],
+      ["Filmsimulation", "<b>PROVIA/STANDARD</b>"],
+      ["Bildqualität", "<b>NORMAL</b> (kein RAW)"],
+      ["Bildgröße", "Bildgröße <b>" + size + " 3:2</b> · " + px + " px"]
+    ];
+    return [
+      ["Weißabgleich", has(NIKON_PLAIN_AUTO, c[0]) ? "<b>Auto</b> (dieses Modell hat keine Optionen AUTO0/1/2)" : has(NIKON_AUTO_NORMAL, c[0]) ? "<b>AUTO1</b> — Auto → Normal" : "<b>AUTO1</b> — Auto → Gesamtatmosphäre beibehalten"],
+      ["Picture Control", "<b>Neutral (NL)</b>"],
+      ["JPEG-Qualität", "Bildqualität <b>JPEG Normal</b> (kein RAW)"],
+      ["Bildgröße", "Bildfeld <b>" + c[3] + "</b>, Bildgröße <b>" + (NIK_SIZE_DE[size] || size) + "</b> · " + px + " px"]
+    ];
+  }
   // One short line of the four settings, shown on the clock once all are ticked
   function summary(b, c){
     var size = c[1], px = c[2];
-    if(c[0] === OTHER) return "Auto WB · Neutral · JPEG standard · ≥4000 px";
+    if(c[0] === OTHER) return L("Auto WB · Neutral · JPEG standard · ≥4000 px", "Auto-WA · Neutral · JPEG Standard · ≥4000 px");
     if(b === "Sony") return "AWB · " + (c[3] === "style0" ? "Standard" : "NT") + " · JPEG Std · " + size + " " + px;
     if(b === "Canon") return "AWB · Neutral · JPEG Normal (6/10) · " + size + " " + px;
     if(b === "Fujifilm") return "AUTO · PROVIA · NORMAL · " + size + " " + px;
-    return (has(NIKON_PLAIN_AUTO, c[0]) ? "Auto" : "AUTO1") + " · NL · JPEG normal · " + c[3] + " " + size.charAt(0) + " " + px;
+    return (has(NIKON_PLAIN_AUTO, c[0]) ? "Auto" : "AUTO1") + L(" · NL · JPEG normal · ", " · NL · JPEG Normal · ") + c[3] + " " + size.charAt(0) + " " + px;
   }
 
   var sheet = document.getElementById("sheet");
@@ -1509,7 +1678,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
       sp.firstChild.textContent = item[0];
       lb.appendChild(cb); lb.appendChild(sp); li.appendChild(lb); listEl.appendChild(li);
     });
-    noteEl.textContent = "Image size: >4000 px long edge. Ticks and photos reset 12 h after sending.";
+    noteEl.textContent = L("Image size: >4000 px long edge. Ticks and photos reset 12 h after sending.", "Bildgröße: >4000 px lange Kante. Häkchen und Fotos werden 12 Std. nach dem Senden zurückgesetzt.");
     updateCount(); updateSheetGo();
   }
   function updateCount(){ updateCam(); }
@@ -2041,9 +2210,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   var pending = null;   // a photo just taken, waiting for review
   function p2(n){ return (n < 10 ? "0" : "") + n; }
   function stamp(c, t, sync, exact){
-    return [camInit.value, key(c), findCam(c.b, c.m) ? (c.m === OTHER ? "Other " + c.b : c.b + " " + shortName(c.m)) : "", "✓ " + countOf(c) + "/4",
-      p2(t.getDate()) + "." + p2(t.getMonth()+1) + "." + t.getFullYear() + "  " + (exact === false ? "~" : "") + p2(t.getHours()) + ":" + p2(t.getMinutes()) + ":" + p2(t.getSeconds()) + ((pending && pending.saved ? pending.atomic : synced) ? " atomic" : " phone clock, not synced"),
-      sync === true ? "IN SYNC ✓" : sync === false ? "NOT IN SYNC ✗" : ""].filter(Boolean).join("  ·  ");
+    return [camInit.value, T(key(c)), findCam(c.b, c.m) ? (c.m === OTHER ? L("Other ", "Andere ") + c.b : c.b + " " + shortName(c.m)) : "", "✓ " + countOf(c) + "/4",
+      p2(t.getDate()) + "." + p2(t.getMonth()+1) + "." + t.getFullYear() + "  " + (exact === false ? "~" : "") + p2(t.getHours()) + ":" + p2(t.getMinutes()) + ":" + p2(t.getSeconds()) + ((pending && pending.saved ? pending.atomic : synced) ? L(" atomic", " Atomzeit") : L(" phone clock, not synced", " Handyuhr, nicht synchronisiert")),
+      sync === true ? L("IN SYNC ✓", "SYNCHRON ✓") : sync === false ? L("NOT IN SYNC ✗", "NICHT SYNCHRON ✗") : ""].filter(Boolean).join("  ·  ");
   }
   function compose(base, label, sync){
     var w = base.width, h = base.height, bar = Math.round(Math.max(w, h) * 0.06);
@@ -2527,13 +2696,13 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     vBar.appendChild(row);
     (vBar.querySelector(".fl-go") || row.firstChild).focus();
   }
-  var CHECK = "<b>Clock</b> and <b>camera time</b>: same second?";
+  var CHECK = L("<b>Clock</b> and <b>camera time</b>: same second?", "<b>Uhr</b> und <b>Kamerazeit</b>: gleiche Sekunde?");
   function openReview(){
     var c = pending.c; viewFrom = "review";
     vTitle.textContent = key(c) + " · step 3: review";
     var backTo2 = function(){ pending = null; stopStream(); closeViewer(); go(c, 2); };
-    vSub.innerHTML = pending.exact ? CHECK + " Tap to zoom." :
-      "<b>⚠ Time not exact</b> (phone camera). Retake in the app.";
+    vSub.innerHTML = pending.exact ? CHECK + L(" Tap to zoom.", " Zum Zoomen tippen.") :
+      L("<b>⚠ Time not exact</b> (phone camera). Retake in the app.", "<b>⚠ Zeit nicht genau</b> (Handykamera). In der App neu aufnehmen.");
     showImg(compose(pending.base, stamp(c, pending.t, undefined, pending.exact)).toDataURL("image/jpeg", .85));
     viewer.hidden = false;
     runAuto(pending);
@@ -2552,23 +2721,23 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     if(a.diff !== undefined){
       var cam = fmtSOD(a.cam);
       if(a.sync){
-        showAuto("ok", "✓ <span>In sync — clock in the shot " + clk + " · camera " + cam + "</span>");
+        showAuto("ok", L("✓ <span>In sync — clock in the shot " + clk + " · camera " + cam + "</span>", "✓ <span>Synchron — Uhr im Bild " + clk + " · Kamera " + cam + "</span>"));
       } else {
-        showAuto("bad", "✗ <span>Camera is " + fmtGap(a.diff) + " " + (a.diff > 0 ? "ahead" : "behind") + " — clock in the shot " + clk + " · camera " + cam + "</span>");
+        showAuto("bad", L("✗ <span>Camera is " + fmtGap(a.diff) + " " + (a.diff > 0 ? "ahead" : "behind") + " — clock in the shot " + clk + " · camera " + cam + "</span>", "✗ <span>Kamera geht " + fmtGap(a.diff) + " " + (a.diff > 0 ? "vor" : "nach") + " — Uhr im Bild " + clk + " · Kamera " + cam + "</span>"));
         flowBar(["✗ Not in sync — fix camera", notInSync], [["← Back", function(){ pending = null; stopStream(); closeViewer(); go(c, 2); }], ["📷 Retake", retake], ["✓ In sync anyway", function(){ keep(true); }]]);
       }
     } else if(!a.clockOk && !a.cams.length){
-      showAuto("", "<span>Couldn't read the photo automatically — compare by eye.</span>");
+      showAuto("", L("<span>Couldn't read the photo automatically — compare by eye.</span>", "<span>Foto konnte nicht automatisch gelesen werden — bitte selbst vergleichen.</span>"));
     } else if(!a.clockOk){
-      showAuto("", "<span>Read the camera (" + fmtSOD(a.cams[0]) + ") but not the clock in its shot — compare by eye.</span>");
+      showAuto("", L("<span>Read the camera (" + fmtSOD(a.cams[0]) + ") but not the clock in its shot — compare by eye.</span>", "<span>Kamera gelesen (" + fmtSOD(a.cams[0]) + "), aber nicht die Uhr im Bild — bitte selbst vergleichen.</span>"));
     } else {
-      showAuto("", "<span>Read the clock in the shot (" + clk + ") but not the camera's own time — show the shot's time on the camera's screen. Compare by eye.</span>");
+      showAuto("", L("<span>Read the clock in the shot (" + clk + ") but not the camera's own time — show the shot's time on the camera's screen. Compare by eye.</span>", "<span>Uhr im Bild gelesen (" + clk + "), aber nicht die Kamerazeit — die Aufnahmezeit auf dem Kameradisplay anzeigen. Bitte selbst vergleichen.</span>"));
     }
   }
   function notInSync(){
     var c = pending.c;
     vTitle.textContent = "✗ " + key(c) + " not in sync";
-    vSub.innerHTML = "Fix the camera clock, reshoot the clock, then <b>retake</b>.";
+    vSub.innerHTML = L("Fix the camera clock, reshoot the clock, then <b>retake</b>.", "Kamerauhr korrigieren, Uhr neu fotografieren, dann <b>neu aufnehmen</b>.");
     flowBar(["📷 Retake", retake], [["← Back", openReview], ["Keep anyway", function(){ keep(false); }, "bad"]]);
   }
   function retake(){ var c = pending ? pending.c : act(); closeViewer(); bannerCam = c; takePhoto(); }
@@ -2675,7 +2844,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     var list = kit.cams.map(function(c){ return photos[photoKey(c)]; }).filter(Boolean);
     if(!list.length) return;
     var files = list.map(function(x){ return new File([x.blob], x.name, {type: "image/jpeg"}); });
-    var text = (camInit.value ? camInit.value + " · " : "") + "camera check " + ev.day.split("-").reverse().join(".") + " · " + kit.cams.map(short).join(", ");
+    var text = (camInit.value ? camInit.value + " · " : "") + L("camera check ", "Kamera-Check ") + ev.day.split("-").reverse().join(".") + " · " + kit.cams.map(short).join(", ");
     if(navigator.canShare && navigator.canShare({files: files})){
       navigator.share({files: files, text: text}).then(function(){ markSent(); sendView.hidden = true; }).catch(function(){});
     } else {
@@ -2933,6 +3102,44 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');
     }
+    var GUIDE_DE = `
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib deine Initialen ein.</p><img src="guide/de/1.webp?v=13" alt="" loading="lazy" width="300" height="70"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Tippe auf <span class="gk d">+ 📷</span>, um deine erste Kamera hinzuzufügen, und wähle dann Marke und Modell.</p><img src="guide/de/2.webp?v=13" alt="" loading="lazy" width="300" height="74"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab.</p><img src="guide/de/3.webp?v=13" alt="" loading="lazy" width="354" height="373"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=13" alt="" loading="lazy" width="354" height="69"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Tippe auf <span class="gk g">📷→🕒</span>, wenn du fertig bist.</p><img src="guide/de/5.webp?v=13" alt="" loading="lazy" width="354" height="66"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Fotografiere die Uhr mit jeder Kamera.</p><img src="guide/de/6.webp?v=13" alt="" loading="lazy" width="390" height="305"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=13" alt="" loading="lazy" width="390" height="626"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Ja, synchron</span>. Wenn nicht, stelle die Kamerauhr richtig und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=13" alt="" loading="lazy" width="390" height="526"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tippe auf <span class="gk g">Nächste Kamera →</span> für das Display der nächsten Kamera.</p><img src="guide/de/9.webp?v=13" alt="" loading="lazy" width="390" height="75"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tippe auf <span class="gk g">Senden →</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=13" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Gut zu wissen</b><p>
+      · Öffne die Box mit <span class="gk g">⤢</span>, um Kameras zu wechseln, zu bearbeiten, zu löschen oder hinzuzufügen.<br>
+      · Tippe auf den Kameranamen in der weißen Box, um ihn auf <b>Handkamera</b> oder <b>LS</b> zu ändern.<br>
+      · <b>Jetzt synchronisieren</b>: prüft den Zeitserver erneut.<br>
+      · <b>Uhr antippen</b>: blendet die Tasten aus / ein.<br>
+      · <b>Drehen-Taste</b> (oben rechts): dreht die App ins Querformat.<br>
+      · Häkchen und Fotos werden 12 Stunden nach dem Senden zurückgesetzt.<br>
+      · <b>App zurücksetzen</b> (zweimal tippen): löscht alles.</p></div></li>
+  `;
+  // ---- Language switch (bottom of the main screen) and the German page ----
+  (function(){
+    [].forEach.call(document.querySelectorAll(".langsw button"), function(b){
+      b.classList.toggle("on", b.dataset.l === LANG);
+      b.addEventListener("click", function(){ if(b.dataset.l === LANG) return; try{ localStorage.setItem("acLang", b.dataset.l); }catch(e){} location.reload(); });
+    });
+    if(LANG !== "de") return;
+    var gl = document.querySelector("#guide .g-list"); if(gl) gl.innerHTML = GUIDE_DE;
+    trNode(document.body);
+    new MutationObserver(function(ms){
+      ms.forEach(function(m){
+        if(m.type === "characterData") trNode(m.target);
+        else if(m.type === "attributes"){ var v = m.target.getAttribute(m.attributeName); if(v){ var t = T(v); if(t !== v) m.target.setAttribute(m.attributeName, t); } }
+        else [].forEach.call(m.addedNodes, trNode);
+      });
+    }).observe(document.body, {childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["aria-label", "title", "alt"]});
+    setTimeout(function(){ window.dispatchEvent(new Event("resize")); }, 50);   // German text is longer: re-place the bubble and box
+  })();
     // Even emoji spacing everywhere: each emoji or symbol (📷 ✓ ❗ → 🕒 …) is put in its own .em slot, also for text the
     // app sets later. Text is only re-wrapped, never changed, so what's read back (textContent) stays the same.
     (function(){
