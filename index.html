@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023040624">
+<meta name="app-ver" content="20261023040854">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -695,6 +695,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
+    <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>Install the app</b><p>
+      · <b>iPhone</b> (Safari): tap <b>Share</b> □↑ (on newer iOS it's under <b>⋯</b>), then <b>Add to Home Screen</b> → <b>Add</b>.<br>
+      · <b>Android</b> (Chrome): tap <b>⋮</b> top right, then <b>Add to home screen</b> → <b>Install</b>.</p></div></li>
     <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tap on <span class="gk w">✎</span> and add your initials.</p><img src="guide/1.webp?v=15" alt="" loading="lazy" width="300" height="70"></div></li>
     <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Tap <span class="gk d">+ 📷</span> to add your first camera, then pick its brand and model.</p><img src="guide/2.webp?v=15" alt="" loading="lazy" width="300" height="74"></div></li>
     <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Check your settings: set each one on the camera, then tick it.</p><img src="guide/3.webp?v=15" alt="" loading="lazy" width="354" height="373"></div></li>
@@ -3107,6 +3110,9 @@ function trNode(n){
       navigator.serviceWorker.register('./sw.js');
     }
     var GUIDE_DE = `
+    <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>App installieren</b><p>
+      · <b>iPhone</b> (Safari): Tippe auf <b>Teilen</b> □↑ (bei neuerem iOS unter <b>⋯</b>), dann <b>Zum Home-Bildschirm</b> → <b>Hinzufügen</b>.<br>
+      · <b>Android</b> (Chrome): Tippe oben rechts auf <b>⋮</b>, dann <b>Zum Startbildschirm hinzufügen</b> → <b>Installieren</b>.</p></div></li>
     <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=15" alt="" loading="lazy" width="300" height="70"></div></li>
     <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Tippe auf <span class="gk d">+ 📷</span>, um deine erste Kamera hinzuzufügen, und wähle dann Marke und Modell.</p><img src="guide/de/2.webp?v=15" alt="" loading="lazy" width="300" height="74"></div></li>
     <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab.</p><img src="guide/de/3.webp?v=15" alt="" loading="lazy" width="354" height="373"></div></li>
