@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023030734">
+<meta name="app-ver" content="20261023034905">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -1893,8 +1893,7 @@ function trNode(n){
     var sz = appSize(), W = sz[0], H = sz[1], bw = bubble.offsetWidth, bh = bubble.offsetHeight;
     var hint = document.getElementById("tapHint"), foot = document.querySelector("footer");
     var below = hint && hint.offsetHeight && getComputedStyle(hint).display !== "none" ? hint.offsetTop : foot.offsetTop;   // first line of text under it
-    var add = document.getElementById("bbAdd"), extra = add && !add.hidden ? add.offsetWidth + add.offsetLeft - bw : 0;
-    var x = (W - bw - Math.max(0, extra)) / 2, y = below - bh - 8;   // the bubble and its + are centred together
+    var x = (W - bw) / 2, y = below - bh - 8;   // the green bubble is always centred; its + sits off to the right
     y = Math.max(8, Math.min(H - bh - 8, y));
     bubble.style.left = Math.round(x) + "px"; bubble.style.top = Math.round(y) + "px";
   }
