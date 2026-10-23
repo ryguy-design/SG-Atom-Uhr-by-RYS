@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023060247">
+<meta name="app-ver" content="20261023063752">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -1909,10 +1909,19 @@ function trNode(n){
     var cm = /^(.*?)([0-3]\/4)$/.exec(flGo.textContent);
     if(cm){ bbGo.textContent = cm[1]; var rc = document.createElement("span"); rc.className = "bb-red"; rc.textContent = cm[2]; bbGo.appendChild(rc); }
     document.getElementById("bbAdd").hidden = !bbRoom;
-    if(bubble.hidden === !show){ if(show) requestAnimationFrame(placeBubble); return; }   // re-centre: label or + may have changed
-    if(show){ bubble.style.visibility = "hidden"; bubble.hidden = false; placeBubble(); bubble.style.visibility = ""; } else bubble.hidden = true;   // placed before it's seen
+    if(bubble.hidden === !show){ if(show) rePlace(); return; }   // re-centre: label or + may have changed
+    if(show){ bubble.style.visibility = "hidden"; bubble.hidden = false; placeBubble(); bubble.style.visibility = ""; rePlace(); } else bubble.hidden = true;   // placed before it's seen
   }
   window.addEventListener("resize", function(){ setTimeout(placeBubble, 60); });
+  // Place it again once the screen has settled (pop-ups sliding away, the footer text changing), so it never
+  // ends up on top of the text below it
+  var rpT = 0;
+  function rePlace(){ requestAnimationFrame(placeBubble); clearTimeout(rpT); rpT = setTimeout(placeBubble, 320); }
+  if(window.ResizeObserver) new ResizeObserver(function(){ if(!bubble.hidden) rePlace(); }).observe(document.querySelector("footer"));
+  if(window.MutationObserver) ["sheet","viewer","sendView","cam","guide","typeSwitcher"].forEach(function(id){
+    var el = document.getElementById(id); if(el) new MutationObserver(function(){ if(!bubble.hidden) rePlace(); }).observe(el, {attributes: true, attributeFilter: ["hidden"]});
+  });
+  new MutationObserver(function(){ if(!bubble.hidden) rePlace(); }).observe(document.body, {attributes: true, attributeFilter: ["class"]});
   (function(){
     var y0 = 0, x0 = 0, t0 = 0, dy = 0, down = false, moved = false, skipClick = false;
     function pt(e){ var rot = document.documentElement.classList.contains("rot"); return rot ? [-e.clientX, e.clientY] : [e.clientY, e.clientX]; }   // [down, across]
