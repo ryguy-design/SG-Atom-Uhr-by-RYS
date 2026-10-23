@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023043332">
+<meta name="app-ver" content="20261023060247">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -704,7 +704,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=15" alt="" loading="lazy" width="390" height="626"></div></li>
     <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ Yes, in sync</span>. If not, fix the camera's clock and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=15" alt="" loading="lazy" width="390" height="526"></div></li>
     <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tap <span class="gk g">Next camera →</span> for the next camera's screen.</p><img src="guide/9.webp?v=15" alt="" loading="lazy" width="390" height="75"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tap <span class="gk g">🖼️→📨</span>, then <span class="gk g">🖼️→📨</span> again and pick your group chat.</p><img src="guide/10.webp?v=15" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tap <span class="gk g">🖼️→📨</span>, then <span class="gk g">📨</span> and pick your group chat.</p><img src="guide/10.webp?v=16" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>Install the app</b><p>
       · <b>iPhone</b> (Safari): tap <b>Share</b> □↑ (on newer iOS it's under <b>⋯</b>), then <b>Add to Home Screen</b> → <b>Add</b>.<br>
       · <b>Android</b> (Chrome): tap <b>⋮</b> top right, then <b>Add to home screen</b> → <b>Install</b>.</p></div></li>
@@ -2831,7 +2831,7 @@ function trNode(n){
       document.getElementById("sTitle").textContent = "Send " + n + " camera photo" + (n === 1 ? "" : "s") + "?";
       document.getElementById("sSub").textContent = "Tap a photo to look again." + (bad ? " " + bad + " not confirmed in sync." : "");
       warn.hidden = true;
-      sGo.textContent = "🖼️→📨"; sGo.disabled = !n;
+      sGo.textContent = "📨"; sGo.disabled = !n;
     }
     sendView.hidden = false; sGo.focus();
   }
@@ -3119,7 +3119,7 @@ function trNode(n){
     <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=15" alt="" loading="lazy" width="390" height="626"></div></li>
     <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Ja, synchron</span>. Wenn nicht, stelle die Kamerauhr richtig und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=15" alt="" loading="lazy" width="390" height="526"></div></li>
     <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tippe auf <span class="gk g">Nächste Kamera →</span> für das Display der nächsten Kamera.</p><img src="guide/de/9.webp?v=15" alt="" loading="lazy" width="390" height="75"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tippe auf <span class="gk g">🖼️→📨</span>, dann nochmal auf <span class="gk g">🖼️→📨</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=15" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tippe auf <span class="gk g">🖼️→📨</span>, dann auf <span class="gk g">📨</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=16" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>App installieren</b><p>
       · <b>iPhone</b> (Safari): Tippe auf <b>Teilen</b> □↑ (bei neuerem iOS unter <b>⋯</b>), dann <b>Zum Home-Bildschirm</b> → <b>Hinzufügen</b>.<br>
       · <b>Android</b> (Chrome): Tippe oben rechts auf <b>⋮</b>, dann <b>Zum Startbildschirm hinzufügen</b> → <b>Installieren</b>.</p></div></li>
