@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023035449">
+<meta name="app-ver" content="20261023035719">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -2078,7 +2078,7 @@ function trNode(n){
       if(rec){
         // Came back here with a photo already taken: keep it (check it again) or retake
         panel({step: 1, kick: name + " · step 2", head: "Camera screen photo", thumb: rec, thumbText: "Your photo · tap to view",
-          go: ["Review →", function(){ reviewSaved(a); }],
+          go: ["🔍", function(){ reviewSaved(a); }],
           l: ["← Back", function(){ go(a, 1); }], r: ["📷 Retake", function(){ bannerCam = a; takePhoto(); }]});
       } else {
         panel({step: 1, kick: name + " · step 2", head: "Camera screen photo", sub: "",
