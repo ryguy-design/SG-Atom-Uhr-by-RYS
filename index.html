@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023025724">
+<meta name="app-ver" content="20261023030201">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -733,11 +733,11 @@ var DE = {
   "Syncing with time server…": "Synchronisiere mit Zeitserver…",
   "Offline — showing phone clock (not synced)": "Offline — Handyuhr wird angezeigt (nicht synchronisiert)",
   "Tap clock to hide buttons": "Uhr antippen, um Tasten auszublenden", "Tap to show buttons": "Tippen, um Tasten einzublenden",
-  "Type your initials first": "Zuerst Initialen eingeben", "Change cam to:": "Kamera ändern zu:", "Cancel": "Abbrechen",
+  "Type your initials first": "Zuerst Kürzel eingeben", "Change cam to:": "Kamera ändern zu:", "Cancel": "Abbrechen",
   "✓ 4/4 SETTINGS · EVERY CAMERA": "✓ 4/4 EINSTELLUNGEN · JEDE KAMERA",
   "Exact GPS location visible on screen": "Genauer GPS-Standort auf dem Bildschirm sichtbar", "Finding you…": "Standort wird gesucht…",
   // labels for screen readers
-  "Users": "Nutzer", "Rotate screen": "Bildschirm drehen", "Your initials": "Deine Initialen", "Camera model": "Kameramodell",
+  "Users": "Nutzer", "Rotate screen": "Bildschirm drehen", "Your initials": "Dein Kürzel", "Camera model": "Kameramodell",
   "Camera settings": "Kameraeinstellungen", "Change camera type": "Kameratyp ändern", "Date": "Datum", "Day": "Tag", "Time": "Uhrzeit",
   "Add a camera": "Kamera hinzufügen", "Add another camera": "Weitere Kamera hinzufügen", "Add camera": "Kamera hinzufügen",
   "Edit this camera": "Diese Kamera bearbeiten", "Edit camera": "Kamera bearbeiten", "Delete this camera": "Diese Kamera löschen",
@@ -3105,7 +3105,7 @@ function trNode(n){
       navigator.serviceWorker.register('./sw.js');
     }
     var GUIDE_DE = `
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib deine Initialen ein.</p><img src="guide/de/1.webp?v=13" alt="" loading="lazy" width="300" height="70"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=13" alt="" loading="lazy" width="300" height="70"></div></li>
     <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Tippe auf <span class="gk d">+ 📷</span>, um deine erste Kamera hinzuzufügen, und wähle dann Marke und Modell.</p><img src="guide/de/2.webp?v=13" alt="" loading="lazy" width="300" height="74"></div></li>
     <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab.</p><img src="guide/de/3.webp?v=13" alt="" loading="lazy" width="354" height="373"></div></li>
     <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=13" alt="" loading="lazy" width="354" height="69"></div></li>
