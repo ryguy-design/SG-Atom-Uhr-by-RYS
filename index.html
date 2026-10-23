@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023013444">
+<meta name="app-ver" content="20261023024058">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="Atomic-synced clock and camera check for syncing event cameras.">
@@ -536,9 +536,11 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 .bb-red{color:#c4001a; margin-left:.18em}
 :root{--tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.44 4.24 17.72 14.37'%3E%3Cpath d='M3 10.6l4.9 4.9L17.6 5.8' fill='none' stroke='%23000' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E"); --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-1.556 -1.556 10.67 15.11'%3E%3Cpath d='M0 0l6 6L0 12' fill='none' stroke='%23000' stroke-width='4.4' stroke-linejoin='miter' stroke-miterlimit='10'/%3E%3C/svg%3E")}  /* the one tick used everywhere */
 /* English / Deutsch switch under the footer links */
-.langsw{display:flex; justify-content:center; gap:.3rem; margin-top:.55rem}
-.langsw button{font:inherit; font-size:.8rem; font-weight:600; color:var(--muted); background:none; border:1px solid transparent; border-radius:999px; padding:.25rem .75rem; cursor:pointer}
-.langsw button.on{color:var(--fg); border-color:#3a444b}
+.controls button.langsw{position:relative; display:inline-grid; grid-template-columns:1fr 1fr; align-items:center; padding:2px; border:1px solid #3a444b; border-radius:999px; text-decoration:none; font-size:.72rem; font-weight:800; letter-spacing:.04em; line-height:1; flex-shrink:0}
+.langsw span{position:relative; z-index:1; padding:.32rem .5rem; color:var(--muted); transition:color .25s}
+.langsw i{position:absolute; top:2px; bottom:2px; left:2px; width:calc(50% - 2px); border-radius:999px; background:var(--fg); transition:transform .3s var(--spring)}
+.langsw.de i{transform:translateX(100%)}
+.langsw:not(.de) span:first-of-type, .langsw.de span:last-of-type{color:var(--bg)}
 </style>
 </head>
 <body>
@@ -613,8 +615,8 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
     <button id="resync" type="button">Sync now</button>
     <button id="clearMain" class="clearmain" type="button">Reset app</button>
     <button id="guideBtn" class="guidebtn" type="button">How to use</button>
+    <button id="langSw" class="langsw" type="button" role="switch" aria-label="Language: English / Deutsch" data-notr><i></i><span>EN</span><span>DE</span></button>
   </div>
-  <div class="langsw" data-notr><button type="button" data-l="en">English</button><button type="button" data-l="de">Deutsch</button></div>
 </footer>
 
 <div id="sheet" class="sheet" hidden>
@@ -726,8 +728,8 @@ document.documentElement.lang = LANG;
 function L(en, de){ return LANG === "de" ? de : en; }
 var DE = {
   // main screen
-  "Sync now": "Jetzt synchronisieren", "Reset app": "App zurücksetzen", "How to use": "Anleitung",
-  "Sure? Resets everything": "Sicher? Setzt alles zurück", "Done ✓": "Erledigt ✓", "Sure?": "Sicher?", "Delete?": "Löschen?",
+  "Sync now": "Synchronisieren", "Reset app": "Zurücksetzen", "How to use": "Anleitung",
+  "Sure? Resets everything": "Sicher? Alles zurücksetzen", "Done ✓": "Erledigt ✓", "Sure?": "Sicher?", "Delete?": "Löschen?",
   "Syncing with time server…": "Synchronisiere mit Zeitserver…",
   "Offline — showing phone clock (not synced)": "Offline — Handyuhr wird angezeigt (nicht synchronisiert)",
   "Tap clock to hide buttons": "Uhr antippen, um Tasten auszublenden", "Tap to show buttons": "Tippen, um Tasten einzublenden",
@@ -3116,17 +3118,20 @@ function trNode(n){
     <li class="g-step"><div class="g-num">i</div><div class="g-body"><b>Gut zu wissen</b><p>
       · Öffne die Box mit <span class="gk g">⤢</span>, um Kameras zu wechseln, zu bearbeiten, zu löschen oder hinzuzufügen.<br>
       · Tippe auf den Kameranamen in der weißen Box, um ihn auf <b>Handkamera</b> oder <b>LS</b> zu ändern.<br>
-      · <b>Jetzt synchronisieren</b>: prüft den Zeitserver erneut.<br>
+      · <b>Synchronisieren</b>: prüft den Zeitserver erneut.<br>
       · <b>Uhr antippen</b>: blendet die Tasten aus / ein.<br>
       · <b>Drehen-Taste</b> (oben rechts): dreht die App ins Querformat.<br>
       · Häkchen und Fotos werden 12 Stunden nach dem Senden zurückgesetzt.<br>
-      · <b>App zurücksetzen</b> (zweimal tippen): löscht alles.</p></div></li>
+      · <b>Zurücksetzen</b> (zweimal tippen): löscht alles.</p></div></li>
   `;
   // ---- Language switch (bottom of the main screen) and the German page ----
   (function(){
-    [].forEach.call(document.querySelectorAll(".langsw button"), function(b){
-      b.classList.toggle("on", b.dataset.l === LANG);
-      b.addEventListener("click", function(){ if(b.dataset.l === LANG) return; try{ localStorage.setItem("acLang", b.dataset.l); }catch(e){} location.reload(); });
+    var sw = document.getElementById("langSw");
+    sw.classList.toggle("de", LANG === "de"); sw.setAttribute("aria-checked", LANG === "de" ? "true" : "false");
+    sw.addEventListener("click", function(){
+      var to = LANG === "de" ? "en" : "de"; sw.classList.toggle("de", to === "de");   // the knob slides, then the app reloads in that language
+      try{ localStorage.setItem("acLang", to); }catch(e){}
+      setTimeout(function(){ location.reload(); }, 280);
     });
     if(LANG !== "de") return;
     var gl = document.querySelector("#guide .g-list"); if(gl) gl.innerHTML = GUIDE_DE;
