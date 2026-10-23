@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023104446">
+<meta name="app-ver" content="20261023105031">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -2088,7 +2088,7 @@ function trNode(n){
       if(!quiet){ toCheck(); return; }
       // Check closed / swiped down: only the bubble, 📷✓❗ (black tick: it opens the check, where 📷→🕒 is). Tapping or opening it brings the check back
       stage = 0;
-      panel({step: 0, kick: "", head: "", sub: "", go: ["📷✓❗", toCheck], clock: true});
+      panel({step: 0, kick: "", head: "", sub: "", go: ["📷✓", toCheck], clock: true});
       return;
     }
     if(st === 2){
