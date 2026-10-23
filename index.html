@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023091500">
+<meta name="app-ver" content="20261023104446">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -117,8 +117,13 @@ body.photo .showhint{display:block}
 .bad #syncText{color:var(--warn)}
 #detail{font-variant-numeric:tabular-nums}
 /* The app's web address: tap to open, press and hold to copy or share */
-.applink{color:inherit; font-size:inherit; text-decoration:underline; text-decoration-color:rgba(255,255,255,.18); text-underline-offset:2px; overflow-wrap:anywhere;
-  -webkit-user-select:text; user-select:text; -webkit-touch-callout:default}
+.applink{display:inline-flex; align-items:center; gap:.35rem; color:inherit; font-size:inherit; overflow-wrap:anywhere}
+.al-t{-webkit-user-select:text; user-select:text}
+/* Copy the app's link: a small copy icon right after it, a green tick once copied */
+.al-copy{flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; width:1.7rem; height:1.7rem; margin:-.3rem 0; padding:0; border:0; border-radius:6px; background:none; color:inherit; cursor:pointer}
+.al-copy svg{width:1.05rem; height:1.05rem; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.al-copy.done svg{display:none} .al-copy .al-ok{color:var(--ok); font-weight:800}
+.al-copy:focus-visible{outline:2px solid var(--fg); outline-offset:1px}
 .controls{display:flex; align-items:center; gap:1.1rem; flex-shrink:0}
 .controls button{font:inherit; color:var(--fg); background:none; border:0; padding:.3rem 0; text-decoration:underline; text-underline-offset:3px; cursor:pointer}
 .guidebtn{font-weight:700}
@@ -611,7 +616,7 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
   <div id="status">
     <span id="syncText">Syncing with time server…</span>
     <span id="detail"></span>
-    <a id="appLink" class="applink" href="https://ryguy-design.github.io/SG-Atom-Uhr-by-RYS/" target="_blank" rel="noopener">ryguy-design.github.io/SG-Atom-Uhr-by-RYS</a>
+    <span id="appLink" class="applink"><span class="al-t" data-notr>ryguy-design.github.io/SG-Atom-Uhr-by-RYS</span><button id="copyLink" class="al-copy" type="button" aria-label="Copy link" title="Copy link"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.2"/><path d="M15.5 8.5V6.7a2.2 2.2 0 0 0-2.2-2.2H6.7a2.2 2.2 0 0 0-2.2 2.2v6.6a2.2 2.2 0 0 0 2.2 2.2h1.8"/></svg><span class="al-ok" hidden>✓</span></button></span>
   </div>
   <div class="controls">
     <button id="resync" type="button">Sync now</button>
@@ -750,7 +755,7 @@ var DE = {
   "Open the camera box": "Kamerabox öffnen", "Tap or slide down to put the camera box away": "Tippen oder nach unten wischen, um die Kamerabox zu schließen",
   "Slide down to close": "Zum Schließen nach unten wischen", "Back": "Zurück", "Camera type": "Kameratyp", "My cameras": "Meine Kameras",
   "Recently used cameras": "Zuletzt verwendete Kameras", "Photo of the camera back": "Foto vom Kameradisplay", "Take photo": "Foto aufnehmen",
-  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen",
+  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Copy link": "Link kopieren",
   // camera check
   "Brand": "Marke", "Model": "Modell", "Check": "Prüfen", "Brand…": "Marke…", "Model…": "Modell…", "Quick pick": "Schnellwahl",
   "Hand cam": "Handkamera", "Other brand": "Andere Marke", "Other brand / not listed": "Andere Marke / nicht gelistet",
@@ -3162,6 +3167,17 @@ function trNode(n){
     }).observe(document.body, {childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["aria-label", "title", "alt"]});
     setTimeout(function(){ window.dispatchEvent(new Event("resize")); }, 50);   // German text is longer: re-place the bubble and box
   })();
+    // Copy the app's link (no live link: tap the icon, then paste it into a chat)
+    (function(){
+      var btn = document.getElementById("copyLink"); if(!btn) return;
+      var url = "https://ryguy-design.github.io/SG-Atom-Uhr-by-RYS/", ok = btn.querySelector(".al-ok"), t = 0;
+      function done(){ btn.classList.add("done"); ok.hidden = false; clearTimeout(t); t = setTimeout(function(){ btn.classList.remove("done"); ok.hidden = true; }, 1600); try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }
+      function fallback(){ var ta = document.createElement("textarea"); ta.value = url; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;opacity:0;top:0"; document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); done(); }catch(e){} ta.remove(); }
+      btn.addEventListener("click", function(e){
+        e.stopPropagation();
+        if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, fallback); else fallback();
+      });
+    })();
     // Even emoji spacing everywhere: each emoji or symbol (📷 ✓ ❗ → 🕒 …) is put in its own .em slot, also for text the
     // app sets later. Text is only re-wrapped, never changed, so what's read back (textContent) stays the same.
     (function(){
