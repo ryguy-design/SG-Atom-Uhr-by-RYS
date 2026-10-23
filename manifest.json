@@ -1,7 +1,7 @@
 {
   "name": "Camera check/Atomic Clock by RYS",
   "short_name": "Camera check/Atomic Clock by RYS",
-  "description": "Atomic Clock Web Application",
+  "description": "Set | Sync | Shoot | Send — all from one app.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
