@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261023105031">
+<meta name="app-ver" content="20261024110610">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.">
@@ -60,7 +60,7 @@ html.land main{gap:calc(var(--u)*.16)}
 /* Which timezone the clock shows */
 .tz{font-family:var(--sans); font-weight:700; font-size:calc(var(--u)*.2); letter-spacing:.08em; color:var(--muted); white-space:nowrap}
 #place{flex-shrink:0; font-size:clamp(.8rem,2.6vmin,1.05rem); color:var(--muted); line-height:1.35; height:2.8em; max-width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
-#place[hidden]{display:block; visibility:hidden}
+#place,#place[hidden]{display:none}   /* location display retired: it no longer keeps space under the clock */
 #place b{color:var(--fg); font-weight:600}
 
 footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:.8rem 1rem; text-align:left; font-size:.8rem; color:var(--muted)}
@@ -501,6 +501,8 @@ body.photo .bubble{display:none}
 /* Sideways there's little height: keep a strip for the bubble so it never sits on the clock */
 .bubspace{flex-shrink:0; height:0}
 html.land.hasbox .bubspace{height:calc(3.1rem + 8px)}
+body.photo .bubspace{display:none}   /* buttons hidden: the clock gets the bubble's space too */
+body.photo main{padding-bottom:1.5rem}   /* room for "Tap to show buttons" under the clock */
 .fl-inner{transition:opacity .25s var(--ease)}
 .fl-grab{flex-shrink:0; align-self:center; display:flex; align-items:center; justify-content:center; width:100%; height:1.6rem; padding:0; background:none; border:0; cursor:grab; touch-action:none}
 .fl-grab i{display:block; width:2.6rem; height:5px; border-radius:3px; background:#56626a}
@@ -1027,7 +1029,7 @@ function trNode(n){
     var placeH = placeEl.offsetHeight;
     var modelEl = document.getElementById("camModel");
     var rest = daydate.offsetHeight + timeRow.offsetHeight + tzEl.offsetHeight + gap*3 + (modelEl.textContent ? modelEl.offsetHeight + gap*0.35 : 0) + document.getElementById("camSet").offsetHeight + gap*0.35;
-    var mcs = getComputedStyle(mainEl), availW = (mainEl.clientWidth - (parseFloat(mcs.paddingRight) || 0))*0.985, availH = mainEl.clientHeight*0.97 - placeH;
+    var mcs = getComputedStyle(mainEl), availW = (mainEl.clientWidth - (parseFloat(mcs.paddingRight) || 0))*0.985, availH = (mainEl.clientHeight - (parseFloat(mcs.paddingTop) || 0) - (parseFloat(mcs.paddingBottom) || 0))*0.97 - placeH;
     var portrait = scr.h >= scr.w, scale;
     if(portrait){
       // Camera label scales with the clock; the longest label would be exactly as wide as the time
