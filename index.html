@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027220859">
+<meta name="app-ver" content="20261027221644">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -3109,9 +3109,19 @@ function trNode(n){
     var others = ["cam","viewer","sendView","guide","intro"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
     return !others && !bubble.hidden ? bbGo : null;
   }
+  // Whole button visible: inside the screen and every scrolling/clipping box around it
+  function inView(el){
+    var r = el.getBoundingClientRect(), top = 0, bot = innerHeight, left = 0, right = innerWidth;
+    for(var p = el.parentElement; p && p !== document.body; p = p.parentElement){
+      var s = getComputedStyle(p); if(s.overflowY === "visible" && s.overflowX === "visible") continue;
+      var q = p.getBoundingClientRect(); top = Math.max(top, q.top); bot = Math.min(bot, q.bottom); left = Math.max(left, q.left); right = Math.min(right, q.right);
+    }
+    return r.width > 0 && r.top >= top - 2 && r.bottom <= bot + 2 && r.left >= left - 2 && r.right <= right + 2;
+  }
   function fingerLoop(){
     fingerRaf = 0; if(!fingerOn) return;
     var t = fingerTarget();
+    if(t && !inView(t)) t = null;   // only once the button is scrolled into view
     if(t){ var r = t.getBoundingClientRect(); finger.style.left = Math.round(r.right - 34) + "px"; finger.style.top = Math.round(r.bottom - 18) + "px"; finger.hidden = false; }
     else finger.hidden = true;
     fingerRaf = requestAnimationFrame(fingerLoop);
