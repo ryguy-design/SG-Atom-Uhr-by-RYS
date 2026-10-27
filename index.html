@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027185212">
+<meta name="app-ver" content="20261027185851">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -1146,6 +1146,21 @@ function trNode(n){
   window.addEventListener("orientationchange", function(){ setTimeout(fit, 250); });
 
   // e.g. "SYDNEY TIME · AEDT · UTC+11:00" — city from the phone's timezone setting
+  // Town from the phone's location (shown with the UTC offset under the clock); kept for when there's no signal
+  var town = ""; try{ town = localStorage.getItem("acTown") || ""; }catch(e){}
+  function findTown(){
+    if(!("geolocation" in navigator)) return;
+    navigator.geolocation.getCurrentPosition(function(p){
+      fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + p.coords.latitude.toFixed(3) + "&longitude=" + p.coords.longitude.toFixed(3) + "&localityLanguage=" + LANG)
+        .then(function(r){ return r.json(); })
+        .then(function(j){
+          var t = (j.city || j.locality || "").trim(); if(!t) return;
+          town = t; try{ localStorage.setItem("acTown", t); }catch(e){}
+          tzEl.textContent = tzLabel(new Date(Date.now() + offset));
+        }).catch(function(){});
+    }, function(){}, {enableHighAccuracy: false, maximumAge: 30 * 60000, timeout: 20000});
+  }
+  setTimeout(findTown, 1500); setInterval(findTown, 30 * 60000);
   function tzLabel(d){
     var city = "", abbr = "";
     try{
@@ -1157,6 +1172,7 @@ function trNode(n){
     }catch(e){}
     var m = -d.getTimezoneOffset(), sign = m >= 0 ? "+" : "−"; m = Math.abs(m);
     var off = "UTC" + sign + pad(Math.floor(m/60)) + ":" + pad(m%60);
+    if(town) return town.toUpperCase() + " · " + off;   // e.g. "POTSDAM · UTC+01:00"
     return [city ? city + L(" TIME", "-ZEIT") : L("LOCAL TIME", "ORTSZEIT"), abbr, off].filter(Boolean).join(" · ");
   }
 
