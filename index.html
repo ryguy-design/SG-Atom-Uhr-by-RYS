@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027135205">
+<meta name="app-ver" content="20261027135714">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -582,6 +582,7 @@ body.photo .tapfinger{display:none}
 .fl-go[hidden],.bb-go[hidden]{display:none}   /* the button layout must not override hidden */
 .p-or{align-self:center; color:var(--muted); font-size:.8rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:-.2rem 0}
 .p-or[hidden]{display:none}
+.g-ver{list-style:none; text-align:center; color:var(--muted); font-size:.75rem; opacity:.7; padding:.5rem 0 0}
 </style>
 </head>
 <body>
@@ -3272,6 +3273,13 @@ function trNode(n){
     }).observe(document.body, {childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["aria-label", "title", "alt"]});
     setTimeout(function(){ window.dispatchEvent(new Event("resize")); }, 50);   // German text is longer: re-place the bubble and box
   })();
+    // App version at the bottom of How to use, so you can tell whether the phone already has the latest update
+    (function(){
+      var m = document.querySelector('meta[name="app-ver"]'), gl = document.querySelector("#guide .g-list"); if(!m || !gl) return;
+      var v = m.content, d = /^(\d{4})(\d\d)(\d\d)(\d\d)(\d\d)/.exec(v), txt = v;
+      if(d){ var t = new Date(Date.UTC(+d[1], +d[2] - 1, +d[3], +d[4], +d[5])); txt = ("0" + t.getDate()).slice(-2) + "." + ("0" + (t.getMonth() + 1)).slice(-2) + "." + t.getFullYear() + " " + ("0" + t.getHours()).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2); }
+      var li = document.createElement("li"); li.className = "g-ver"; li.setAttribute("data-notr", ""); li.textContent = L("App version ", "App-Version ") + txt; gl.appendChild(li);
+    })();
     // Copy the app's link (no live link: tap the icon, then paste it into a chat)
     (function(){
       var btn = document.getElementById("copyLink"); if(!btn) return;
