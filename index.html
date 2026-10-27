@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027185851">
+<meta name="app-ver" content="20261027220232">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -628,6 +628,20 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
 .bb-back[hidden]{display:none}
 .bb-back::after{content:""; position:absolute; left:50%; top:50%; width:.6rem; height:.6rem; border:solid currentColor; border-width:0 0 .2rem .2rem; transform:translate(-30%,-50%) rotate(45deg)}
 .bb-back:active{transform:translateY(-50%) scale(.92)}
+/* "How it works" card over the dimmed clock */
+.intro{position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,0); transition:background .25s}
+.intro[hidden]{display:none}
+.intro.on{background:rgba(0,0,0,.6)}
+.intro-card{text-align:left; width:100%; max-width:24rem; background:#151b1f; border-radius:24px; padding:1.6rem 1.4rem 1.4rem; box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px #262f35; transform:translateY(24px) scale(.97); opacity:0; transition:transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s}
+.intro.on .intro-card{transform:none; opacity:1}
+.intro-card h2{text-align:center; margin:0 0 1.2rem; font-size:1.4rem; font-weight:800}
+.intro-steps{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.8rem}
+.intro-steps li{display:flex; align-items:center; gap:.9rem}
+.intro-steps .in{flex-shrink:0; width:1.9rem; height:1.9rem; border-radius:50%; background:var(--ok); color:#06210e; font-weight:800; display:flex; align-items:center; justify-content:center}
+.intro-steps .it{flex:1; font-weight:600; line-height:1.3}
+.intro-steps .ii{flex-shrink:0; font-size:1.2rem; white-space:nowrap}
+.intro-go,.intro-go:focus,.intro-go:focus-visible{outline:none; box-shadow:none}
+.intro-go{width:100%; margin-top:1.4rem; font-size:1.15rem; padding:1rem; border-radius:999px}
 </style>
 </head>
 <body>
@@ -669,6 +683,19 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
   <button id="bbBack" class="bb-back" type="button" hidden aria-label="Back" title="Back"></button>
   <button id="bbAdd" class="bb-add" type="button" hidden aria-label="Add another camera">+</button>
   <button id="bbExp" class="bb-exp" type="button" aria-label="Open the camera box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+</div>
+<div id="intro" class="intro" hidden role="dialog" aria-modal="true" aria-labelledby="introT">
+  <div class="intro-card">
+    <h2 id="introT">How it works</h2>
+    <ol class="intro-steps">
+      <li><span class="in">1</span><span class="it">Add camera(s)</span><span class="ii">📷+</span></li>
+      <li><span class="in">2</span><span class="it">Check camera settings</span><span class="ii">📷✓</span></li>
+      <li><span class="in">3</span><span class="it">Shoot the clock with each camera</span><span class="ii">📷→🕒</span></li>
+      <li><span class="in">4</span><span class="it">Photograph each camera screen</span><span class="ii">📱→📷</span></li>
+      <li><span class="in">5</span><span class="it">Check sync, send to group</span><span class="ii">🔍→📨</span></li>
+    </ol>
+    <button id="introGo" class="fl-go intro-go" type="button"><span class="gt">Got it!</span><span class="ga" aria-hidden="true"></span></button>
+  </div>
 </div>
 <div id="tapFinger" class="tapfinger" hidden aria-hidden="true">👆</div>
 <footer>
@@ -841,7 +868,7 @@ var DE = {
   "Open the camera box": "Kamerabox öffnen", "Tap or slide down to put the camera box away": "Tippen oder nach unten wischen, um die Kamerabox zu schließen",
   "Slide down to close": "Zum Schließen nach unten wischen", "Back": "Zurück", "Camera type": "Kameratyp", "My cameras": "Meine Kameras",
   "Recently used cameras": "Zuletzt verwendete Kameras", "Photo of the camera back": "Foto vom Kameradisplay", "Take photo": "Foto aufnehmen",
-  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Shoot the clock": "Uhr fotografieren", "Send": "Senden", "In sync · send photos": "Synchron · Fotos senden", "Clock shot": "Uhr fotografiert", "Send photos": "Fotos senden", "Get missing photo": "Fehlendes Foto holen", "Get missing photos": "Fehlende Fotos holen", "Finish the camera check first": "Erst den Kamera-Check abschließen", "First pick Hand cam or LS": "Zuerst Handkamera oder LS wählen", "Add camera": "Kamera hinzufügen", "Copy link": "Link kopieren",
+  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Shoot the clock": "Uhr fotografieren", "Send": "Senden", "In sync · send photos": "Synchron · Fotos senden", "Clock shot": "Uhr fotografiert", "Send photos": "Fotos senden", "Get missing photo": "Fehlendes Foto holen", "Get missing photos": "Fehlende Fotos holen", "Finish the camera check first": "Erst den Kamera-Check abschließen", "How it works": "So funktioniert's", "Add camera(s)": "Kamera(s) hinzufügen", "Check camera settings": "Kameraeinstellungen prüfen", "Shoot the clock with each camera": "Uhr mit jeder Kamera fotografieren", "Photograph each camera screen": "Jedes Kameradisplay fotografieren", "Check sync, send to group": "Sync prüfen, an die Gruppe senden", "Got it!": "Verstanden!", "First pick Hand cam or LS": "Zuerst Handkamera oder LS wählen", "Add camera": "Kamera hinzufügen", "Copy link": "Link kopieren",
   // camera check
   "Brand": "Marke", "Model": "Modell", "Check": "Prüfen", "Brand…": "Marke…", "Model…": "Modell…", "Quick pick": "Schnellwahl",
   "Hand cam": "Handkamera", "Other brand": "Andere Marke", "Other brand / not listed": "Andere Marke / nicht gelistet",
@@ -1901,9 +1928,18 @@ function trNode(n){
   // ---- Add / remove cameras ----
   // Adding a camera from the main screen
   // Initials in but no camera checked yet: open the check (adding the first camera if there's none)
+  // ---- "How it works": 5 steps, shown the first time each day before the camera check ----
+  var intro = document.getElementById("intro");
+  function introDue(){ try{ return localStorage.getItem("acIntro") !== ev.day; }catch(e){ return false; } }
+  function showIntro(){ intro.hidden = false; requestAnimationFrame(function(){ intro.classList.add("on"); }); }
+  document.getElementById("introGo").addEventListener("click", function(){
+    try{ localStorage.setItem("acIntro", ev.day); }catch(e){}
+    intro.classList.remove("on"); setTimeout(function(){ intro.hidden = true; requireCheck(); }, 250);   // then on with the regular workflow
+  });
   function requireCheck(){
     if(!camInit.value || !checkLocked() || !sheet.hidden || document.activeElement === camInit) return;
     var g = document.getElementById("guide"); if(g && !g.hidden) return;
+    if(introDue()){ showIntro(); return; }   // first time each day: the 5 steps first, then the check
     if(kit.empty){ addFirst("HAND CAM"); return; }
     var u = kit.cams.filter(function(c){ return !isDone(c); })[0]; if(u && !isDone(act())) setActive(key(u));
     openSheet();
@@ -2295,7 +2331,7 @@ function trNode(n){
     sendBtn.hidden = true;   // sending lives in the camera box, not in the camera check
   }
   // Rotated app: these full screens show upright, so refit whenever one opens or closes
-  if(window.MutationObserver) ["cam","viewer","sendView","guide"].forEach(function(id){
+  if(window.MutationObserver) ["cam","viewer","sendView","guide","intro"].forEach(function(id){
     new MutationObserver(function(){ if(rotated) fit(); }).observe(document.getElementById(id), {attributes: true, attributeFilter: ["hidden"]});
   });
 
@@ -3067,7 +3103,7 @@ function trNode(n){
   function fingerDue(){ try{ return !!camInit.value && localStorage.getItem("acFinger") !== ev.day; }catch(e){ return false; } }
   function fingerTarget(){
     if(!sheet.hidden){ return !sheetGo.hidden && sheet.querySelector('[data-sc="checks"]').offsetParent ? sheetGo : null; }
-    var others = ["cam","viewer","sendView","guide"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
+    var others = ["cam","viewer","sendView","guide","intro"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
     return !others && !bubble.hidden ? bbGo : null;
   }
   function fingerLoop(){
@@ -3303,7 +3339,7 @@ function trNode(n){
   (function(){
     var y0 = 0, x0 = 0, t0 = 0, on = false, mode = "", d = 0, b = document.body, SHOW = 170, swallow = false, A = null, B = null;
     function pt(e){ var t = e.touches ? e.touches[0] : e, rot = document.documentElement.classList.contains("rot"); return rot ? [-t.clientX, t.clientY] : [t.clientY, t.clientX]; }
-    function overlay(){ return !sheet.hidden || ["cam","viewer","sendView","guide"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; }); }
+    function overlay(){ return !sheet.hidden || ["cam","viewer","sendView","guide","intro"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; }); }
     function set(cy, co){ b.style.setProperty("--cy", cy.toFixed(1) + "px"); b.style.setProperty("--co", Math.max(0, Math.min(1, co)).toFixed(3)); }
     function clear(){ b.classList.remove("cdrag"); b.style.removeProperty("--cy"); b.style.removeProperty("--co"); }
     function prog(){ return mode === "hide" ? Math.max(0, Math.min(1, d / 200)) : Math.max(0, Math.min(1, -d / SHOW)); }
