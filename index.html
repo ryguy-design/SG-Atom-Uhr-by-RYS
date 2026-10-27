@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027120202">
+<meta name="app-ver" content="20261027123435">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -555,6 +555,30 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 .plock[hidden]{display:none}
 @keyframes popShake{20%{translate:-8px 0} 40%{translate:7px 0} 60%{translate:-5px 0} 80%{translate:3px 0}}
 .pop.shake{animation:popShake .38s ease}
+/* The green step button: icon + words + round arrow; a shine passes across every few seconds */
+.bb-go,.fl-go{display:inline-flex; align-items:center; justify-content:center; gap:.55rem; position:relative; overflow:hidden}
+.bb-go{padding:1.2rem .6rem 1.1rem 1rem; gap:.45rem; font-size:.95rem; border-radius:999px; max-width:calc(100vw - 7rem)}
+.bb-go .gi{white-space:nowrap}
+.bb-go .gt,.fl-go .gt{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.bb-go .ga,.fl-go .ga{flex-shrink:0; position:relative; width:2rem; height:2rem; border-radius:50%; background:#06210e}
+.bb-go .ga::after,.fl-go .ga::after{content:""; position:absolute; left:50%; top:50%; width:.5rem; height:.5rem; border:solid var(--ok); border-width:.19rem .19rem 0 0; transform:translate(-65%,-50%) rotate(45deg)}
+.fl-go .ga{width:1.75rem; height:1.75rem}
+@keyframes shine{0%,62%{transform:translateX(-160%) skewX(-18deg)} 100%{transform:translateX(560%) skewX(-18deg)}}
+.bb-go::after,.fl-go::after,#sGo::after{content:""; position:absolute; top:0; bottom:0; left:0; width:3rem; background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent); animation:shine 3.6s ease-in-out infinite; pointer-events:none}
+#sGo{position:relative; overflow:hidden}
+.fl-go:disabled::after,#sGo:disabled::after{display:none}
+/* Step bars above the bubble: Cameras · Shoot clock · Photos & checks · Send; the current one pulses */
+.bb-steps{position:absolute; left:50%; bottom:calc(100% + .7rem); transform:translateX(-50%); display:flex; gap:.4rem; pointer-events:none}
+.bb-steps i{width:1.5rem; height:4px; border-radius:2px; background:#2a3238}
+.bb-steps i.on{background:var(--ok)}
+.bb-steps i.cur{background:var(--fg); animation:stepPulse 1.4s ease-in-out infinite}
+@keyframes stepPulse{50%{opacity:.25}}
+/* First time each day: a finger taps the step button until it's been used */
+.tapfinger{position:fixed; z-index:30; font-size:2rem; pointer-events:none; filter:drop-shadow(0 3px 6px rgba(0,0,0,.6)); animation:fingerTap 1.3s ease-in-out infinite}
+.tapfinger[hidden]{display:none}
+@keyframes fingerTap{0%,100%{transform:translate(0,0) rotate(-12deg)} 45%{transform:translate(-4px,-9px) rotate(-12deg)} 55%{transform:translate(-4px,-9px) scale(.92) rotate(-12deg)}}
+body.photo .tapfinger{display:none}
+@media (prefers-reduced-motion: reduce){ .bb-go::after,.fl-go::after,#sGo::after,.tapfinger,.bb-steps i.cur{animation:none} }
 </style>
 </head>
 <body>
@@ -591,10 +615,12 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <div id="showHint" class="showhint">Tap to show buttons</div>
 <!-- Camera check bubble: the box when it's put away. Drag it anywhere; the arrows open the box -->
 <div id="bubble" class="bubble" hidden>
+  <div id="bbSteps" class="bb-steps" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <button id="bbGo" class="bb-go" type="button"></button>
   <button id="bbAdd" class="bb-add" type="button" hidden aria-label="Add another camera">+</button>
   <button id="bbExp" class="bb-exp" type="button" aria-label="Open the camera box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
 </div>
+<div id="tapFinger" class="tapfinger" hidden aria-hidden="true">👆</div>
 <footer>
 <div id="nextBar" class="nextbar" hidden role="region" aria-label="Camera steps" data-stage="0">
   <button id="flGrab" class="fl-grab" type="button" aria-label="Tap or slide down to put the camera box away"><i></i></button>
@@ -708,16 +734,16 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tap on <span class="gk w">✎</span> and add your initials.</p><img src="guide/1.webp?v=19" alt="" loading="lazy" width="300" height="70"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>The camera check opens by itself: pick <b>Hand cam</b> or <b>LS</b>, then the brand and model.</p><img src="guide/2.webp?v=19" alt="" loading="lazy" width="362" height="374"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Check your settings: set each one on the camera, then tick it. The check can't be closed until all 4 are ticked.</p><img src="guide/3.webp?v=19" alt="" loading="lazy" width="354" height="373"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Add additional cameras if needed with <span class="gk d">+ Add camera</span>.</p><img src="guide/4.webp?v=19" alt="" loading="lazy" width="354" height="69"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Tap on <span class="gk g">📷→🕒</span> when done.</p><img src="guide/5.webp?v=19" alt="" loading="lazy" width="354" height="66"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Shoot the clock with every camera.</p><img src="guide/6.webp?v=19" alt="" loading="lazy" width="390" height="305"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=19" alt="" loading="lazy" width="390" height="626"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ Yes, in sync</span>. If not, fix the camera's clock and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=19" alt="" loading="lazy" width="390" height="526"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tap <span class="gk g">Next camera →</span> for the next camera's screen.</p><img src="guide/9.webp?v=19" alt="" loading="lazy" width="390" height="75"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tap <span class="gk g">🖼️→📨</span>, then <span class="gk g">📨</span> and pick your group chat.</p><img src="guide/10.webp?v=19" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tap on <span class="gk w">✎</span> and add your initials.</p><img src="guide/1.webp?v=20" alt="" loading="lazy" width="300" height="70"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>The camera check opens by itself: pick <b>Hand cam</b> or <b>LS</b>, then the brand and model.</p><img src="guide/2.webp?v=20" alt="" loading="lazy" width="362" height="374"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Check your settings: set each one on the camera, then tick it. The check can't be closed until all 4 are ticked.</p><img src="guide/3.webp?v=20" alt="" loading="lazy" width="354" height="373"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Add additional cameras if needed with <span class="gk d">+ Add camera</span>.</p><img src="guide/4.webp?v=20" alt="" loading="lazy" width="354" height="69"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Tap on <span class="gk g">📷→🕒</span> when done.</p><img src="guide/5.webp?v=20" alt="" loading="lazy" width="354" height="66"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Shoot the clock with every camera.</p><img src="guide/6.webp?v=20" alt="" loading="lazy" width="390" height="305"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=20" alt="" loading="lazy" width="390" height="626"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ Yes, in sync</span>. If not, fix the camera's clock and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=20" alt="" loading="lazy" width="390" height="526"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tap <span class="gk g">📷 Next: LS 1 ›</span> for the next camera's screen.</p><img src="guide/9.webp?v=20" alt="" loading="lazy" width="390" height="75"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tap <span class="gk g">🖼️→📨</span>, then <span class="gk g">📨</span> and pick your group chat.</p><img src="guide/10.webp?v=20" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>Install the app</b><p>
       · <b>iPhone</b> (Safari): tap <b>Share</b> □↑ (on newer iOS it's under <b>⋯</b>), then <b>Add to Home Screen</b> → <b>Add</b>.<br>
       · <b>Android</b> (Chrome): tap <b>⋮</b> top right, then <b>Add to home screen</b> → <b>Install</b>.</p></div></li>
@@ -763,7 +789,7 @@ var DE = {
   "Open the camera box": "Kamerabox öffnen", "Tap or slide down to put the camera box away": "Tippen oder nach unten wischen, um die Kamerabox zu schließen",
   "Slide down to close": "Zum Schließen nach unten wischen", "Back": "Zurück", "Camera type": "Kameratyp", "My cameras": "Meine Kameras",
   "Recently used cameras": "Zuletzt verwendete Kameras", "Photo of the camera back": "Foto vom Kameradisplay", "Take photo": "Foto aufnehmen",
-  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Finish the camera check first": "Erst den Kamera-Check abschließen", "Copy link": "Link kopieren",
+  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Shoot the clock": "Uhr fotografieren", "Send photos": "Fotos senden", "Get missing photo": "Fehlendes Foto holen", "Get missing photos": "Fehlende Fotos holen", "Finish the camera check first": "Erst den Kamera-Check abschließen", "Copy link": "Link kopieren",
   // camera check
   "Brand": "Marke", "Model": "Modell", "Check": "Prüfen", "Brand…": "Marke…", "Model…": "Modell…", "Quick pick": "Schnellwahl",
   "Hand cam": "Handkamera", "Other brand": "Andere Marke", "Other brand / not listed": "Andere Marke / nicht gelistet",
@@ -809,7 +835,7 @@ var DE_RX = [
   [/^(.+): photo of the camera's screen$/, "$1: Foto vom Kameradisplay"],
   [/^General settings for any (.+)$/, "Allgemeine Einstellungen für jede $1"], [/^Other (.+) model$/, "Anderes $1-Modell"], [/^Other (.+)$/, "Andere $1"],
   [/^(.+) · brand$/, "$1 · Marke"], [/^Add (.+)$/, "$1 hinzufügen"], [/^(.+) model$/, "$1-Modell"],
-  [/^Next: check (.+) →$/, "Weiter: $1 prüfen →"], [/^Next camera: (.+)$/, "Nächste Kamera: $1"], [/^Delete (.+)\?$/, "$1 löschen?"],
+  [/^Next: check (.+) →$/, "Weiter: $1 prüfen →"], [/^Camera check (\d)\/4$/, "Kamera-Check $1/4"], [/^Photo of (.+) screen$/, "Foto: $1-Display"], [/^Check (.+) photo$/, "$1-Foto prüfen"], [/^Next: (.+)$/, "Weiter: $1"], [/^Next camera: (.+)$/, "Nächste Kamera: $1"], [/^Delete (.+)\?$/, "$1 löschen?"],
   [/^Photo saved · (.+)$/, "Foto gespeichert · $1"],
   [/^(.+) (✓ in sync|✗ not in sync|no photo) · (\d+) of (\d+) cameras done$/, function(m, n, s, a, b){ return n + " " + {"✓ in sync": "✓ synchron", "✗ not in sync": "✗ nicht synchron", "no photo": "kein Foto"}[s] + " · " + a + " von " + b + " Kameras fertig"; }],
   [/^(.+)  · (\d+) of (\d+) cameras done$/, "$1 · $2 von $3 Kameras fertig"],
@@ -1865,6 +1891,14 @@ function trNode(n){
   var act_go = null, act_l = null, act_r = null, clockBubble = false, bbRoom = false;
   // Opening the bubble: on the 📷→🕒 step it goes back to the check instead of opening the box
   function openBox(n){ if(clockBubble && act_go){ act_go(); return; } setStage(n); }
+  // The green step button: icon, what happens next in words, and a round arrow
+  var goStage = 0;
+  function setGo(btn, g){
+    btn.textContent = "";
+    var ic = document.createElement("span"); ic.className = "gi"; ic.textContent = g[0]; btn.appendChild(ic);
+    if(g[2]){ var tx = document.createElement("span"); tx.className = "gt"; tx.textContent = g[2]; btn.appendChild(tx); }
+    var ar = document.createElement("span"); ar.className = "ga"; ar.setAttribute("aria-hidden", "true"); btn.appendChild(ar);
+  }
   function panel(o){
     if(o.raise === undefined) o.raise = showRaise;
     clockBubble = !!o.clock;
@@ -1873,7 +1907,7 @@ function trNode(n){
     if(flThumbUrl){ URL.revokeObjectURL(flThumbUrl); flThumbUrl = null; }
     flThumb.hidden = !o.thumb;
     if(o.thumb){ flThumbUrl = URL.createObjectURL(o.thumb.blob); flThumb.firstChild.src = flThumbUrl; flThumb.lastChild.textContent = o.thumbText; flThumb.classList.toggle("bad", o.thumb.sync !== true); }
-    flGo.textContent = o.go[0]; act_go = o.go[1];
+    setGo(flGo, o.go); act_go = o.go[1]; goStage = o.stage === undefined ? 0 : o.stage;
     // Last step: a "+ 📷" right next to Send, to add another camera
     document.getElementById("flAdds").hidden = true;
     var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length, room = hcN < MAXN || kit.cams.length - hcN < MAXN;
@@ -1887,7 +1921,7 @@ function trNode(n){
     nextBar.hidden = false;
     if(o.raise && stage === 0) stage = 1;   // something to do now: show the main button
     setStage(stage);
-    var sig = (o.kick || "") + "|" + (o.head || "") + "|" + o.go[0];
+    var sig = (o.kick || "") + "|" + (o.head || "") + "|" + o.go[0] + (o.go[2] || "");
     if(wasUp && stage && sig !== lastSig){ nextBar.classList.remove("swap"); void nextBar.offsetWidth; nextBar.classList.add("swap"); }   // new step: content glides in
     lastSig = sig;
   }
@@ -1929,10 +1963,8 @@ function trNode(n){
     var show = !nextBar.hidden && !nextBar.classList.contains("leaving") && stage === 0;
     var hb = hasCams() && !nextBar.hidden, root = document.documentElement;
     if(root.classList.contains("hasbox") !== hb){ root.classList.toggle("hasbox", hb); fit(); }
-    bbGo.textContent = flGo.textContent; bbGo.setAttribute("aria-label", flGo.textContent);
-    // Camera check not done: the count (0/4 – 3/4) in red on the floating button
-    var cm = /^(.*?)([0-3]\/4)$/.exec(flGo.textContent);
-    if(cm){ bbGo.textContent = cm[1]; var rc = document.createElement("span"); rc.className = "bb-red"; rc.textContent = cm[2]; bbGo.appendChild(rc); }
+    bbGo.innerHTML = flGo.innerHTML; bbGo.setAttribute("aria-label", flGo.textContent.trim());
+    [].forEach.call(document.querySelectorAll("#bbSteps i"), function(el, i){ el.className = i < goStage ? "on" : i === goStage ? "cur" : ""; });
     document.getElementById("bbAdd").hidden = !bbRoom;
     if(bubble.hidden === !show){ if(show) rePlace(); return; }   // re-centre: label or + may have changed
     if(show){ bubble.style.visibility = "hidden"; bubble.hidden = false; placeBubble(); bubble.style.visibility = ""; rePlace(); } else bubble.hidden = true;   // placed before it's seen
@@ -2098,7 +2130,7 @@ function trNode(n){
       var n = countOf(a), has = !!findCam(a.b, a.m);
       panel({step: -1, kick: name + " · camera check", head: has ? n + " of 4 ticked" : "Pick brand & model",
         sub: "", raise: up,
-        go: ["📷✓" + (has ? n : 0) + "/4", function(){ openSheet(); }]});
+        go: ["📷✓", function(){ openSheet(); }, "Camera check " + (has ? n : 0) + "/4"], stage: 0});
       return;
     }
     if(st === 1){
@@ -2108,18 +2140,18 @@ function trNode(n){
       if(!quiet){ toCheck(); return; }
       // Check closed / swiped down: only the bubble, 📷✓❗ (black tick: it opens the check, where 📷→🕒 is). Tapping or opening it brings the check back
       stage = 0;
-      panel({step: 0, kick: "", head: "", sub: "", go: ["📷✓", toCheck], clock: true});
+      panel({step: 0, kick: "", head: "", sub: "", go: ["📷✓", toCheck, "Shoot the clock"], clock: true, stage: 1});
       return;
     }
     if(st === 2){
       if(rec){
         // Came back here with a photo already taken: keep it (check it again) or retake
         panel({step: 1, kick: name + " · step 2", head: "Camera screen photo", thumb: rec, thumbText: "Your photo · tap to view",
-          go: ["🔍", function(){ reviewSaved(a); }],
+          go: ["🔍", function(){ reviewSaved(a); }, "Check " + (modelTag(a) || key(a)) + " photo"], stage: 2,
           l: ["← Back", function(){ go(a, 1); }], r: ["📷 Retake", function(){ bannerCam = a; takePhoto(); }]});
       } else {
         panel({step: 1, kick: name + " · step 2", head: "Camera screen photo", sub: "",
-          go: ["📱→📷", function(){ bannerCam = a; takePhoto(); }],
+          go: ["📱→📷", function(){ bannerCam = a; takePhoto(); }, "Photo of " + (modelTag(a) || key(a)) + " screen"], stage: 2,
           l: ["← Back", function(){ go(a, 1); }],
           r: ["Skip →", function(){ skipped[k] = true; go(a, 4); }]});
       }
@@ -2133,13 +2165,13 @@ function trNode(n){
     var back = ["← Back", function(){ if(rec) reviewSaved(a); else { delete skipped[k]; go(a, 2); } }];
     if(nextTarget){
       panel({step: 3, kick: name + " " + state + " · " + dn + " of " + tot + " cameras done", thumb: rec, thumbText: thumbText,
-        go: ["Next camera: " + keyM(nextTarget) + " →", goNext],
+        go: ["📷", goNext, "Next: " + keyM(nextTarget)], stage: 2,
         l: back, r: null});   // sending only once every camera has its photo
     } else {
       panel({step: 3, kick: "✓ All done", thumb: rec, thumbText: thumbText,
         head: missN ? "⚠ " + missN + " camera" + (missN > 1 ? "s" : "") + " need photos" : "Ready to send",
         sub: "",
-        go: missN ? ["Get missing photo" + (missN > 1 ? "s" : "") + " →", sendAll] : ["🖼️→📨", sendAll],
+        go: missN ? ["📷", sendAll, "Get missing photo" + (missN > 1 ? "s" : "")] : ["🖼️→📨", sendAll, "Send photos"], stage: 3,
         adds: true, l: back});
     }
   }
@@ -2928,6 +2960,25 @@ function trNode(n){
     var st = stepOf(a), u = nextUnchecked(a);
     sheetGo.textContent = u ? "Next: check " + keyM(u) + " →" : clockQueue().length ? "📷→🕒" : st === 2 ? "Continue: 📱→📷" : "Continue →";
   }
+  // ---- The tapping finger: shown on the step button until it's first used, again each new day (new event) ----
+  var finger = document.getElementById("tapFinger"), fingerOn = false, fingerRaf = 0;
+  function fingerDue(){ try{ return !!camInit.value && localStorage.getItem("acFinger") !== ev.day; }catch(e){ return false; } }
+  function fingerTarget(){
+    if(!sheet.hidden){ return !sheetGo.hidden && sheet.querySelector('[data-sc="checks"]').offsetParent ? sheetGo : null; }
+    var others = ["cam","viewer","sendView","guide"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
+    return !others && !bubble.hidden ? bbGo : null;
+  }
+  function fingerLoop(){
+    fingerRaf = 0; if(!fingerOn) return;
+    var t = fingerTarget();
+    if(t){ var r = t.getBoundingClientRect(); finger.style.left = Math.round(r.right - 34) + "px"; finger.style.top = Math.round(r.bottom - 18) + "px"; finger.hidden = false; }
+    else finger.hidden = true;
+    fingerRaf = requestAnimationFrame(fingerLoop);
+  }
+  function fingerCheck(){ fingerOn = fingerDue(); if(fingerOn){ if(!fingerRaf) fingerLoop(); } else { finger.hidden = true; } }
+  function fingerDone(){ try{ localStorage.setItem("acFinger", ev.day); }catch(e){} fingerCheck(); }
+  [bbGo, flGo, sheetGo].forEach(function(b){ b.addEventListener("click", fingerDone); });
+  setInterval(fingerCheck, 5000); setTimeout(fingerCheck, 600);
   sheetGo.addEventListener("click", function(){
     var a = act(), u = nextUnchecked(a);
     if(u){ addedFrom = addedKey = null; setActive(key(u)); goScreen(screenFor(u)); return; }   // checks first, every camera
@@ -3156,16 +3207,16 @@ function trNode(n){
       navigator.serviceWorker.register('./sw.js');
     }
     var GUIDE_DE = `
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=19" alt="" loading="lazy" width="300" height="70"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Der Kamera-Check öffnet sich von selbst: Wähle <b>Handkamera</b> oder <b>LS</b>, dann Marke und Modell.</p><img src="guide/de/2.webp?v=19" alt="" loading="lazy" width="362" height="374"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab. Der Check lässt sich erst schließen, wenn alle 4 abgehakt sind.</p><img src="guide/de/3.webp?v=19" alt="" loading="lazy" width="354" height="373"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=19" alt="" loading="lazy" width="354" height="69"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Tippe auf <span class="gk g">📷→🕒</span>, wenn du fertig bist.</p><img src="guide/de/5.webp?v=19" alt="" loading="lazy" width="354" height="66"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Fotografiere die Uhr mit jeder Kamera.</p><img src="guide/de/6.webp?v=19" alt="" loading="lazy" width="390" height="305"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=19" alt="" loading="lazy" width="390" height="626"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Ja, synchron</span>. Wenn nicht, stelle die Kamerauhr richtig und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=19" alt="" loading="lazy" width="390" height="526"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tippe auf <span class="gk g">Nächste Kamera →</span> für das Display der nächsten Kamera.</p><img src="guide/de/9.webp?v=19" alt="" loading="lazy" width="390" height="75"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tippe auf <span class="gk g">🖼️→📨</span>, dann auf <span class="gk g">📨</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=19" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=20" alt="" loading="lazy" width="300" height="70"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Der Kamera-Check öffnet sich von selbst: Wähle <b>Handkamera</b> oder <b>LS</b>, dann Marke und Modell.</p><img src="guide/de/2.webp?v=20" alt="" loading="lazy" width="362" height="374"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab. Der Check lässt sich erst schließen, wenn alle 4 abgehakt sind.</p><img src="guide/de/3.webp?v=20" alt="" loading="lazy" width="354" height="373"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=20" alt="" loading="lazy" width="354" height="69"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Tippe auf <span class="gk g">📷→🕒</span>, wenn du fertig bist.</p><img src="guide/de/5.webp?v=20" alt="" loading="lazy" width="354" height="66"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Fotografiere die Uhr mit jeder Kamera.</p><img src="guide/de/6.webp?v=20" alt="" loading="lazy" width="390" height="305"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=20" alt="" loading="lazy" width="390" height="626"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Ja, synchron</span>. Wenn nicht, stelle die Kamerauhr richtig und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=20" alt="" loading="lazy" width="390" height="526"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tippe auf <span class="gk g">📷 Weiter: LS 1 ›</span> für das Display der nächsten Kamera.</p><img src="guide/de/9.webp?v=20" alt="" loading="lazy" width="390" height="75"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tippe auf <span class="gk g">🖼️→📨</span>, dann auf <span class="gk g">📨</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=20" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>App installieren</b><p>
       · <b>iPhone</b> (Safari): Tippe auf <b>Teilen</b> □↑ (bei neuerem iOS unter <b>⋯</b>), dann <b>Zum Home-Bildschirm</b> → <b>Hinzufügen</b>.<br>
       · <b>Android</b> (Chrome): Tippe oben rechts auf <b>⋮</b>, dann <b>Zum Startbildschirm hinzufügen</b> → <b>Installieren</b>.</p></div></li>
