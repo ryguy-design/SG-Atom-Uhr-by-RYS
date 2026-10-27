@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027085655">
+<meta name="app-ver" content="20261027090650">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -1434,7 +1434,7 @@ function trNode(n){
       if(b === "Canon") return [
         ["White balance", "<b>AWB</b> — regular Auto, not AWB W"],
         ["Picture Style", "<b>Neutral (N)</b>"],
-        ["JPEG quality", "JPEG only (RAW off), <b>Normal</b> quality (the jagged icon, not the smooth Fine one). If there's a JPEG quality 1–10 setting: <b>6/10</b>"],
+        ["JPEG quality", "JPEG only (RAW off), <b>Normal</b> quality (the jagged icon, not the smooth Fine one). If there's a JPEG quality 1–10 setting: <b>5/10</b> (6/10 still shows the smooth Fine curve)"],
         ["Image size", SIZE_ANY]];
       if(b === "Fujifilm") return [
         ["White balance", "<b>AUTO</b> — plain AUTO, not White or Ambience priority"],
@@ -1464,7 +1464,7 @@ function trNode(n){
     if(b === "Canon") return [
       ["White balance", has(CANON_NO_AWBW, c[0]) ? "<b>AWB</b> (Auto)" : "<b>AWB</b> — regular Auto (Ambience priority), not AWB W"],
       ["Picture Style", "<b>Neutral (N)</b>"],
-      ["JPEG quality", "JPEG only (RAW off), <b>Normal</b> quality (the jagged icon, not the smooth Fine one). If there's a JPEG quality 1–10 setting: <b>6/10</b>, the first jagged step down from 10"],
+      ["JPEG quality", "JPEG only (RAW off), <b>Normal</b> quality (the jagged icon, not the smooth Fine one). If there's a JPEG quality 1–10 setting: <b>5/10</b>, the first with the staircase icon (6/10 still shows the smooth Fine curve)"],
       ["Image size", "Image quality <b>" + size + "</b> Normal (jagged icon) · " + px + " px"]
     ];
     if(b === "Fujifilm") return [
@@ -1496,7 +1496,7 @@ function trNode(n){
       if(b === "Canon") return [
         ["Weißabgleich", "<b>AWB</b> — Auto: Priorität Umgebung, nicht Priorität Weiß"],
         ["Bildstil", "<b>Neutral (N)</b>"],
-        ["JPEG-Qualität", "Nur JPEG (RAW aus), Qualität <b>Normal</b> (das gestufte Symbol, nicht das glatte für Fein). Falls es JPEG-Qualität 1–10 gibt: <b>6/10</b>"],
+        ["JPEG-Qualität", "Nur JPEG (RAW aus), Qualität <b>Normal</b> (das gestufte Symbol, nicht das glatte für Fein). Falls es JPEG-Qualität 1–10 gibt: <b>5/10</b> (bei 6/10 ist noch das glatte Fein-Symbol zu sehen)"],
         ["Bildgröße", SIZE_ANY_DE]];
       if(b === "Fujifilm") return [
         ["Weißabgleich", "<b>AUTO</b> — normales AUTO, nicht Weiß- oder Ambiente-Priorität"],
@@ -1526,7 +1526,7 @@ function trNode(n){
     if(b === "Canon") return [
       ["Weißabgleich", has(CANON_NO_AWBW, c[0]) ? "<b>AWB</b> (Auto)" : "<b>AWB</b> — Auto: Priorität Umgebung, nicht Priorität Weiß"],
       ["Bildstil", "<b>Neutral (N)</b>"],
-      ["JPEG-Qualität", "Nur JPEG (RAW aus), Qualität <b>Normal</b> (das gestufte Symbol, nicht das glatte für Fein). Falls es JPEG-Qualität 1–10 gibt: <b>6/10</b>, die erste gestufte Stufe unter 10"],
+      ["JPEG-Qualität", "Nur JPEG (RAW aus), Qualität <b>Normal</b> (das gestufte Symbol, nicht das glatte für Fein). Falls es JPEG-Qualität 1–10 gibt: <b>5/10</b>, die erste mit dem Treppen-Symbol (bei 6/10 ist noch das glatte Fein-Symbol zu sehen)"],
       ["Bildgröße", "Bildqualität <b>" + size + "</b> Normal (gestuftes Symbol) · " + px + " px"]
     ];
     if(b === "Fujifilm") return [
@@ -1547,7 +1547,7 @@ function trNode(n){
     var size = c[1], px = c[2];
     if(c[0] === OTHER) return L("Auto WB · Neutral · JPEG standard · ≥4000 px", "Auto-WA · Neutral · JPEG Standard · ≥4000 px");
     if(b === "Sony") return "AWB · " + (c[3] === "style0" ? "Standard" : "NT") + " · JPEG Std · " + size + " " + px;
-    if(b === "Canon") return "AWB · Neutral · JPEG Normal (6/10) · " + size + " " + px;
+    if(b === "Canon") return "AWB · Neutral · JPEG Normal (5/10) · " + size + " " + px;
     if(b === "Fujifilm") return "AUTO · PROVIA · NORMAL · " + size + " " + px;
     return (has(NIKON_PLAIN_AUTO, c[0]) ? "Auto" : "AUTO1") + L(" · NL · JPEG normal · ", " · NL · JPEG Normal · ") + c[3] + " " + size.charAt(0) + " " + px;
   }
