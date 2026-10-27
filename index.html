@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027142743">
+<meta name="app-ver" content="20261027150338">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -602,6 +602,16 @@ body.photo .tapfinger{display:none}
 .rotbtn.spin svg{animation:rotTap .5s cubic-bezier(.2,.8,.2,1)}
 @keyframes rotTap{from{transform:rotate(-90deg)}}
 @media (prefers-reduced-motion: reduce){ .rotbtn svg rect,.rotbtn svg line,.rotbtn svg path{animation:none} }
+/* Buttons sliding away (photo mode) and back */
+footer,.taphint,.visits,.bubble{transition:opacity .26s ease, transform .26s ease}
+body.ctl-out footer,body.ctl-out .taphint,body.ctl-out .bubble,body.ctl-in footer,body.ctl-in .taphint,body.ctl-in .bubble{opacity:0; transform:translateY(48px)}
+body.ctl-out .rotbtn,body.ctl-out .visits,body.ctl-in .rotbtn,body.ctl-in .visits{opacity:0; transform:translateY(-30px)}
+body.ctl-out .tapfinger{opacity:0}
+.bubble.dragging{transition:none}
+body.ctl-in footer,body.ctl-in .taphint,body.ctl-in .bubble,body.ctl-in .rotbtn,body.ctl-in .visits{transition:none}
+body.photo .showhint{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}}
+html.land.hasbox .bubspace{height:calc(5.4rem + 8px)}   /* landscape: room for the step bars and the taller button above the text */
 </style>
 </head>
 <body>
@@ -2021,18 +2031,20 @@ function trNode(n){
       if(!down) return; var p = pt(e), d = p[0] - y0, dx = p[1] - x0;
       if(!moved){
         if(Math.hypot(d, dx) < 8) return;
-        if(d > 0 || Math.abs(dx) > Math.abs(d)){ down = false; skipClick = true; setTimeout(function(){ skipClick = false; }, 600); return; }   // only an upward swipe does anything; any other slide isn't a tap either
+        if(Math.abs(dx) > Math.abs(d)){ down = false; skipClick = true; setTimeout(function(){ skipClick = false; }, 600); return; }   // a sideways slide isn't a tap either
         moved = true; bubble.classList.add("dragging"); try{ bubble.setPointerCapture(e.pointerId); }catch(_){}   // taps still reach the buttons
       }
-      dy = Math.min(0, d); bubble.style.transform = "translateY(" + (dy * .5) + "px)";
+      dy = d; bubble.style.transform = "translateY(" + (dy < 0 ? dy * .5 : dy * .8) + "px)";   // up: opens the box · down: hides the buttons
     });
     function end(){
       if(!down) return; down = false;
       if(!moved) return;
-      bubble.classList.remove("dragging"); bubble.style.transform = "";
+      bubble.classList.remove("dragging");
       skipClick = true; setTimeout(function(){ skipClick = false; }, 350);
-      var v = -dy / Math.max(1, Date.now() - t0);
-      if(dy < -30 || v > .4) openBox(2);   // swiped up: the box opens
+      var v = dy / Math.max(1, Date.now() - t0);
+      if(dy > 45 || v > .45){ setPhoto(true); return; }   // swiped down: the buttons slide away
+      bubble.style.transform = "";
+      if(dy < -30 || v < -.4) openBox(2);   // swiped up: the box opens
     }
     bubble.addEventListener("pointerup", end); bubble.addEventListener("pointercancel", end);
     bubble.addEventListener("click", function(e){ if(skipClick){ skipClick = false; e.preventDefault(); e.stopPropagation(); } }, true);
@@ -3196,7 +3208,7 @@ function trNode(n){
     save(); hideNext(); refresh();
     showLoc = false; applyLoc();
     if(rotated) setRot(false);
-    document.body.classList.remove("photo"); fit();
+    setPhoto(false, true);
   }
 
   // A new day starts a new event: re-check whenever the app comes back to the screen
@@ -3210,10 +3222,50 @@ function trNode(n){
   setTimeout(requireCheck, 400);   // opened with initials but no finished camera check: it opens first
 
   // ================= Photo mode: tap the clock to hide the buttons =================
-  mainEl.addEventListener("click", function(){ document.body.classList.toggle("photo"); fit(); });
+  // Buttons slide away (down, fading) and back; the clock grows/shrinks smoothly into the freed space
+  var photoT = 0;
+  function clockU(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--u")) || 0; }
+  function growClock(before){
+    var after = clockU(); if(!before || !after || Math.abs(after - before) < 1) return;
+    mainEl.style.transition = "none"; mainEl.style.transform = "scale(" + (before / after).toFixed(4) + ")";
+    void mainEl.offsetWidth; mainEl.style.transition = "transform .42s cubic-bezier(.2,.8,.2,1)"; mainEl.style.transform = "";
+    setTimeout(function(){ mainEl.style.transition = ""; }, 450);
+  }
+  function setPhoto(on, now){
+    var b = document.body; clearTimeout(photoT); b.classList.remove("ctl-in");
+    if(on === b.classList.contains("photo") && !b.classList.contains("ctl-out")) return;
+    if(on){
+      if(now){ b.classList.add("photo"); fit(); return; }
+      b.classList.add("ctl-out");   // slide the buttons down and out first
+      photoT = setTimeout(function(){ var u0 = clockU(); b.classList.add("photo"); b.classList.remove("ctl-out"); bubble.style.transform = ""; fit(); growClock(u0); }, 260);
+    } else {
+      if(now){ b.classList.remove("photo", "ctl-out"); fit(); return; }
+      var u0 = clockU(); b.classList.remove("ctl-out"); b.classList.add("ctl-in"); b.classList.remove("photo"); fit(); growClock(u0);
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.classList.remove("ctl-in"); }); });   // slide them back up
+      if(typeof rePlace === "function") rePlace();
+    }
+  }
+  // Swipe down on the bottom area hides the buttons; with them hidden, swiping up anywhere brings them back
+  (function(){
+    var y0 = 0, x0 = 0, on = false;
+    function pt(e){ var t = e.touches ? e.touches[0] : e, rot = document.documentElement.classList.contains("rot"); return rot ? [-t.clientX, t.clientY] : [t.clientY, t.clientX]; }
+    document.addEventListener("touchstart", function(e){
+      var photo = document.body.classList.contains("photo"), f = e.target.closest && e.target.closest("footer");
+      on = photo || !!f; if(!on) return; var p = pt(e); y0 = p[0]; x0 = p[1];
+    }, {passive: true});
+    document.addEventListener("touchend", function(e){
+      if(!on) return; on = false; var t = e.changedTouches && e.changedTouches[0]; if(!t) return;
+      var p = pt({clientX: t.clientX, clientY: t.clientY}), d = p[0] - y0, dx = p[1] - x0;
+      if(Math.abs(d) < 50 || Math.abs(dx) > Math.abs(d)) return;
+      var photo = document.body.classList.contains("photo"), open = !sheet.hidden || ["cam","viewer","sendView","guide"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
+      if(open) return;
+      if(!photo && d > 0) setPhoto(true); else if(photo && d < 0) setPhoto(false);
+    }, {passive: true});
+  })();
+  mainEl.addEventListener("click", function(){ setPhoto(!document.body.classList.contains("photo")); });
   // In photo mode a tap anywhere else (e.g. the bottom edge) brings the buttons back too
   document.body.addEventListener("click", function(e){
-    if(document.body.classList.contains("photo") && !mainEl.contains(e.target) && !nextBar.contains(e.target)){ document.body.classList.remove("photo"); fit(); }
+    if(document.body.classList.contains("photo") && !mainEl.contains(e.target) && !nextBar.contains(e.target)) setPhoto(false);
   });
   var rotBtn = document.getElementById("rotBtn");
   rotBtn.setAttribute("aria-pressed", rotated ? "true" : "false");
@@ -3236,7 +3288,7 @@ function trNode(n){
   autoRotCheck();
   // In photo mode a tap anywhere else (e.g. the bottom edge) brings the buttons back too
   document.body.addEventListener("click", function(e){
-    if(document.body.classList.contains("photo") && !mainEl.contains(e.target) && !nextBar.contains(e.target)){ document.body.classList.remove("photo"); fit(); }
+    if(document.body.classList.contains("photo") && !mainEl.contains(e.target) && !nextBar.contains(e.target)) setPhoto(false);
   });
 
   // ================= Keep screen awake =================
