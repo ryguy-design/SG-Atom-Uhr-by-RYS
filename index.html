@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027222251">
+<meta name="app-ver" content="20261027223318">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -96,7 +96,7 @@ footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 .camset.ok{color:var(--ok)}
 /* Photo mode: tap the clock to hide everything else */
 main{cursor:pointer}
-.taphint{font-size:.72rem; color:var(--muted); opacity:.55; text-align:center; margin:0 0 .45rem}
+.taphint{font-size:.72rem; color:var(--muted); opacity:.55; text-align:center; margin:-.15rem 0 0; white-space:nowrap}
 .showhint{display:none; position:fixed; left:0; right:0; bottom:max(14px,env(safe-area-inset-bottom,0px)); font-size:.72rem; color:var(--muted); opacity:.45; text-align:center; pointer-events:none}
 body.photo footer, body.photo .taphint, body.photo .rotbtn, body.photo .visits{display:none}
 /* Small visit counter, top-left corner */
@@ -454,7 +454,7 @@ html.rot .cam-box video{position:absolute; left:50%; top:50%; width:100cqh; heig
 .sheet button:focus-visible,.sheet select:focus-visible,.checklist input:focus-visible{outline:2px solid var(--fg); outline-offset:2px}
 /* Landscape: everything at the bottom on one compact line, so the clock gets the height */
 html.land footer{flex-direction:column; flex-wrap:nowrap; align-items:center; gap:.3rem; text-align:center}
-html.land .taphint{margin-bottom:.2rem}
+html.land .taphint{margin:-.45rem 0 .5rem}
 html.land .cam{width:auto; flex:1 1 auto; min-width:0; max-width:55%}
 html.land #status{align-items:center; text-align:center}
 html.land #syncText{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -531,7 +531,6 @@ body.photo main{padding-bottom:1.5rem}   /* room for "Tap to show buttons" under
 footer,.taphint{transition:opacity .3s var(--ease)}
 /* Portrait: the caption rides just above the camera box so the box never hides it */
 html.boxfull:not(.land) .taphint{opacity:0}
-html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); transition:opacity .3s var(--ease), transform .45s var(--spring)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
 /* Every emoji / symbol sits in the same fixed-width slot, so the gaps between them are always even */
 .em{display:inline-flex; align-items:center; justify-content:center; height:1.2em; padding:0 .17em; vertical-align:baseline; text-indent:0; line-height:1; font-style:normal; position:relative; box-sizing:content-box}
@@ -625,6 +624,7 @@ body.cdrag .bb-steps i.cur{animation:none}
 body.cdrag.cfly footer,body.cdrag.cfly .taphint,body.cdrag.cfly .bubble,body.cdrag.csnap footer,body.cdrag.csnap .taphint,body.cdrag.csnap .bubble,
 body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits,body.cdrag.csnap .rotbtn,body.cdrag.csnap .visits{transition:transform .26s ease, opacity .26s ease!important}
 body.cdrag.cfly footer,body.cdrag.cfly .taphint,body.cdrag.cfly .bubble{transform:translateY(calc(var(--cy,0px) + 90px)); opacity:0}
+body .taphint{transform:none!important}   /* under the clock: it only fades, it doesn't slide with the buttons */
 body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(--cy,0px) + 90px) * -.6)); opacity:0}
 /* ‹ Back: a small round button just to the left of the bubble (the + sits on the right) */
 .bb-back{position:absolute; right:calc(100% + .45rem); top:50%; transform:translateY(-50%); width:2.4rem; height:2.4rem; padding:0; border-radius:50%; background:#1d252a; border:2px solid #3a444b; color:var(--fg); cursor:pointer}
@@ -673,12 +673,12 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
   </div>
   <div class="row" id="timeRow" aria-label="Time"></div>
   <div class="tz" id="tz"></div>
+  <div id="tapHint" class="taphint">Tap or swipe to hide menu</div>
   <div id="place"><b id="suburb">Finding you…</b> <span id="coords"></span><div class="locwarn">⚠️ Exact GPS location visible on screen ⚠️</div></div>
 </main>
 
 <div id="bubSpace" class="bubspace" aria-hidden="true"></div>
-<div id="tapHint" class="taphint">Tap clock to hide buttons</div>
-<div id="showHint" class="showhint">Tap to show buttons</div>
+<div id="showHint" class="showhint">Tap or swipe to show menu</div>
 <!-- Camera check bubble: the box when it's put away. Drag it anywhere; the arrows open the box -->
 <div id="bubble" class="bubble" hidden>
   <div id="bbSteps" class="bb-steps" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -857,7 +857,7 @@ var DE = {
   "Sure? Resets everything": "Sicher? Alles zurücksetzen", "Done ✓": "Erledigt ✓", "Sure?": "Sicher?", "Delete?": "Löschen?",
   "Syncing with time server…": "Synchronisiere mit Zeitserver…",
   "Offline — showing phone clock (not synced)": "Offline — Handyuhr wird angezeigt (nicht synchronisiert)",
-  "Tap clock to hide buttons": "Uhr antippen, um Tasten auszublenden", "Tap to show buttons": "Tippen, um Tasten einzublenden",
+  "Tap or swipe to hide menu": "Tippen oder wischen, um das Menü auszublenden", "Tap or swipe to show menu": "Tippen oder wischen, um das Menü einzublenden",
   "Type your initials first": "Zuerst Kürzel eingeben", "Change cam to:": "Kamera ändern zu:", "Cancel": "Abbrechen",
   "✓ 4/4 SETTINGS · EVERY CAMERA": "✓ 4/4 EINSTELLUNGEN · JEDE KAMERA",
   "Exact GPS location visible on screen": "Genauer GPS-Standort auf dem Bildschirm sichtbar", "Finding you…": "Standort wird gesucht…",
@@ -2070,8 +2070,7 @@ function trNode(n){
   function placeBubble(){
     if(bubble.hidden) return;
     var sz = appSize(), W = sz[0], H = sz[1], bw = bubble.offsetWidth, bh = bubble.offsetHeight;
-    var hint = document.getElementById("tapHint"), foot = document.querySelector("footer");
-    var below = hint && hint.offsetHeight && getComputedStyle(hint).display !== "none" ? hint.offsetTop : foot.offsetTop;   // first line of text under it
+    var below = document.querySelector("footer").offsetTop;   // first line of text under it
     var x = (W - bw) / 2, y = below - bh - 8;   // the green bubble is always centred; its + sits off to the right
     y = Math.max(8, Math.min(H - bh - 8, y));
     bubble.style.left = Math.round(x) + "px"; bubble.style.top = Math.round(y) + "px";
