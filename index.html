@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027152139">
+<meta name="app-ver" content="20261027153034">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -3233,36 +3233,54 @@ function trNode(n){
   setTimeout(requireCheck, 400);   // opened with initials but no finished camera check: it opens first
 
   // ================= Photo mode: tap the clock to hide the buttons =================
-  // Buttons slide away (down, fading) and back; the clock grows/shrinks smoothly into the freed space
-  var photoT = 0;
-  function clockU(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--u")) || 0; }
-  function growClock(before){
-    var after = clockU(); if(!before || !after || Math.abs(after - before) < 1) return;
-    mainEl.style.transition = "none"; mainEl.style.transform = "scale(" + (before / after).toFixed(4) + ")";
-    void mainEl.offsetWidth; mainEl.style.transition = "transform .42s cubic-bezier(.2,.8,.2,1)"; mainEl.style.transform = "";
-    setTimeout(function(){ mainEl.style.transition = ""; }, 450);
+  // Buttons slide away (down, fading) and back; the clock glides (moves and resizes) into its new place.
+  // Geometry is measured in the page's own coordinates (offsets), so it also works in the sideways view.
+  var photoT = 0, EASE = "cubic-bezier(.2,.8,.2,1)";
+  function absPos(el){ var x = 0, y = 0; while(el && el !== document.body){ x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; } return [x, y]; }
+  function clockRect(){
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    [].forEach.call(mainEl.children, function(c){ if(!c.offsetWidth || !c.offsetHeight) return; var p = absPos(c); x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0] + c.offsetWidth); y1 = Math.max(y1, p[1] + c.offsetHeight); });
+    var m = absPos(mainEl); return {cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, w: Math.max(1, x1 - x0), mx: m[0], my: m[1]};
+  }
+  function geomFor(on){   // where the clock would sit with the buttons hidden (on) or shown
+    var b = document.body, had = b.classList.contains("photo"); if(had === on) return clockRect();
+    b.classList.toggle("photo", on); fit(); var r = clockRect(); b.classList.toggle("photo", had); fit(); return r;
+  }
+  // Clock currently laid out at `from`: draw it p of the way towards `to`
+  function placeClock(from, to, p, anim){
+    var s = 1 + (to.w / from.w - 1) * p, dx = (to.cx - from.cx) * p, dy = (to.cy - from.cy) * p;
+    mainEl.style.transformOrigin = (from.cx - from.mx).toFixed(1) + "px " + (from.cy - from.my).toFixed(1) + "px";
+    mainEl.style.transition = anim ? "transform " + anim + "s " + EASE : "none";
+    mainEl.style.transform = p ? "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px) scale(" + s.toFixed(4) + ")" : "";
+  }
+  function clockDone(){ mainEl.style.transition = "none"; mainEl.style.transform = ""; }
+  function glide(before, dur){   // layout just changed: start the clock where it was and let it glide to the new place
+    var after = clockRect(); if(Math.abs(after.cx - before.cx) < 1 && Math.abs(after.cy - before.cy) < 1 && Math.abs(after.w - before.w) < 1) return;
+    placeClock(after, before, 1); void mainEl.offsetWidth; placeClock(after, before, 0, dur || .42);
   }
   function setPhoto(on, now){
     var b = document.body; clearTimeout(photoT); b.classList.remove("ctl-in");
     if(on === b.classList.contains("photo") && !(on && b.classList.contains("ctl-out"))) return;
     if(on){
       if(now){ b.classList.add("photo"); fit(); return; }
-      b.classList.add("ctl-out");   // slide the buttons down and out first
-      photoT = setTimeout(function(){ var u0 = clockU(); b.classList.add("photo"); b.classList.remove("ctl-out"); bubble.style.transform = ""; fit(); growClock(u0); }, 260);
+      var A = clockRect(), B = geomFor(true);
+      b.classList.add("ctl-out"); placeClock(A, B, 1, .32);   // buttons slide out while the clock glides into the space
+      photoT = setTimeout(function(){ b.classList.add("photo"); b.classList.remove("ctl-out"); bubble.style.transform = ""; fit(); clockDone(); glide(B, .2); }, 330);
     } else {
       if(now){ b.classList.remove("photo", "ctl-out"); fit(); return; }
-      var u0 = clockU(); b.classList.remove("ctl-out"); b.classList.add("ctl-in"); b.classList.remove("photo"); fit(); growClock(u0);
+      var before = clockRect(); b.classList.remove("ctl-out"); b.classList.add("ctl-in"); b.classList.remove("photo"); fit(); glide(before, .32);
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.classList.remove("ctl-in"); }); });   // slide them back up
       if(typeof rePlace === "function") rePlace();
     }
   }
-  // Swipe down anywhere hides the buttons, swipe up brings them back; they follow the finger while it moves
+  // Swipe down anywhere hides the buttons, swipe up brings them back; buttons and clock follow the finger
   (function(){
-    var y0 = 0, x0 = 0, t0 = 0, on = false, mode = "", d = 0, b = document.body, SHOW = 170, swallow = false;
+    var y0 = 0, x0 = 0, t0 = 0, on = false, mode = "", d = 0, b = document.body, SHOW = 170, swallow = false, A = null, B = null;
     function pt(e){ var t = e.touches ? e.touches[0] : e, rot = document.documentElement.classList.contains("rot"); return rot ? [-t.clientX, t.clientY] : [t.clientY, t.clientX]; }
     function overlay(){ return !sheet.hidden || ["cam","viewer","sendView","guide"].some(function(id){ var el = document.getElementById(id); return el && !el.hidden; }); }
     function set(cy, co){ b.style.setProperty("--cy", cy.toFixed(1) + "px"); b.style.setProperty("--co", Math.max(0, Math.min(1, co)).toFixed(3)); }
     function clear(){ b.classList.remove("cdrag"); b.style.removeProperty("--cy"); b.style.removeProperty("--co"); }
+    function prog(){ return mode === "hide" ? Math.max(0, Math.min(1, d / 200)) : Math.max(0, Math.min(1, -d / SHOW)); }
     document.addEventListener("touchstart", function(e){
       // Anywhere on the clock screen; not on the bubble or box (they have their own swipes) or the white box
       var own = e.target.closest && e.target.closest("#bubble, #nextBar, #camLabel, #typeSwitcher, .sheet, .viewer");
@@ -3274,24 +3292,25 @@ function trNode(n){
         if(Math.abs(d) < 10 && Math.abs(dx) < 10) return;
         if(Math.abs(dx) > Math.abs(d)){ on = false; return; }
         var photo = b.classList.contains("photo");
-        if(!photo && d > 0) mode = "hide";
-        else if(photo && d < 0){ mode = "show"; var u0 = clockU(); b.classList.add("cdrag"); set(SHOW, 0); b.classList.remove("photo"); fit(); placeBubble(); growClock(u0); }
+        if(!photo && d > 0){ mode = "hide"; A = clockRect(); B = geomFor(true); }   // A: now, B: with the buttons gone
+        else if(photo && d < 0){ mode = "show"; B = clockRect(); b.classList.add("cdrag"); set(SHOW, 0); b.classList.remove("photo"); fit(); placeBubble(); A = clockRect(); }   // B: now (hidden), A: with the buttons
         else { on = false; return; }
         b.classList.add("cdrag");
       }
-      if(mode === "hide") set(Math.max(0, d), 1 - d / 200);
-      else set(Math.max(0, SHOW + d), -d / SHOW);
+      var q = prog();
+      if(mode === "hide"){ set(Math.max(0, d), 1 - d / 200); placeClock(A, B, q); }
+      else { set(Math.max(0, SHOW + d), -d / SHOW); placeClock(A, B, 1 - q); }
     }, {passive: true});
     document.addEventListener("touchend", function(){
       if(!on || !mode){ on = false; return; } on = false;
       var v = d / Math.max(1, Date.now() - t0); swallow = true; setTimeout(function(){ swallow = false; }, 400);
       var hideIt = mode === "hide" ? (d > 50 || v > .5) : !(d < -50 || v < -.5);
       if(hideIt){
-        b.classList.add("cfly");   // carries on out from where the finger let go
-        setTimeout(function(){ var u0 = clockU(); b.classList.remove("cfly"); clear(); setPhoto(true, true); growClock(u0); }, 260);
+        b.classList.add("cfly"); placeClock(A, B, 1, .26);   // buttons carry on out, clock finishes its glide
+        setTimeout(function(){ var seen = B; b.classList.remove("cfly"); clear(); setPhoto(true, true); clockDone(); glide(seen, .2); }, 270);   // any last few pixels glide too
       } else {
-        b.classList.add("csnap"); set(0, 1);   // slides (back) into place
-        setTimeout(function(){ b.classList.remove("csnap"); clear(); if(typeof rePlace === "function") rePlace(); }, 280);
+        b.classList.add("csnap"); set(0, 1); placeClock(A, B, 0, .28);   // everything slides (back) into place
+        setTimeout(function(){ var seen = A; b.classList.remove("csnap"); clear(); clockDone(); fit(); glide(seen, .2); if(typeof rePlace === "function") rePlace(); }, 290);
       }
       mode = "";
     }, {passive: true});
