@@ -1,7 +1,7 @@
 {
   "name": "Camera check/Atomic Clock by RYS",
   "short_name": "Camera check/Atomic Clock by RYS",
-  "description": "All in one app: camera settings, an atomic clock, camera photo sync and direct sending to your camera check groups.",
+  "description": "All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
