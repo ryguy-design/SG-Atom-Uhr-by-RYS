@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027150338">
+<meta name="app-ver" content="20261027151050">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -3245,13 +3245,14 @@ function trNode(n){
       if(typeof rePlace === "function") rePlace();
     }
   }
-  // Swipe down on the bottom area hides the buttons; with them hidden, swiping up anywhere brings them back
+  // Swipe down anywhere hides the buttons; swipe up anywhere brings them back
   (function(){
     var y0 = 0, x0 = 0, on = false;
     function pt(e){ var t = e.touches ? e.touches[0] : e, rot = document.documentElement.classList.contains("rot"); return rot ? [-t.clientX, t.clientY] : [t.clientY, t.clientX]; }
     document.addEventListener("touchstart", function(e){
-      var photo = document.body.classList.contains("photo"), f = e.target.closest && e.target.closest("footer");
-      on = photo || !!f; if(!on) return; var p = pt(e); y0 = p[0]; x0 = p[1];
+      // Anywhere on the clock screen; not on the bubble or box (they have their own swipes) or the white box
+      var own = e.target.closest && e.target.closest("#bubble, #nextBar, #camLabel, #typeSwitcher, .sheet, .viewer");
+      on = !own; if(!on) return; var p = pt(e); y0 = p[0]; x0 = p[1];
     }, {passive: true});
     document.addEventListener("touchend", function(e){
       if(!on) return; on = false; var t = e.changedTouches && e.changedTouches[0]; if(!t) return;
