@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027125845">
+<meta name="app-ver" content="20261027131014">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -793,7 +793,7 @@ var DE = {
   "Open the camera box": "Kamerabox öffnen", "Tap or slide down to put the camera box away": "Tippen oder nach unten wischen, um die Kamerabox zu schließen",
   "Slide down to close": "Zum Schließen nach unten wischen", "Back": "Zurück", "Camera type": "Kameratyp", "My cameras": "Meine Kameras",
   "Recently used cameras": "Zuletzt verwendete Kameras", "Photo of the camera back": "Foto vom Kameradisplay", "Take photo": "Foto aufnehmen",
-  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Shoot the clock": "Uhr fotografieren", "Send photos": "Fotos senden", "Get missing photo": "Fehlendes Foto holen", "Get missing photos": "Fehlende Fotos holen", "Finish the camera check first": "Erst den Kamera-Check abschließen", "Copy link": "Link kopieren",
+  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Shoot the clock": "Uhr fotografieren", "Clock shot": "Uhr fotografiert", "Send photos": "Fotos senden", "Get missing photo": "Fehlendes Foto holen", "Get missing photos": "Fehlende Fotos holen", "Finish the camera check first": "Erst den Kamera-Check abschließen", "Copy link": "Link kopieren",
   // camera check
   "Brand": "Marke", "Model": "Modell", "Check": "Prüfen", "Brand…": "Marke…", "Model…": "Modell…", "Quick pick": "Schnellwahl",
   "Hand cam": "Handkamera", "Other brand": "Andere Marke", "Other brand / not listed": "Andere Marke / nicht gelistet",
@@ -2144,7 +2144,8 @@ function trNode(n){
       if(!quiet){ toCheck(); return; }
       // Check closed / swiped down: only the bubble, 📷✓❗ (black tick: it opens the check, where 📷→🕒 is). Tapping or opening it brings the check back
       stage = 0;
-      panel({step: 0, kick: "", head: "", sub: "", go: ["📷✓", toCheck, "Shoot the clock"], clock: true, stage: 1});
+      // Back on the clock after the check: the bubble itself confirms the clock was shot and moves on to 📱→📷
+      panel({step: 0, kick: "", head: "", sub: "", go: ["📷→🕒", function(){ showNext(shootClocks()); }, "Clock shot"], stage: 1});
       return;
     }
     if(st === 2){
