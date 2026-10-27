@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027123435">
+<meta name="app-ver" content="20261027125845">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -579,6 +579,9 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 @keyframes fingerTap{0%,100%{transform:translate(0,0) rotate(-12deg)} 45%{transform:translate(-4px,-9px) rotate(-12deg)} 55%{transform:translate(-4px,-9px) scale(.92) rotate(-12deg)}}
 body.photo .tapfinger{display:none}
 @media (prefers-reduced-motion: reduce){ .bb-go::after,.fl-go::after,#sGo::after,.tapfinger,.bb-steps i.cur{animation:none} }
+.fl-go[hidden],.bb-go[hidden]{display:none}   /* the button layout must not override hidden */
+.p-or{align-self:center; color:var(--muted); font-size:.8rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:-.2rem 0}
+.p-or[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -688,7 +691,8 @@ body.photo .tapfinger{display:none}
       <button id="pCamCard" class="camcard" type="button"><span id="pCamName"></span><span class="chg">Change ›</span></button>
       <div class="ckhead"><span id="ckCount"></span><div class="ckbar"><i id="ckFill"></i></div></div>
       <ol id="checklist" class="checklist"></ol>
-      <button id="pAddCam" class="addcam" type="button">+ Add camera</button>
+      <button id="pAddCam" class="addcam" type="button">+ Add another camera</button>
+      <div id="pOr" class="p-or" hidden>or</div>
       <button id="sheetGo" class="fl-go" type="button" hidden></button>
       <div id="photoRow" class="photorow" hidden><img id="photoThumb" alt="Photo of the camera back"><span>Camera-back photo saved</span><button id="photoRetake" class="addbtn" type="button">Retake</button><button id="photoDel" class="addbtn del" type="button">Delete</button></div>
       <p id="sheetNote" class="sheet-note"></p>
@@ -734,16 +738,16 @@ body.photo .tapfinger{display:none}
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tap on <span class="gk w">✎</span> and add your initials.</p><img src="guide/1.webp?v=20" alt="" loading="lazy" width="300" height="70"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>The camera check opens by itself: pick <b>Hand cam</b> or <b>LS</b>, then the brand and model.</p><img src="guide/2.webp?v=20" alt="" loading="lazy" width="362" height="374"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Check your settings: set each one on the camera, then tick it. The check can't be closed until all 4 are ticked.</p><img src="guide/3.webp?v=20" alt="" loading="lazy" width="354" height="373"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Add additional cameras if needed with <span class="gk d">+ Add camera</span>.</p><img src="guide/4.webp?v=20" alt="" loading="lazy" width="354" height="69"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Tap on <span class="gk g">📷→🕒</span> when done.</p><img src="guide/5.webp?v=20" alt="" loading="lazy" width="354" height="66"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Shoot the clock with every camera.</p><img src="guide/6.webp?v=20" alt="" loading="lazy" width="390" height="305"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=20" alt="" loading="lazy" width="390" height="626"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ Yes, in sync</span>. If not, fix the camera's clock and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=20" alt="" loading="lazy" width="390" height="526"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tap <span class="gk g">📷 Next: LS 1 ›</span> for the next camera's screen.</p><img src="guide/9.webp?v=20" alt="" loading="lazy" width="390" height="75"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tap <span class="gk g">🖼️→📨</span>, then <span class="gk g">📨</span> and pick your group chat.</p><img src="guide/10.webp?v=20" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tap on <span class="gk w">✎</span> and add your initials.</p><img src="guide/1.webp?v=21" alt="" loading="lazy" width="300" height="70"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>The camera check opens by itself: pick <b>Hand cam</b> or <b>LS</b>, then the brand and model.</p><img src="guide/2.webp?v=21" alt="" loading="lazy" width="362" height="374"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Check your settings: set each one on the camera, then tick it. The check can't be closed until all 4 are ticked.</p><img src="guide/3.webp?v=21" alt="" loading="lazy" width="354" height="373"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Add additional cameras if needed with <span class="gk d">+ Add another camera</span>.</p><img src="guide/4.webp?v=21" alt="" loading="lazy" width="354" height="69"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>When all cameras are checked, tap <span class="gk g">📷→🕒 Shoot the clock</span>.</p><img src="guide/5.webp?v=21" alt="" loading="lazy" width="354" height="73"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Shoot the clock with every camera.</p><img src="guide/6.webp?v=21" alt="" loading="lazy" width="390" height="305"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=21" alt="" loading="lazy" width="390" height="626"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ Yes, in sync</span>. If not, fix the camera's clock and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=21" alt="" loading="lazy" width="390" height="526"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tap <span class="gk g">📷 Next: LS 1 ›</span> for the next camera's screen.</p><img src="guide/9.webp?v=21" alt="" loading="lazy" width="390" height="75"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tap <span class="gk g">🖼️→📨</span>, then <span class="gk g">📨</span> and pick your group chat.</p><img src="guide/10.webp?v=21" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>Install the app</b><p>
       · <b>iPhone</b> (Safari): tap <b>Share</b> □↑ (on newer iOS it's under <b>⋯</b>), then <b>Add to Home Screen</b> → <b>Add</b>.<br>
       · <b>Android</b> (Chrome): tap <b>⋮</b> top right, then <b>Add to home screen</b> → <b>Install</b>.</p></div></li>
@@ -795,7 +799,7 @@ var DE = {
   "Hand cam": "Handkamera", "Other brand": "Andere Marke", "Other brand / not listed": "Andere Marke / nicht gelistet",
   "Pick brand or a recent camera": "Marke oder zuletzt genutzte Kamera wählen", "Pick model": "Modell wählen",
   "Tick each setting once set": "Jede Einstellung abhaken, sobald gesetzt", "Change ›": "Ändern ›",
-  "+ Add camera": "+ Kamera hinzufügen", "+ Add hand cam": "+ Handkamera hinzufügen", "+ Add LS": "+ LS hinzufügen",
+  "+ Add camera": "+ Kamera hinzufügen", "+ Add another camera": "+ Weitere Kamera hinzufügen", "or": "oder", "Continue": "Weiter", "+ Add hand cam": "+ Handkamera hinzufügen", "+ Add LS": "+ LS hinzufügen",
   "+ Hand cam": "+ Handkamera", "Camera-back photo saved": "Foto vom Kameradisplay gespeichert", "Retake": "Neu aufnehmen", "Delete": "Löschen",
   "Pick brand and model for exact settings.": "Marke und Modell wählen für die genauen Einstellungen.", "Pick brand & model": "Marke & Modell wählen",
   "Continue →": "Weiter →", "Continue: 📱→📷": "Weiter: 📱→📷", "camera check": "Kamera-Check", "Other model": "Anderes Modell", "Other camera": "Andere Kamera",
@@ -835,7 +839,7 @@ var DE_RX = [
   [/^(.+): photo of the camera's screen$/, "$1: Foto vom Kameradisplay"],
   [/^General settings for any (.+)$/, "Allgemeine Einstellungen für jede $1"], [/^Other (.+) model$/, "Anderes $1-Modell"], [/^Other (.+)$/, "Andere $1"],
   [/^(.+) · brand$/, "$1 · Marke"], [/^Add (.+)$/, "$1 hinzufügen"], [/^(.+) model$/, "$1-Modell"],
-  [/^Next: check (.+) →$/, "Weiter: $1 prüfen →"], [/^Camera check (\d)\/4$/, "Kamera-Check $1/4"], [/^Photo of (.+) screen$/, "Foto: $1-Display"], [/^Check (.+) photo$/, "$1-Foto prüfen"], [/^Next: (.+)$/, "Weiter: $1"], [/^Next camera: (.+)$/, "Nächste Kamera: $1"], [/^Delete (.+)\?$/, "$1 löschen?"],
+  [/^Next: check (.+) →$/, "Weiter: $1 prüfen →"], [/^Next: check (.+)$/, "Weiter: $1 prüfen"], [/^Camera check (\d)\/4$/, "Kamera-Check $1/4"], [/^Photo of (.+) screen$/, "Foto: $1-Display"], [/^Check (.+) photo$/, "$1-Foto prüfen"], [/^Next: (.+)$/, "Weiter: $1"], [/^Next camera: (.+)$/, "Nächste Kamera: $1"], [/^Delete (.+)\?$/, "$1 löschen?"],
   [/^Photo saved · (.+)$/, "Foto gespeichert · $1"],
   [/^(.+) (✓ in sync|✗ not in sync|no photo) · (\d+) of (\d+) cameras done$/, function(m, n, s, a, b){ return n + " " + {"✓ in sync": "✓ synchron", "✗ not in sync": "✗ nicht synchron", "no photo": "kein Foto"}[s] + " · " + a + " von " + b + " Kameras fertig"; }],
   [/^(.+)  · (\d+) of (\d+) cameras done$/, "$1 · $2 von $3 Kameras fertig"],
@@ -1674,7 +1678,7 @@ function trNode(n){
     document.getElementById("addLS").disabled = ls >= MAXN;
     document.getElementById("removeCam").hidden = false;
     tabsEl.hidden = kit.empty || kit.cams.length < 2;
-    document.getElementById("pAddCam").hidden = hc >= MAXN && ls >= MAXN;
+    document.getElementById("pAddCam").hidden = (hc >= MAXN && ls >= MAXN) || !isDone(act());   // only once this camera has all 4 ticks
   }
   function setActive(k){ kit.active = k; save(); hideNext(); refresh(); }
   function refresh(){
@@ -2956,9 +2960,13 @@ function trNode(n){
   // All 4 ticked: a big Continue button in the check takes you back into the steps (no need to untick and re-tick)
   var sheetGo = document.getElementById("sheetGo");
   function updateSheetGo(){
-    var a = act(), on = isDone(a); sheetGo.hidden = !on; sheetGo.classList.toggle("ready", on); if(!on) return;
+    var a = act(), on = isDone(a); sheetGo.hidden = !on; sheetGo.classList.toggle("ready", on);
+    // Both choices appear only once all 4 are ticked: add another camera, or carry on
+    var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length, room = hcN < MAXN || kit.cams.length - hcN < MAXN;
+    var addB = document.getElementById("pAddCam"); addB.hidden = !on || !room; document.getElementById("pOr").hidden = addB.hidden;
+    if(!on) return;
     var st = stepOf(a), u = nextUnchecked(a);
-    sheetGo.textContent = u ? "Next: check " + keyM(u) + " →" : clockQueue().length ? "📷→🕒" : st === 2 ? "Continue: 📱→📷" : "Continue →";
+    setGo(sheetGo, u ? ["📷✓", null, "Next: check " + keyM(u)] : clockQueue().length ? ["📷→🕒", null, "Shoot the clock"] : st === 2 ? ["📱→📷", null, "Continue"] : ["📷", null, "Continue"]);
   }
   // ---- The tapping finger: shown on the step button until it's first used, again each new day (new event) ----
   var finger = document.getElementById("tapFinger"), fingerOn = false, fingerRaf = 0;
@@ -3207,16 +3215,16 @@ function trNode(n){
       navigator.serviceWorker.register('./sw.js');
     }
     var GUIDE_DE = `
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=20" alt="" loading="lazy" width="300" height="70"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Der Kamera-Check öffnet sich von selbst: Wähle <b>Handkamera</b> oder <b>LS</b>, dann Marke und Modell.</p><img src="guide/de/2.webp?v=20" alt="" loading="lazy" width="362" height="374"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab. Der Check lässt sich erst schließen, wenn alle 4 abgehakt sind.</p><img src="guide/de/3.webp?v=20" alt="" loading="lazy" width="354" height="373"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=20" alt="" loading="lazy" width="354" height="69"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Tippe auf <span class="gk g">📷→🕒</span>, wenn du fertig bist.</p><img src="guide/de/5.webp?v=20" alt="" loading="lazy" width="354" height="66"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Fotografiere die Uhr mit jeder Kamera.</p><img src="guide/de/6.webp?v=20" alt="" loading="lazy" width="390" height="305"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=20" alt="" loading="lazy" width="390" height="626"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Ja, synchron</span>. Wenn nicht, stelle die Kamerauhr richtig und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=20" alt="" loading="lazy" width="390" height="526"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tippe auf <span class="gk g">📷 Weiter: LS 1 ›</span> für das Display der nächsten Kamera.</p><img src="guide/de/9.webp?v=20" alt="" loading="lazy" width="390" height="75"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tippe auf <span class="gk g">🖼️→📨</span>, dann auf <span class="gk g">📨</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=20" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=21" alt="" loading="lazy" width="300" height="70"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Der Kamera-Check öffnet sich von selbst: Wähle <b>Handkamera</b> oder <b>LS</b>, dann Marke und Modell.</p><img src="guide/de/2.webp?v=21" alt="" loading="lazy" width="362" height="374"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab. Der Check lässt sich erst schließen, wenn alle 4 abgehakt sind.</p><img src="guide/de/3.webp?v=21" alt="" loading="lazy" width="354" height="373"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Weitere Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=21" alt="" loading="lazy" width="354" height="69"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Wenn alle Kameras geprüft sind, tippe auf <span class="gk g">📷→🕒 Uhr fotografieren</span>.</p><img src="guide/de/5.webp?v=21" alt="" loading="lazy" width="354" height="73"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Fotografiere die Uhr mit jeder Kamera.</p><img src="guide/de/6.webp?v=21" alt="" loading="lazy" width="390" height="305"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=21" alt="" loading="lazy" width="390" height="626"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Ja, synchron</span>. Wenn nicht, stelle die Kamerauhr richtig und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=21" alt="" loading="lazy" width="390" height="526"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Tippe auf <span class="gk g">📷 Weiter: LS 1 ›</span> für das Display der nächsten Kamera.</p><img src="guide/de/9.webp?v=21" alt="" loading="lazy" width="390" height="75"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Tippe auf <span class="gk g">🖼️→📨</span>, dann auf <span class="gk g">📨</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=21" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>App installieren</b><p>
       · <b>iPhone</b> (Safari): Tippe auf <b>Teilen</b> □↑ (bei neuerem iOS unter <b>⋯</b>), dann <b>Zum Home-Bildschirm</b> → <b>Hinzufügen</b>.<br>
       · <b>Android</b> (Chrome): Tippe oben rechts auf <b>⋮</b>, dann <b>Zum Startbildschirm hinzufügen</b> → <b>Installieren</b>.</p></div></li>
