@@ -97,7 +97,7 @@ footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 /* Photo mode: tap the clock to hide everything else */
 main{cursor:pointer}
 .taphint{font-size:.72rem; color:var(--muted); opacity:.55; text-align:center; margin:-.15rem 0 0; white-space:nowrap}
-.showhint{display:none; position:fixed; left:0; right:0; bottom:max(14px,env(safe-area-inset-bottom,0px)); font-size:.72rem; color:var(--muted); opacity:.45; text-align:center; pointer-events:none}
+.showhint{position:fixed; left:0; right:0; bottom:max(14px,env(safe-area-inset-bottom,0px)); font-size:.72rem; color:var(--muted); opacity:0; visibility:hidden; transform:translateY(24px); text-align:center; pointer-events:none; transition:opacity .22s ease, transform .26s ease, visibility 0s .26s}
 body.photo footer, body.photo .taphint, body.photo .rotbtn, body.photo .visits{display:none}
 /* Small visit counter, top-left corner */
 .visits{position:fixed; z-index:5; top:max(14px,env(safe-area-inset-top,0px)); left:max(14px,env(safe-area-inset-left,0px));
@@ -110,7 +110,7 @@ body.photo footer, body.photo .taphint, body.photo .rotbtn, body.photo .visits{d
 .rotbtn svg{width:1.6rem; height:1.6rem; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round}
 .rotbtn[aria-pressed="true"]{color:var(--fg); border-color:var(--fg)}
 .rotbtn:focus-visible{outline:2px solid var(--fg); outline-offset:2px}
-body.photo .showhint{display:block}
+body.photo .showhint{opacity:.45; visibility:visible; transform:none; transition:opacity .35s ease .05s, transform .45s var(--spring) .05s, visibility 0s}   /* slides up into place; slides back down when the menu returns */
 #status{display:flex; flex-direction:column; gap:.15rem; min-width:0}
 #syncText{color:var(--muted)}
 .ok #syncText{color:var(--ok)}
@@ -612,19 +612,20 @@ body.ctl-out .rotbtn,body.ctl-out .visits,body.ctl-in .rotbtn,body.ctl-in .visit
 body.ctl-out .tapfinger{opacity:0}
 .bubble.dragging{transition:none}
 body.ctl-in footer,body.ctl-in .taphint,body.ctl-in .bubble,body.ctl-in .rotbtn,body.ctl-in .visits{transition:none}
-body.photo .showhint{animation:fadeIn .4s ease}
 @keyframes fadeIn{from{opacity:0}}
 html.land.hasbox .bubspace{height:calc(5.4rem + 8px)}   /* landscape: room for the step bars and the taller button above the text */
 /* While a finger drags the buttons, they follow it exactly */
 body.cdrag footer,body.cdrag .taphint,body.cdrag .bubble{transition:none!important; transform:translateY(var(--cy,0px)); opacity:var(--co,1)}
 body.cdrag .rotbtn,body.cdrag .visits{transition:none!important; transform:translateY(calc(var(--cy,0px) * -.6)); opacity:var(--co,1)}
-body.cdrag .showhint{display:none}
 body.cdrag .bubble,body.cdrag .tapfinger{animation:none!important}
 body.cdrag .bb-steps i.cur{animation:none}
 body.cdrag.cfly footer,body.cdrag.cfly .taphint,body.cdrag.cfly .bubble,body.cdrag.csnap footer,body.cdrag.csnap .taphint,body.cdrag.csnap .bubble,
 body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits,body.cdrag.csnap .rotbtn,body.cdrag.csnap .visits{transition:transform .26s ease, opacity .26s ease!important}
 body.cdrag.cfly footer,body.cdrag.cfly .taphint,body.cdrag.cfly .bubble{transform:translateY(calc(var(--cy,0px) + 90px)); opacity:0}
-body .taphint{transform:none!important}   /* under the clock: it only fades, it doesn't slide with the buttons */
+/* Under the clock: the hint slides a short way down as it goes and back up into place as it returns */
+body.ctl-out .taphint,body.ctl-in .taphint{transform:translateY(20px)}
+body.cdrag .taphint{transform:translateY(calc(var(--cy,0px) * .12))!important}
+body.cdrag.cfly .taphint{transform:translateY(20px)!important}
 body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(--cy,0px) + 90px) * -.6)); opacity:0}
 /* ‹ Back: a small round button just to the left of the bubble (the + sits on the right) */
 .bb-back{position:absolute; right:calc(100% + .45rem); top:50%; transform:translateY(-50%); width:2.4rem; height:2.4rem; padding:0; border-radius:50%; background:#1d252a; border:2px solid #3a444b; color:var(--fg); cursor:pointer}
