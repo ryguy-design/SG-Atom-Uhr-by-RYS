@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027151758">
+<meta name="app-ver" content="20261027152139">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -485,7 +485,8 @@ html.rot body{position:fixed; top:0; left:0; width:var(--rw); height:var(--rh); 
 .nextbar[data-stage="0"]{visibility:hidden; opacity:0; pointer-events:none}
 .nextbar{transition:height .45s var(--spring), opacity .25s var(--ease), visibility .25s}
 .bubble{position:fixed; z-index:9; left:0; top:0; display:flex; align-items:center; max-width:calc(100% - 24px); border-radius:999px; background:var(--ok); color:#06210e;
-  box-shadow:0 10px 28px rgba(0,0,0,.55), 0 0 0 4px rgba(46,204,90,.18); touch-action:none; -webkit-user-select:none; user-select:none; animation:panelIn .45s var(--spring)}
+  box-shadow:0 10px 28px rgba(0,0,0,.55), 0 0 0 4px rgba(46,204,90,.18); touch-action:none; -webkit-user-select:none; user-select:none}
+.bubble.enter{animation:panelIn .45s var(--spring)}   /* only when it first appears, never when the buttons slide back */
 .bubble[hidden]{display:none}
 .bubble.dragging{box-shadow:0 16px 36px rgba(0,0,0,.6), 0 0 0 6px rgba(46,204,90,.25)}
 .bb-go{min-width:0; font:inherit; font-size:1rem; font-weight:800; color:inherit; background:none; border:0; padding:1.05rem 1.5rem .85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer}
@@ -616,6 +617,8 @@ html.land.hasbox .bubspace{height:calc(5.4rem + 8px)}   /* landscape: room for t
 body.cdrag footer,body.cdrag .taphint,body.cdrag .bubble{transition:none!important; transform:translateY(var(--cy,0px)); opacity:var(--co,1)}
 body.cdrag .rotbtn,body.cdrag .visits{transition:none!important; transform:translateY(calc(var(--cy,0px) * -.6)); opacity:var(--co,1)}
 body.cdrag .showhint{display:none}
+body.cdrag .bubble,body.cdrag .tapfinger{animation:none!important}
+body.cdrag .bb-steps i.cur{animation:none}
 body.cdrag.cfly footer,body.cdrag.cfly .taphint,body.cdrag.cfly .bubble,body.cdrag.csnap footer,body.cdrag.csnap .taphint,body.cdrag.csnap .bubble,
 body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits,body.cdrag.csnap .rotbtn,body.cdrag.csnap .visits{transition:transform .26s ease, opacity .26s ease!important}
 body.cdrag.cfly footer,body.cdrag.cfly .taphint,body.cdrag.cfly .bubble{transform:translateY(calc(var(--cy,0px) + 90px)); opacity:0}
@@ -2019,7 +2022,7 @@ function trNode(n){
     [].forEach.call(document.querySelectorAll("#bbSteps i"), function(el, i){ el.className = i < goStage ? "on" : i === goStage ? "cur" : ""; });
     document.getElementById("bbAdd").hidden = !bbRoom;
     if(bubble.hidden === !show){ if(show) rePlace(); return; }   // re-centre: label or + may have changed
-    if(show){ bubble.style.visibility = "hidden"; bubble.hidden = false; placeBubble(); bubble.style.visibility = ""; rePlace(); } else bubble.hidden = true;   // placed before it's seen
+    if(show){ bubble.style.visibility = "hidden"; bubble.hidden = false; placeBubble(); bubble.style.visibility = ""; bubble.classList.add("enter"); setTimeout(function(){ bubble.classList.remove("enter"); }, 500); rePlace(); } else bubble.hidden = true;   // placed before it's seen
   }
   window.addEventListener("resize", function(){ setTimeout(placeBubble, 60); });
   // Place it again once the screen has settled (pop-ups sliding away, the footer text changing), so it never
@@ -3272,7 +3275,7 @@ function trNode(n){
         if(Math.abs(dx) > Math.abs(d)){ on = false; return; }
         var photo = b.classList.contains("photo");
         if(!photo && d > 0) mode = "hide";
-        else if(photo && d < 0){ mode = "show"; var u0 = clockU(); b.classList.add("cdrag"); set(SHOW, 0); b.classList.remove("photo"); fit(); growClock(u0); if(typeof rePlace === "function") rePlace(); }
+        else if(photo && d < 0){ mode = "show"; var u0 = clockU(); b.classList.add("cdrag"); set(SHOW, 0); b.classList.remove("photo"); fit(); placeBubble(); growClock(u0); }
         else { on = false; return; }
         b.classList.add("cdrag");
       }
