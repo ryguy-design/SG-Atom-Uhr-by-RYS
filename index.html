@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027220232">
+<meta name="app-ver" content="20261027220859">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -187,6 +187,7 @@ html.land:not(.rot) .g-body img{width:min(100%, 11rem)}
 .recent button.cur{background:var(--fg); color:var(--bg); border-color:var(--fg)}
 /* ---- Camera popup: tap-only, three screens ---- */
 .sheet{align-items:center; padding:max(10px,env(safe-area-inset-top,0px)) 10px max(10px,env(safe-area-inset-bottom,0px))}
+.sheet{padding-bottom:calc(max(10px,env(safe-area-inset-bottom,0px)) + 44px)}   /* room for the EN/DE switch below */
 .sheet-panel.pop{border-radius:22px; max-height:100%; height:min(100%, 46rem); max-width:30rem; padding:.9rem 1rem 1.1rem; gap:.75rem; display:flex; flex-direction:column; overflow:hidden;
   box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px #262f35; position:relative}
 .pop-head{display:flex; align-items:center; gap:.6rem; touch-action:none}
@@ -550,6 +551,8 @@ html:not(.land) .taphint{transform:translateY(calc(-1 * var(--boxh, 0px))); tran
 .langsw span{position:relative; z-index:1; padding:.32rem .5rem; color:var(--muted); transition:color .25s}
 .langsw i{position:absolute; top:2px; bottom:2px; left:2px; width:calc(50% - 2px); border-radius:999px; background:var(--fg); transition:transform .3s var(--spring)}
 .langsw.de i{transform:translateX(100%)}
+/* EN/DE stays tappable above the compulsory windows (camera check, How it works) */
+body:has(#sheet:not([hidden]), #intro:not([hidden])):not(:has(#cam:not([hidden]), #viewer:not([hidden]), #sendView:not([hidden]), #guide:not([hidden]))) .controls button.langsw{z-index:45}
 .langsw:not(.de) span:first-of-type, .langsw.de span:last-of-type{color:var(--bg)}
 /* Trying to close the camera check before it's finished: a short shake and a note */
 .plock{position:absolute; left:1rem; right:1rem; bottom:1rem; z-index:5; box-shadow:0 8px 24px rgba(0,0,0,.5); padding:.6rem .8rem; border-radius:12px; background:#3a1215; color:#ffb4b8; font-weight:700; text-align:center}
@@ -3275,7 +3278,7 @@ function trNode(n){
   twoTap(document.getElementById("clearMain"), "Reset app", "Sure? Resets everything", resetApp);
   // Reset the whole app to a fresh start: no cameras, no initials, no ticks or photos, location off, not rotated
   function resetApp(){
-    try{ ["acCam","acModel","acRecent","acTicks","acKit","acEvent","acLoc","acRot","acBub"].forEach(function(k){ localStorage.removeItem(k); }); }catch(e){}
+    try{ ["acCam","acModel","acRecent","acTicks","acKit","acEvent","acLoc","acRot","acBub","acIntro","acFinger"].forEach(function(k){ localStorage.removeItem(k); }); }catch(e){}
     camInit.value = ""; closeTypeSwitch(); kit = defaultKit(); ev = {day: today(), ticks: {}, id: String(Date.now())}; recent = []; dbClear();
     shotClock = {}; skipped = {}; at = {};
     save(); hideNext(); refresh();
