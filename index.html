@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027142234">
+<meta name="app-ver" content="20261027142743">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -592,6 +592,16 @@ body.photo .tapfinger{display:none}
 #sGo .ga{flex-shrink:0; position:relative; width:2rem; height:2rem; border-radius:50%; background:#06210e}
 #sGo .ga::after{content:""; position:absolute; left:50%; top:50%; width:.5rem; height:.5rem; border:solid var(--ok); border-width:.19rem .19rem 0 0; transform:translate(-65%,-50%) rotate(45deg)}
 #sGo:disabled .ga{display:none}
+/* Rotate button: every few seconds the phone tips sideways and back, and the arrows sweep round */
+.rotbtn svg rect,.rotbtn svg line{transform-box:view-box; transform-origin:12px 12px; animation:rotPhone 6s ease-in-out infinite}
+.rotbtn svg path{transform-box:view-box; transform-origin:12px 12px; animation:rotArrows 6s ease-in-out infinite}
+@keyframes rotPhone{0%,70%{transform:rotate(0)} 80%,88%{transform:rotate(90deg)} 98%,100%{transform:rotate(0)}}
+@keyframes rotArrows{0%,68%{transform:rotate(0)} 86%{transform:rotate(180deg)} 100%{transform:rotate(180deg)}}
+.rotbtn{transition:transform .2s, border-color .3s, box-shadow .3s}
+.rotbtn:active{transform:scale(.92)}
+.rotbtn.spin svg{animation:rotTap .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes rotTap{from{transform:rotate(-90deg)}}
+@media (prefers-reduced-motion: reduce){ .rotbtn svg rect,.rotbtn svg line,.rotbtn svg path{animation:none} }
 </style>
 </head>
 <body>
@@ -1044,13 +1054,13 @@ function trNode(n){
 
   // Scale everything so the display fills the screen (width or height, whichever runs out first)
   // Effective screen size: swapped when the Rotate button has turned the app
-  var rotated = false;
+  var rotated = false, typingUpright = false;
   try{ rotated = localStorage.getItem("acRot") === "1"; }catch(e){}
   function layout(){
     var html = document.documentElement, W = window.innerWidth, H = window.innerHeight;
     // The keyboard and dropdown menus belong to the phone and can't be turned,
     // so the camera check sheet always opens upright; rotation comes back when it closes
-    var rot = rotated;   // every screen follows the sideways view
+    var rot = rotated && !typingUpright;   // every screen follows the sideways view, except while typing (the phone's keyboard can't turn)
     html.classList.toggle("rot", rot);
     html.style.setProperty("--rw", H + "px"); html.style.setProperty("--rh", W + "px");
     var w = rot ? H : W, h = rot ? W : H;
@@ -1212,7 +1222,9 @@ function trNode(n){
     fit();
   }
   var iniBefore = "", pendingAdd = null, iniDone = false;
-  camInit.addEventListener("focus", function(){ iniBefore = camInit.value; iniDone = false; closeTypeSwitch(); });
+  camInit.addEventListener("focus", function(){ iniBefore = camInit.value; iniDone = false; closeTypeSwitch(); if(rotated){ typingUpright = true; fit(); } });
+  // Sideways view: the app stands upright while the keyboard is open, so you type the right way round, then turns back
+  camInit.addEventListener("blur", function(){ if(typingUpright){ typingUpright = false; setTimeout(fit, 60); } });
   // Initials: letters only (A–Z), no spaces, digits or symbols, max 6. Keyboards that add an automatic space
   // (or a suggestion) mid-word are not allowed to rewrite the field while they're still composing, so the
   // last letter is never lost; the clean-up happens once the keyboard lets go of the word.
@@ -3210,7 +3222,7 @@ function trNode(n){
     try{ localStorage.setItem("acRot", on ? "1" : "0"); }catch(e){}
     fit();
   }
-  rotBtn.addEventListener("click", function(){ setRot(!rotated); });
+  rotBtn.addEventListener("click", function(){ rotBtn.classList.remove("spin"); void rotBtn.offsetWidth; rotBtn.classList.add("spin"); setRot(!rotated); });
   // Phone turned to landscape by itself (auto-rotate): switch the button off so the two don't add up.
   // Uses the screen's orientation, not the window size, so the keyboard opening can't trigger it.
   function phoneLandscape(){
