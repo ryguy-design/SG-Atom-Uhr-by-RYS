@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027134235">
+<meta name="app-ver" content="20261027135205">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -1636,6 +1636,7 @@ function trNode(n){
   function isDone(c){ return countOf(c) === 4; }
   function save(){
     try{
+      if(typeof shotClock === "object" && ev){ ev.shot = shotClock; ev.skip = skipped; }   // which cameras shot the clock survives a reload (phones often reload the app after the camera)
       localStorage.setItem("acKit", JSON.stringify(kit));
       localStorage.setItem("acEvent", JSON.stringify(ev));
       localStorage.setItem("acRecent", JSON.stringify(recent));
@@ -1892,7 +1893,7 @@ function trNode(n){
     return null;
   }
   // ---- The step panel: 1 shoot the clock · 2 photo of the camera screen · 3 check · then next camera / send ----
-  var nextTarget = null, bannerCam = null, bannerWasUp = false, shotClock = {}, skipped = {};
+  var nextTarget = null, bannerCam = null, bannerWasUp = false, shotClock = (ev && ev.shot) || {}, skipped = (ev && ev.skip) || {};
   var photoIn = document.getElementById("photoIn"), sendBtn = document.getElementById("sendPhotos");
   var flSteps = document.getElementById("flSteps").children, flKick = document.getElementById("flKick"), flHead = document.getElementById("flHead"), flSub = document.getElementById("flSub");
   var flThumb = document.getElementById("flThumb"), flGo = document.getElementById("flGo"), flL = document.getElementById("flL"), flR = document.getElementById("flR"), flThumbUrl = null;
@@ -2124,7 +2125,7 @@ function trNode(n){
   }
   // 📷→🕒: every checked camera shoots the clock now; the bubble goes straight to 📱→📷 for the first one
   function shootClocks(){
-    clockQueue().forEach(function(c){ var pk = photoKey(c); shotClock[pk] = true; delete at[pk]; });
+    clockQueue().forEach(function(c){ var pk = photoKey(c); shotClock[pk] = true; delete at[pk]; }); save();
     var sc = kit.cams.filter(function(c){ return isDone(c) && stepOf(c) === 2; })[0];
     if(sc && kit.active !== key(sc)){ kit.active = key(sc); save(); }
     updateCam();
@@ -2162,7 +2163,7 @@ function trNode(n){
         panel({step: 1, kick: name + " · step 2", head: "Camera screen photo", sub: "",
           go: ["📱→📷", function(){ bannerCam = a; takePhoto(); }, "Photo of " + (modelTag(a) || key(a)) + " screen"], stage: 2,
           l: ["← Back", function(){ go(a, 1); }],
-          r: ["Skip →", function(){ skipped[k] = true; go(a, 4); }]});
+          r: ["Skip →", function(){ skipped[k] = true; save(); go(a, 4); }]});
       }
       return;
     }
