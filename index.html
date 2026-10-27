@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261027135714">
+<meta name="app-ver" content="20261027141027">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -583,6 +583,10 @@ body.photo .tapfinger{display:none}
 .p-or{align-self:center; color:var(--muted); font-size:.8rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:-.2rem 0}
 .p-or[hidden]{display:none}
 .g-ver{list-style:none; text-align:center; color:var(--muted); font-size:.75rem; opacity:.7; padding:.5rem 0 0}
+/* New camera: Hand cam / LS must be picked first; the brands wait, dimmed */
+.pop.needtype #pBrands,.pop.needtype #recent,.pop.needtype #recentLabel{opacity:.35}
+.pop.needtype #pType button{border-color:var(--ok)}
+#pType.shake{animation:popShake .38s ease}
 </style>
 </head>
 <body>
@@ -739,16 +743,16 @@ body.photo .tapfinger{display:none}
 <div id="guide" class="viewer guide" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="view-top g-top"><b id="gTitle">How to use</b><button id="gClose" class="g-close" type="button" aria-label="Close the guide">✕</button></div>
   <ol class="g-list">
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tap on <span class="gk w">✎</span> and add your initials.</p><img src="guide/1.webp?v=25" alt="" loading="lazy" width="300" height="70"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>The camera check opens by itself: pick <b>Hand cam</b> or <b>LS</b>, then the brand and model.</p><img src="guide/2.webp?v=25" alt="" loading="lazy" width="362" height="374"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Check your settings: set each one on the camera, then tick it. The check can't be closed until all 4 are ticked.</p><img src="guide/3.webp?v=25" alt="" loading="lazy" width="354" height="373"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Add additional cameras if needed with <span class="gk d">+ Add another camera</span>.</p><img src="guide/4.webp?v=25" alt="" loading="lazy" width="354" height="69"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>When all cameras are checked, tap <span class="gk g">📷→🕒 Shoot the clock</span>.</p><img src="guide/5.webp?v=25" alt="" loading="lazy" width="354" height="73"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Shoot the clock with every camera.</p><img src="guide/6.webp?v=25" alt="" loading="lazy" width="390" height="305"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=25" alt="" loading="lazy" width="390" height="626"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ In sync · next</span>. If not, fix the camera's clock, shoot the clock again and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=25" alt="" loading="lazy" width="390" height="533"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>The phone camera opens straight away for the next camera's screen. Repeat for every camera.</p><img src="guide/9.webp?v=25" alt="" loading="lazy" width="390" height="520"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>After the last camera, <span class="gk g">✓ In sync · send photos</span> opens the send list: tap <span class="gk g">📨</span> and pick your group chat.</p><img src="guide/10.webp?v=25" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tap on <span class="gk w">✎</span> and add your initials.</p><img src="guide/1.webp?v=26" alt="" loading="lazy" width="300" height="70"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>The camera check opens by itself: pick <b>Hand cam</b> or <b>LS</b>, then the brand and model.</p><img src="guide/2.webp?v=26" alt="" loading="lazy" width="362" height="374"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Check your settings: set each one on the camera, then tick it. The check can't be closed until all 4 are ticked.</p><img src="guide/3.webp?v=26" alt="" loading="lazy" width="354" height="373"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Add additional cameras if needed with <span class="gk d">+ Add another camera</span>.</p><img src="guide/4.webp?v=26" alt="" loading="lazy" width="354" height="69"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>When all cameras are checked, tap <span class="gk g">📷→🕒 Shoot the clock</span>.</p><img src="guide/5.webp?v=26" alt="" loading="lazy" width="354" height="73"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Shoot the clock with every camera.</p><img src="guide/6.webp?v=26" alt="" loading="lazy" width="390" height="305"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=26" alt="" loading="lazy" width="390" height="626"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ In sync · next</span>. If not, fix the camera's clock, shoot the clock again and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=26" alt="" loading="lazy" width="390" height="533"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>The phone camera opens straight away for the next camera's screen. Repeat for every camera.</p><img src="guide/9.webp?v=26" alt="" loading="lazy" width="390" height="520"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>After the last camera, <span class="gk g">✓ In sync · send photos</span> opens the send list: tap <span class="gk g">📨</span> and pick your group chat.</p><img src="guide/10.webp?v=26" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>Install the app</b><p>
       · <b>iPhone</b> (Safari): tap <b>Share</b> □↑ (on newer iOS it's under <b>⋯</b>), then <b>Add to Home Screen</b> → <b>Add</b>.<br>
       · <b>Android</b> (Chrome): tap <b>⋮</b> top right, then <b>Add to home screen</b> → <b>Install</b>.</p></div></li>
@@ -794,7 +798,7 @@ var DE = {
   "Open the camera box": "Kamerabox öffnen", "Tap or slide down to put the camera box away": "Tippen oder nach unten wischen, um die Kamerabox zu schließen",
   "Slide down to close": "Zum Schließen nach unten wischen", "Back": "Zurück", "Camera type": "Kameratyp", "My cameras": "Meine Kameras",
   "Recently used cameras": "Zuletzt verwendete Kameras", "Photo of the camera back": "Foto vom Kameradisplay", "Take photo": "Foto aufnehmen",
-  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Shoot the clock": "Uhr fotografieren", "In sync · send photos": "Synchron · Fotos senden", "Clock shot": "Uhr fotografiert", "Send photos": "Fotos senden", "Get missing photo": "Fehlendes Foto holen", "Get missing photos": "Fehlende Fotos holen", "Finish the camera check first": "Erst den Kamera-Check abschließen", "Copy link": "Link kopieren",
+  "Camera-back photo": "Foto vom Kameradisplay", "Close the guide": "Anleitung schließen", "Shoot the clock": "Uhr fotografieren", "In sync · send photos": "Synchron · Fotos senden", "Clock shot": "Uhr fotografiert", "Send photos": "Fotos senden", "Get missing photo": "Fehlendes Foto holen", "Get missing photos": "Fehlende Fotos holen", "Finish the camera check first": "Erst den Kamera-Check abschließen", "First pick Hand cam or LS": "Zuerst Handkamera oder LS wählen", "Add camera": "Kamera hinzufügen", "Copy link": "Link kopieren",
   // camera check
   "Brand": "Marke", "Model": "Modell", "Check": "Prüfen", "Brand…": "Marke…", "Model…": "Modell…", "Quick pick": "Schnellwahl",
   "Hand cam": "Handkamera", "Other brand": "Andere Marke", "Other brand / not listed": "Andere Marke / nicht gelistet",
@@ -1675,8 +1679,8 @@ function trNode(n){
       if(!addOpen){
         stripEl.appendChild(addChip("+ 📷", "plus", function(){ var hcN = kit.empty ? 0 : kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length; addFirst(hcN < MAXN ? "HAND CAM" : "LS"); }));
       } else {
-        stripEl.appendChild(addChip("+ Hand cam", "plusopt", function(){ addOpen = false; addFirst("HAND CAM"); }, hc >= MAXN));
-        stripEl.appendChild(addChip("+ LS", "plusopt", function(){ addOpen = false; addFirst("LS"); }, ls >= MAXN));
+        stripEl.appendChild(addChip("+ Hand cam", "plusopt", function(){ addOpen = false; addFirst("HAND CAM", true); }, hc >= MAXN));
+        stripEl.appendChild(addChip("+ LS", "plusopt", function(){ addOpen = false; addFirst("LS", true); }, ls >= MAXN));
         stripEl.appendChild(addChip("✕", "plus", function(){ addOpen = false; renderStrips(); }));
       }
     }
@@ -1719,7 +1723,7 @@ function trNode(n){
     recent.forEach(function(r){
       var bt = document.createElement("button"); bt.type = "button"; bt.textContent = r.b === "Other" ? "Other camera" : r.b + " " + shortName(r.m);
       if(r.b === a.b && r.m === a.m) bt.className = "cur";
-      bt.addEventListener("click", function(){ buzz(); choose(r.b, r.m); goScreen("checks"); });
+      bt.addEventListener("click", function(){ if(act().pick){ needType(); return; } buzz(); choose(r.b, r.m); goScreen("checks"); });
       recentEl.appendChild(bt);
     });
   }
@@ -1764,11 +1768,12 @@ function trNode(n){
   function renderPop(){
     var a = act(), sc = pop.dataset.screen;
     document.getElementById("pBack").hidden = sc === "brand";
-    document.getElementById("sheetTitle").textContent = sc === "brand" ? (a.b ? key(a) + " · brand" : "Add " + key(a)) : sc === "model" ? (a.b || "") + " model" : key(a);
-    document.getElementById("pSub").textContent = sc === "brand" ? "Pick brand or a recent camera" : sc === "model" ? "Pick model" : "Tick each setting once set";
+    pop.classList.toggle("needtype", !!a.pick && sc === "brand");
+    document.getElementById("sheetTitle").textContent = sc === "brand" ? (a.pick ? "Add camera" : a.b ? key(a) + " · brand" : "Add " + key(a)) : sc === "model" ? (a.b || "") + " model" : key(a);
+    document.getElementById("pSub").textContent = sc === "brand" ? (a.pick ? "First pick Hand cam or LS" : "Pick brand or a recent camera") : sc === "model" ? "Pick model" : "Tick each setting once set";
     // type switch only while the camera isn't set up yet
     var pType = document.getElementById("pType"); pType.hidden = !!(a.b && findCam(a.b, a.m));
-    [].forEach.call(pType.children, function(bt){ bt.classList.toggle("on", bt.dataset.t === a.type); });
+    [].forEach.call(pType.children, function(bt){ bt.classList.toggle("on", !a.pick && bt.dataset.t === a.type); });
     document.getElementById("recentLabel").hidden = !recent.length;
     // brand tiles
     pBrands.textContent = "";
@@ -1776,6 +1781,7 @@ function trNode(n){
       var t = document.createElement("button"); t.type = "button"; t.className = "tile" + (b === "Other" ? " other" : "") + (a.b === b ? " sel" : "");
       t.innerHTML = "<b></b>"; t.firstChild.textContent = b === "Other" ? "Other brand / not listed" : b;
       t.addEventListener("click", function(){
+        if(act().pick){ needType(); return; }
         buzz();
         if(b === "Other"){ choose("Other", OTHER); goScreen("checks"); return; }
         if(a.b !== b) choose(b, "");
@@ -1818,12 +1824,13 @@ function trNode(n){
   document.getElementById("pCamCard").addEventListener("click", function(){ var a = act(); goScreen(a.b && a.b !== "Other" ? "model" : "brand", true); });
   [].forEach.call(document.getElementById("pType").children, function(bt){
     bt.addEventListener("click", function(){
-      var a = act(), t = bt.dataset.t; if(a.type === t) return; buzz();
+      var a = act(), t = bt.dataset.t; if(a.type === t && !a.pick) return; buzz();
+      if(a.type === t){ delete a.pick; save(); refresh(); renderPop(); return; }
       // switch a not-yet-set-up camera between Hand cam and LS (takes the next free number)
       var used = kit.cams.filter(function(c){ return c !== a && c.type === t; }).map(function(c){ return c.n; });
       for(var n = 1; n <= MAXN; n++) if(used.indexOf(n) < 0) break;
       if(n > MAXN) return;
-      var oldK = photoKey(a); a.type = t; a.n = n; syncEvent(); delete ev.ticks[oldK];
+      var oldK = photoKey(a); a.type = t; a.n = n; delete a.pick; syncEvent(); delete ev.ticks[oldK];
       sortKit(); kit.active = key(a); save(); refresh(); renderPop();
     });
   });
@@ -1839,16 +1846,16 @@ function trNode(n){
     var u = kit.cams.filter(function(c){ return !isDone(c); })[0]; if(u && !isDone(act())) setActive(key(u));
     openSheet();
   }
-  function addFirst(type){ if(!camInit.value){ askInitials(type); return; } addCam(type); openSheet(); }   // initials first, typed into the white box
+  function addFirst(type, chosen){ if(!camInit.value){ askInitials(type); return; } addCam(type, chosen); openSheet(); }   // initials first, typed into the white box
   var addedFrom = null, addedKey = null, addedInSheet = false;
-  function addCam(type){
-    if(kit.empty){ var c0 = kit.cams[0]; c0.type = type; c0.n = 1; c0.b = ""; c0.m = ""; kit.empty = false; kit.active = key(c0); save(); refresh(); return; }
+  function addCam(type, chosen){   // chosen: Hand cam / LS was picked on purpose; otherwise it must be picked in the check
+    if(kit.empty){ var c0 = kit.cams[0]; c0.type = type; c0.n = 1; c0.b = ""; c0.m = ""; c0.pick = !chosen; kit.empty = false; kit.active = key(c0); save(); refresh(); return; }
     var used = kit.cams.filter(function(c){ return c.type === type; }).map(function(c){ return c.n; });
     for(var n = 1; n <= MAXN; n++) if(used.indexOf(n) < 0) break;
     if(n > MAXN) return;
     addedFrom = kit.active;   // slide the new camera's check down to drop it and go back to this one
     addedInSheet = !sheet.hidden;   // added from the clock screen (bubble +): sliding down goes back to the clock
-    var c = {type:type, n:n, b:"", m:""}; kit.cams.push(c); sortKit(); kit.active = key(c); addedKey = key(c); save(); refresh();
+    var c = {type:type, n:n, b:"", m:"", pick: !chosen}; kit.cams.push(c); sortKit(); kit.active = key(c); addedKey = key(c); save(); refresh();
   }
   document.getElementById("addHC").addEventListener("click", function(){ addCam("HAND CAM"); });
   document.getElementById("addLS").addEventListener("click", function(){ addCam("LS"); });
@@ -2087,8 +2094,8 @@ function trNode(n){
     if(flAdd){
       // + tapped: the row shows the choices instead of the cameras (✕ to back out)
       box.textContent = "";
-      box.appendChild(addChip("+ Hand cam", "plusopt", function(){ flAdd = false; hideNext(); addFirst("HAND CAM"); }, hc >= MAXN));
-      box.appendChild(addChip("+ LS", "plusopt", function(){ flAdd = false; hideNext(); addFirst("LS"); }, ls >= MAXN));
+      box.appendChild(addChip("+ Hand cam", "plusopt", function(){ flAdd = false; hideNext(); addFirst("HAND CAM", true); }, hc >= MAXN));
+      box.appendChild(addChip("+ LS", "plusopt", function(){ flAdd = false; hideNext(); addFirst("LS", true); }, ls >= MAXN));
       box.appendChild(addChip("✕", "plus", function(){ flAdd = false; renderFlCams(); }));
       return;
     }
@@ -2096,8 +2103,8 @@ function trNode(n){
   }
   var flAdd = false;
   document.getElementById("flGoAdd").addEventListener("click", function(){ var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length; addFirst(hcN < MAXN ? "HAND CAM" : "LS"); });
-  document.getElementById("flAddHC").addEventListener("click", function(){ hideNext(); addFirst("HAND CAM"); });
-  document.getElementById("flAddLS").addEventListener("click", function(){ hideNext(); addFirst("LS"); });
+  document.getElementById("flAddHC").addEventListener("click", function(){ hideNext(); addFirst("HAND CAM", true); });
+  document.getElementById("flAddLS").addEventListener("click", function(){ hideNext(); addFirst("LS", true); });
   document.getElementById("flPlus").addEventListener("click", function(){ flAdd = true; renderFlCams(); });
   flThumb.addEventListener("click", function(){ if(bannerCam) viewSaved(bannerCam, "saved"); });
   // Slide the panel away (then hide it)
@@ -2960,6 +2967,12 @@ function trNode(n){
   // The camera check is required: once initials are in, it can't be put away until a camera has all 4 ticks
   function checkLocked(){ return !!camInit.value && !(hasCams() && isDone(act())); }
   var nudgeT = 0;
+  // Brand tapped before Hand cam / LS: the two type buttons shake and a note says why
+  function needType(){
+    var m = document.getElementById("pLock"), pt = document.getElementById("pType"); m.textContent = T("First pick Hand cam or LS"); m.hidden = false;
+    pt.classList.remove("shake"); void pt.offsetWidth; pt.classList.add("shake"); try{ if(navigator.vibrate) navigator.vibrate([18, 40, 18]); }catch(e){}
+    clearTimeout(nudgeT); nudgeT = setTimeout(function(){ m.hidden = true; }, 2600);
+  }
   function nudge(){
     var m = document.getElementById("pLock"); m.textContent = T("Finish the camera check first"); m.hidden = false;
     pop.classList.remove("shake"); void pop.offsetWidth; pop.classList.add("shake"); try{ if(navigator.vibrate) navigator.vibrate([18, 40, 18]); }catch(e){}
@@ -3230,16 +3243,16 @@ function trNode(n){
       navigator.serviceWorker.register('./sw.js');
     }
     var GUIDE_DE = `
-    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=25" alt="" loading="lazy" width="300" height="70"></div></li>
-    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Der Kamera-Check öffnet sich von selbst: Wähle <b>Handkamera</b> oder <b>LS</b>, dann Marke und Modell.</p><img src="guide/de/2.webp?v=25" alt="" loading="lazy" width="362" height="374"></div></li>
-    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab. Der Check lässt sich erst schließen, wenn alle 4 abgehakt sind.</p><img src="guide/de/3.webp?v=25" alt="" loading="lazy" width="354" height="373"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Weitere Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=25" alt="" loading="lazy" width="354" height="69"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Wenn alle Kameras geprüft sind, tippe auf <span class="gk g">📷→🕒 Uhr fotografieren</span>.</p><img src="guide/de/5.webp?v=25" alt="" loading="lazy" width="354" height="73"></div></li>
-    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Fotografiere die Uhr mit jeder Kamera.</p><img src="guide/de/6.webp?v=25" alt="" loading="lazy" width="390" height="305"></div></li>
-    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=25" alt="" loading="lazy" width="390" height="626"></div></li>
-    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Synchron · weiter</span>. Wenn nicht, stelle die Kamerauhr richtig, fotografiere die Uhr erneut und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=25" alt="" loading="lazy" width="390" height="533"></div></li>
-    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Die Handykamera öffnet sich direkt für das Display der nächsten Kamera. Wiederhole das für jede Kamera.</p><img src="guide/de/9.webp?v=25" alt="" loading="lazy" width="390" height="520"></div></li>
-    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Nach der letzten Kamera öffnet <span class="gk g">✓ Synchron · Fotos senden</span> die Sendeliste: Tippe auf <span class="gk g">📨</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=25" alt="" loading="lazy" width="390" height="380"></div></li>
+    <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=26" alt="" loading="lazy" width="300" height="70"></div></li>
+    <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Der Kamera-Check öffnet sich von selbst: Wähle <b>Handkamera</b> oder <b>LS</b>, dann Marke und Modell.</p><img src="guide/de/2.webp?v=26" alt="" loading="lazy" width="362" height="374"></div></li>
+    <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab. Der Check lässt sich erst schließen, wenn alle 4 abgehakt sind.</p><img src="guide/de/3.webp?v=26" alt="" loading="lazy" width="354" height="373"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Weitere Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=26" alt="" loading="lazy" width="354" height="69"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Wenn alle Kameras geprüft sind, tippe auf <span class="gk g">📷→🕒 Uhr fotografieren</span>.</p><img src="guide/de/5.webp?v=26" alt="" loading="lazy" width="354" height="73"></div></li>
+    <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Fotografiere die Uhr mit jeder Kamera.</p><img src="guide/de/6.webp?v=26" alt="" loading="lazy" width="390" height="305"></div></li>
+    <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=26" alt="" loading="lazy" width="390" height="626"></div></li>
+    <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Synchron · weiter</span>. Wenn nicht, stelle die Kamerauhr richtig, fotografiere die Uhr erneut und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=26" alt="" loading="lazy" width="390" height="533"></div></li>
+    <li class="g-step"><div class="g-num">9</div><div class="g-body"><p>Die Handykamera öffnet sich direkt für das Display der nächsten Kamera. Wiederhole das für jede Kamera.</p><img src="guide/de/9.webp?v=26" alt="" loading="lazy" width="390" height="520"></div></li>
+    <li class="g-step"><div class="g-num">10</div><div class="g-body"><p>Nach der letzten Kamera öffnet <span class="gk g">✓ Synchron · Fotos senden</span> die Sendeliste: Tippe auf <span class="gk g">📨</span> und wähle deinen Gruppenchat.</p><img src="guide/de/10.webp?v=26" alt="" loading="lazy" width="390" height="380"></div></li>
     <li class="g-step"><div class="g-num">⤓</div><div class="g-body"><b>App installieren</b><p>
       · <b>iPhone</b> (Safari): Tippe auf <b>Teilen</b> □↑ (bei neuerem iOS unter <b>⋯</b>), dann <b>Zum Home-Bildschirm</b> → <b>Hinzufügen</b>.<br>
       · <b>Android</b> (Chrome): Tippe oben rechts auf <b>⋮</b>, dann <b>Zum Startbildschirm hinzufügen</b> → <b>Installieren</b>.</p></div></li>
