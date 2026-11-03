@@ -778,7 +778,7 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
     </section>
 
     <div hidden>
-      <select id="brand"><option value="">Brand…</option><option>Canon</option><option>Fujifilm</option><option>Nikon</option><option>Sony</option><option value="Other">Other brand</option></select>
+      <select id="brand"><option value="">Brand…</option><option>Canon</option><option>Fujifilm</option><option>Nikon</option><option value="OM System">OM System / Olympus</option><option>Panasonic</option><option>Sony</option><option value="Other">Other brand</option></select>
       <select id="model"><option value="">Model…</option></select>
       <button id="addHC" type="button"></button><button id="addLS" type="button"></button>
     </div>
@@ -882,7 +882,7 @@ var DE = {
   "Pick brand and model for exact settings.": "Marke und Modell wählen für die genauen Einstellungen.", "Pick brand & model": "Marke & Modell wählen",
   "Continue →": "Weiter →", "Continue: 📱→📷": "Weiter: 📱→📷", "camera check": "Kamera-Check", "Other model": "Anderes Modell", "Other camera": "Andere Kamera",
   "Full frame mirrorless": "Vollformat spiegellos", "Full frame A-mount": "Vollformat A-Mount", "APS-C mirrorless": "APS-C spiegellos",
-  "Compact · 1-inch": "Kompakt · 1 Zoll", "Mirrorless · full frame": "Spiegellos · Vollformat", "Mirrorless · APS-C": "Spiegellos · APS-C",
+  "Compact · 1-inch": "Kompakt · 1 Zoll", "Mirrorless · full frame": "Spiegellos · Vollformat", "Mirrorless · APS-C": "Spiegellos · APS-C", "Lumix S · full frame": "Lumix S · Vollformat",
   "DSLR · full frame": "DSLR · Vollformat", "X-H · flagship": "X-H · Flaggschiff", "X-T · pro": "X-T · Profi",
   "X-Pro · rangefinder style": "X-Pro · Messsucher-Stil", "X-S · compact pro": "X-S · kompakt", "X-T50 / X-T30 · mid": "X-T50 / X-T30 · Mittelklasse",
   "X-E / X-M · compact": "X-E / X-M · kompakt", "Z mirrorless · full frame": "Z spiegellos · Vollformat", "Z mirrorless · APS-C (DX)": "Z spiegellos · APS-C (DX)",
@@ -1423,15 +1423,15 @@ function trNode(n){
 
   // ================= Camera settings checklist =================
   // Full frame from 2013, APS-C from 2015, plus Sony RX100 and Canon 60D (used on LS).
-  // Smallest JPEG size whose long edge is at least 4000 px, per body (3:2, full-frame / native image area).
+  // JPEG size per body as set by Sportograf (Academy: Picture Size Settings), full-frame / native image area. 5th value: size in crop mode.
   // Sources: Sony Help Guides, Canon Europe spec pages, Nikon online manuals.
   var CAMS = {
     Sony: [
       ["α1", "S", "4320×2880", "look1"], ["α1 II", "S", "4320×2880", "look"],
-      ["α9", "L", "6000×4000", "style"], ["α9 II", "L", "6000×4000", "style"], ["α9 III", "L", "6000×4000", "look"],
+      ["α9", "L", "6000×4000", "style"], ["α9 II", "L", "6000×4000", "style"], ["α9 III", "M", "3936×2624", "look"],
       ["α7", "L", "6000×4000", "style"], ["α7 II", "L", "6000×4000", "style"], ["α7 III", "L", "6000×4000", "style"], ["α7 IV", "M", "4608×3072", "look"], ["α7 V", "M", "4608×3072", "look"],
-      ["α7R", "M", "4800×3200", "style"], ["α7R II", "M", "5168×3448", "style"], ["α7R III / IIIA", "M", "5168×3448", "style"],
-      ["α7R IV / IVA", "S", "4752×3168", "style"], ["α7R V", "S", "4752×3168", "look"],
+      ["α7R", "M", "4800×3200", "style"], ["α7R II", "M", "5168×3448", "style"], ["α7R III / IIIA", "S", "3936×2624", "style", "APS-C: M"],
+      ["α7R IV / IVA", "S", "4752×3168", "style", "APS-C: M"], ["α7R V", "S", "4752×3168", "look"],
       ["α7S", "L", "4240×2832", "style"], ["α7S II", "L", "4240×2832", "style"], ["α7S III", "L", "4240×2832", "look"],
       ["α7C", "L", "6000×4000", "style"], ["α7C II", "M", "4608×3072", "look"], ["α7CR", "S", "4752×3168", "look"],
       ["ZV-E1", "L", "4240×2832", "look"], ["α99 II", "M", "5168×3448", "style"],
@@ -1441,42 +1441,54 @@ function trNode(n){
       ["ZV-E10 (APS-C)", "M", "4240×2832", "style"], ["ZV-E10 II (APS-C)", "M", "4384×2920", "look"]
     ],
     Canon: [
-      ["EOS R1", "L", "6000×4000"], ["EOS R3", "L", "6000×4000"],
+      ["EOS R1", "L", "6000×4000"], ["EOS R3", "M", "3984×2656"],
       ["EOS R5", "S1", "4176×2784"], ["EOS R5 Mark II", "S1", "4176×2784"],
-      ["EOS R6", "L", "5472×3648"], ["EOS R6 Mark II", "L", "6000×4000"], ["EOS R6 Mark III", "M", "4800×3200"], ["EOS R6 V", "M", "4800×3200"],
-      ["EOS R8", "L", "6000×4000"], ["EOS R8 Mark II", "L", "6000×4000"],
-      ["EOS R", "M", "4464×2976"], ["EOS RP", "M", "4160×2768"],
+      ["EOS R6", "L", "5472×3648"], ["EOS R6 Mark II", "M", "3984×2656"], ["EOS R6 Mark III", "M", "4800×3200"], ["EOS R6 V", "M", "4800×3200"],
+      ["EOS R8", "M", "3984×2656"], ["EOS R8 Mark II", "L", "6000×4000"],
+      ["EOS R", "M", "4464×2976", null, "1.6×: L"], ["EOS RP", "M", "4160×2768"],
       ["EOS-1D X Mark II", "M1", "4368×2912"], ["EOS-1D X Mark III", "M1", "4368×2912"],
       ["EOS 5DS / 5DS R", "S1", "4320×2880"], ["EOS 5D Mark IV", "M", "4464×2976"], ["EOS 6D Mark II", "M", "4160×2768"],
-      ["EOS R7 (APS-C)", "M", "4800×3200"], ["EOS R10 (APS-C)", "L", "6000×4000"], ["EOS R50 (APS-C)", "L", "6000×4000"], ["EOS R100 (APS-C)", "L", "6000×4000"],
-      ["EOS 90D (APS-C)", "M", "4800×3200"], ["EOS 80D (APS-C)", "L", "6000×4000"], ["EOS 60D (APS-C)", "L", "5184×3456"], ["EOS 77D (APS-C)", "L", "6000×4000"],
-      ["EOS 850D / T8i (APS-C)", "L", "6000×4000"], ["EOS 800D / T7i (APS-C)", "L", "6000×4000"], ["EOS 760D / T6s (APS-C)", "L", "6000×4000"],
-      ["EOS 750D / T6i (APS-C)", "L", "6000×4000"], ["EOS 250D / SL3 (APS-C)", "L", "6000×4000"], ["EOS 200D / SL2 (APS-C)", "L", "6000×4000"],
+      ["EOS R7 (APS-C)", "M", "4800×3200"], ["EOS R10 (APS-C)", "M", "3984×2656"], ["EOS R50 (APS-C)", "M", "3984×2656"], ["EOS R100 (APS-C)", "M", "3984×2656"],
+      ["EOS 90D (APS-C)", "M", "4800×3200"], ["EOS 80D (APS-C)", "M", "3984×2656"], ["EOS 60D (APS-C)", "L", "5184×3456"], ["EOS 77D (APS-C)", "M", "3984×2656"],
+      ["EOS 850D / T8i (APS-C)", "L", "6000×4000"], ["EOS 800D / T7i (APS-C)", "M", "3984×2656"], ["EOS 760D / T6s (APS-C)", "L", "6000×4000"],
+      ["EOS 750D / T6i (APS-C)", "M", "3984×2656"], ["EOS 250D / SL3 (APS-C)", "L", "6000×4000"], ["EOS 200D / SL2 (APS-C)", "L", "6000×4000"],
       ["EOS M6 Mark II (APS-C)", "M", "4800×3200"], ["EOS M6 (APS-C)", "L", "6000×4000"], ["EOS M5 (APS-C)", "L", "6000×4000"],
       ["EOS M50 / M50 Mark II (APS-C)", "L", "6000×4000"]
     ],
     Nikon: [
       ["Z9", "Small", "4128×2752", "FX"], ["Z8", "Small", "4128×2752", "FX"],
-      ["Z7 / Z7II", "Small", "4128×2752", "FX"], ["Z6 / Z6II", "Medium", "4528×3016", "FX"],
+      ["Z7 / Z7II", "Small", "4128×2752", "FX", "DX: Medium"], ["Z6 / Z6II", "Medium", "4528×3016", "FX"],
       ["Z6III", "Medium", "≈4528×3024", "FX"], ["Zf", "Medium", "≈4528×3024", "FX"],
       ["Z5", "Medium", "4512×3008", "FX"], ["Z5II", "Medium", "≈4528×3024", "FX"],
-      ["D6", "Medium", "4176×2784", "FX"], ["D5", "Medium", "4176×2784", "FX"],
-      ["D850", "Small", "4128×2752", "FX"], ["D780", "Medium", "4528×3016", "FX"],
-      ["D810", "Medium", "5520×3680", "FX"], ["D750", "Medium", "4512×3008", "FX"], ["D610", "Medium", "4512×3008", "FX"],
+      ["D6", "Medium", "4176×2784", "FX", "1.2×: Large"], ["D5", "Medium", "4176×2784", "FX", "1.2×: Large"],
+      ["D850", "Small", "4128×2752", "FX", "1.2× & DX: Medium"], ["D780", "Medium", "4528×3016", "FX", "DX: Large"],
+      ["D810", "Medium", "5520×3680", "FX"], ["D750", "Medium", "4512×3008", "FX", "1.2× / DX: Large"], ["D610", "Medium", "4512×3008", "FX"],
       ["D4S", "Large", "4928×3280", "FX"], ["Df", "Large", "4928×3280", "FX"],
       ["Z50 / Z50II (APS-C)", "Medium", "4176×2784", "DX"], ["Z fc (APS-C)", "Medium", "4176×2784", "DX"], ["Z30 (APS-C)", "Medium", "4176×2784", "DX"],
-      ["D500 (APS-C)", "Medium", "4176×2784", "DX"], ["D7500 (APS-C)", "Medium", "4176×2784", "DX"], ["D7200 (APS-C)", "Medium", "4496×3000", "DX"],
+      ["D500 (APS-C)", "Medium", "4176×2784", "DX", "1.3×: Large"], ["D7500 (APS-C)", "Medium", "4176×2784", "DX", "1.3×: Large"], ["D7200 (APS-C)", "Medium", "4496×3000", "DX", "1.3×: Large"],
       ["D5600 (APS-C)", "Medium", "4496×3000", "DX"], ["D5500 (APS-C)", "Medium", "4496×3000", "DX"],
       ["D3500 (APS-C)", "Medium", "4496×3000", "DX"], ["D3400 (APS-C)", "Medium", "4496×3000", "DX"]
     ],
     // Fujifilm X (all APS-C). Sizes by sensor: 16 MP, 24 MP, 26 MP, 40 MP.
     Fujifilm: [
       ["X-H2", "M", "5472×3648"], ["X-H2S", "M", "4416×2944"], ["X-H1", "M", "4240×2832"],
-      ["X-T5", "M", "5472×3648"], ["X-T4", "M", "4416×2944"], ["X-T3", "M", "4416×2944"], ["X-T2", "M", "4240×2832"],
+      ["X-T5", "S", "3888×2592"], ["X-T4", "M", "4416×2944"], ["X-T3", "M", "4416×2944"], ["X-T2", "M", "4240×2832"],
       ["X-T50", "M", "5472×3648"], ["X-T30 III", "M", "4416×2944"], ["X-T30 II", "M", "4416×2944"], ["X-T30", "M", "4416×2944"], ["X-T20", "M", "4240×2832"], ["X-T10", "L", "4896×3264"],
       ["X-Pro3", "M", "4416×2944"], ["X-Pro2", "M", "4240×2832"],
       ["X-S20", "M", "4416×2944"], ["X-S10", "M", "4416×2944"], ["X-M5", "M", "4416×2944"],
       ["X-E5", "M", "5472×3648"], ["X-E4", "M", "4416×2944"], ["X-E3", "M", "4240×2832"]
+    ],
+    // Panasonic Lumix: [model, Picture Size, px, aspect ratio]
+    Panasonic: [
+      ["S1R", "S", "≈4176×2784", "3:2"], ["S1H", "M", "4272×2848", "3:2"], ["S1", "M", "4272×2848", "3:2"],
+      ["S5 II / S5 IIX", "M", "4272×2848", "3:2"], ["S5", "M", "4272×2848", "3:2"],
+      ["GH5 / G9", "L", "5184×3888", "4:3"]
+    ],
+    // OM System / Olympus: Large on every model (Sportograf), 20 MP Four Thirds sensor
+    "OM System": [
+      ["OM-1 / OM-1 Mark II", "L", "5184×3888", "4:3"], ["OM-5", "L", "5184×3888", "4:3"],
+      ["E-M1X", "L", "5184×3888", "4:3"], ["E-M1 Mark III", "L", "5184×3888", "4:3"], ["E-M1 Mark II", "L", "5184×3888", "4:3"],
+      ["E-M5 Mark III", "L", "5184×3888", "4:3"], ["E-M10 Mark IV", "L", "5184×3888", "4:3"]
     ]
   };
   // White balance menus differ by model (checked against each maker's manuals)
@@ -1508,7 +1520,9 @@ function trNode(n){
     "D5600 (APS-C)":"2016","D5500 (APS-C)":"2015","D3500 (APS-C)":"2018","D3400 (APS-C)":"2016",
     "X-H2":"2022","X-H2S":"2022","X-H1":"2018","X-T5":"2022","X-T4":"2020","X-T3":"2018","X-T2":"2016","X-T50":"2024","X-T30 III":"2025",
     "X-T30 II":"2021","X-T30":"2019","X-T20":"2017","X-T10":"2015","X-Pro3":"2019","X-Pro2":"2016","X-S20":"2023","X-S10":"2020","X-M5":"2024",
-    "X-E5":"2025","X-E4":"2021","X-E3":"2017"
+    "X-E5":"2025","X-E4":"2021","X-E3":"2017",
+    "S1R":"2019","S1H":"2019","S1":"2019","S5 II / S5 IIX":"2023","S5":"2020","GH5 / G9":"2017",
+    "OM-1 / OM-1 Mark II":"2022–24","OM-5":"2022","E-M1X":"2019","E-M1 Mark III":"2020","E-M1 Mark II":"2016","E-M5 Mark III":"2019","E-M10 Mark IV":"2020"
   };
   function yearOf(m){ return YEARS[m] || ""; }
   function newest(a, b){ return (parseInt(yearOf(b[0]).slice(-4),10) || 0) - (parseInt(yearOf(a[0]).slice(-4),10) || 0); }
@@ -1542,6 +1556,14 @@ function trNode(n){
       ["Z mirrorless · APS-C (DX)", ["Z50 / Z50II (APS-C)", "Z fc (APS-C)", "Z30 (APS-C)"]],
       ["DSLR · full frame", ["D6", "D5", "D4S", "D850", "D810", "D780", "D750", "Df", "D610"]],
       ["DSLR · APS-C (DX)", ["D500 (APS-C)", "D7500 (APS-C)", "D7200 (APS-C)", "D5600 (APS-C)", "D5500 (APS-C)", "D3500 (APS-C)", "D3400 (APS-C)"]]
+    ],
+    Panasonic: [
+      ["Lumix S · full frame", ["S1R", "S1H", "S1", "S5 II / S5 IIX", "S5"]],
+      ["Lumix G · Micro Four Thirds", ["GH5 / G9"]]
+    ],
+    "OM System": [
+      ["OM System", ["OM-1 / OM-1 Mark II", "OM-5"]],
+      ["Olympus", ["E-M1X", "E-M1 Mark III", "E-M1 Mark II", "E-M5 Mark III", "E-M10 Mark IV"]]
     ]
   };
   // Cameras not in the list: same four checks, general wording
@@ -1551,10 +1573,10 @@ function trNode(n){
   function findCam(b, m){ if(m === OTHER && (CAMS[b] || b === "Other")) return OTHER_CAM; var list = CAMS[b] || []; for(var i=0;i<list.length;i++) if(list[i][0] === m) return list[i]; return null; }
 
   // The four checks, worded the way each brand's menu words them
-  var SIZE_ANY = "The <b>smallest</b> JPEG size whose long edge is <b>at least 4000 px</b>. Check the pixel numbers shown in the image size menu";
+  var SIZE_ANY = "The <b>smallest</b> JPEG size that is still <b>about 10 MP</b> (long edge roughly 3900–4000 px). Check the pixel numbers shown in the image size menu";
   function checks(b, c){
     if(LANG === "de") return checksDE(b, c);
-    var size = c[1], px = c[2];
+    var size = c[1], px = c[2], crop = c[4] ? " · in crop mode (" + c[4].split(": ")[0] + "): <b>" + c[4].split(": ")[1] + "</b>" : "";
     if(c[0] === OTHER){
       if(b === "Sony") return [
         ["White balance", "<b>AWB</b> · if there's Priority Set in AWB: <b>Standard</b>"],
@@ -1576,6 +1598,16 @@ function trNode(n){
         ["Picture Control", "<b>Neutral (NL)</b>"],
         ["JPEG quality", "Image quality <b>JPEG normal</b> (no RAW)"],
         ["Image size", "Image area <b>FX</b> (DX on APS-C bodies). " + SIZE_ANY]];
+      if(b === "Panasonic") return [
+        ["White balance", "<b>AWB</b> — plain AWB, not AWBc or AWBw"],
+        ["Photo Style", "<b>Natural</b>"],
+        ["JPEG quality", "Picture Quality <b>STD.</b> (standard, not FINE, no RAW)"],
+        ["Image size", SIZE_ANY]];
+      if(b === "OM System") return [
+        ["White balance", "<b>AUTO</b> (WB A)"],
+        ["Picture Mode", "<b>Natural</b>"],
+        ["JPEG quality", "Image quality <b>LN</b> (Large Normal, no RAW)"],
+        ["Image size", "<b>L</b> (Large), the largest size"]];
       return [
         ["White balance", "<b>Auto</b> — the standard auto, not a warm/ambience or white-priority variant"],
         ["Picture style", "The most <b>neutral</b> profile (Neutral / Natural / Standard), no vivid or creative looks"],
@@ -1589,13 +1621,13 @@ function trNode(n){
         c[3] === "style" ? "<b>Neutral (NT)</b>" :
         c[3] === "look1" ? "<b>NT (Neutral)</b> · on firmware before 2.0: Creative Style → Neutral" : "<b>NT (Neutral)</b>"],
       ["JPEG quality", c[3] === "style" || c[3] === "style0" ? "Quality <b>Standard</b> (JPEG only, not RAW or RAW & JPEG)" : "File Format <b>JPEG</b> (RAW off), JPEG Quality <b>Standard</b>"],
-      ["Image size", "JPEG Image Size <b>" + size + "</b> · " + px + " px"]
+      ["Image size", "JPEG Image Size <b>" + size + "</b> · " + px + " px" + crop]
     ];
     if(b === "Canon") return [
       ["White balance", has(CANON_NO_AWBW, c[0]) ? "<b>AWB</b> (Auto)" : "<b>AWB</b> — regular Auto (Ambience priority), not AWB W"],
       ["Picture Style", "<b>Neutral (N)</b>"],
       ["JPEG quality", "JPEG only (RAW off), <b>Normal</b> quality (the jagged icon, not the smooth Fine one). If there's a JPEG quality 1–10 setting: <b>5/10</b>, the first with the staircase icon (6/10 still shows the smooth Fine curve)"],
-      ["Image size", "Image quality <b>" + size + "</b> Normal (jagged icon) · " + px + " px"]
+      ["Image size", "Image quality <b>" + size + "</b> Normal (jagged icon) · " + px + " px" + crop]
     ];
     if(b === "Fujifilm") return [
       ["White balance", has(FUJI_AUTO_PRIORITY, c[0]) ? "<b>AUTO</b> — plain AUTO, not White or Ambience priority" : "<b>AUTO</b>"],
@@ -1603,20 +1635,33 @@ function trNode(n){
       ["Image quality", "<b>NORMAL</b> (no RAW)"],
       ["Image size", "Image size <b>" + size + " 3:2</b> · " + px + " px"]
     ];
+    if(b === "Panasonic") return [
+      ["White balance", "<b>AWB</b> — plain AWB, not AWBc or AWBw"],
+      ["Photo Style", "<b>Natural</b>"],
+      ["JPEG quality", "Picture Quality <b>STD.</b> (standard, not FINE, no RAW)"],
+      ["Image size", "Aspect Ratio <b>" + c[3] + "</b>, Picture Size <b>" + size + "</b> · " + px + " px"]
+    ];
+    if(b === "OM System") return [
+      ["White balance", "<b>AUTO</b> (WB A)"],
+      ["Picture Mode", "<b>Natural</b>"],
+      ["JPEG quality", "Image quality <b>LN</b> (Large Normal, no RAW)"],
+      ["Image size", "<b>L</b> (Large) · " + c[3] + " · " + px + " px"]
+    ];
     return [
       ["White balance", has(NIKON_PLAIN_AUTO, c[0]) ? "<b>Auto</b> (this model has no AUTO0/1/2 options)" : has(NIKON_AUTO_NORMAL, c[0]) ? "<b>AUTO1</b> — Auto → Normal" : "<b>AUTO1</b> — Auto → Keep overall atmosphere"],
       ["Picture Control", "<b>Neutral (NL)</b>"],
       ["JPEG quality", "Image quality <b>JPEG normal</b> (no RAW)"],
-      ["Image size", "Image area <b>" + c[3] + "</b>, Image size <b>" + size + "</b> · " + px + " px"]
+      ["Image size", "Image area <b>" + c[3] + "</b>, Image size <b>" + size + "</b> · " + px + " px" + crop]
     ];
   }
 
 
   // The same four checks in German, with the German menu names of each maker
-  var SIZE_ANY_DE = "Die <b>kleinste</b> JPEG-Größe mit einer langen Kante von <b>mindestens 4000 px</b>. Prüfe die Pixelangaben im Menü Bildgröße";
+  var SIZE_ANY_DE = "Die <b>kleinste</b> JPEG-Größe mit noch <b>etwa 10 MP</b> (lange Kante ca. 3900–4000 px). Prüfe die Pixelangaben im Menü Bildgröße";
   var NIK_SIZE_DE = {Small: "Klein (S)", Medium: "Mittel (M)", Large: "Groß (L)"};
   function checksDE(b, c){
-    var size = c[1], px = c[2];
+    var size = c[1], px = c[2], cropDE = function(x){ return x.replace("Large", "Groß (L)").replace("Medium", "Mittel (M)").replace("Small", "Klein (S)"); },
+      crop = c[4] ? " · im Crop-Modus (" + c[4].split(": ")[0].replace(".", ",") + "): <b>" + cropDE(c[4].split(": ")[1]) + "</b>" : "";
     if(c[0] === OTHER){
       if(b === "Sony") return [
         ["Weißabgleich", "<b>AWB</b> · falls es PriorEinst b. AWB gibt: <b>Standard</b>"],
@@ -1638,6 +1683,16 @@ function trNode(n){
         ["Picture Control", "<b>Neutral (NL)</b>"],
         ["JPEG-Qualität", "Bildqualität <b>JPEG Normal</b> (kein RAW)"],
         ["Bildgröße", "Bildfeld <b>FX</b> (DX bei APS-C-Kameras). " + SIZE_ANY_DE]];
+      if(b === "Panasonic") return [
+        ["Weißabgleich", "<b>AWB</b> — normales AWB, nicht AWBc oder AWBw"],
+        ["Bildstil", "<b>Natürlich</b>"],
+        ["JPEG-Qualität", "Qualität <b>STD.</b> (Standard, nicht FINE, kein RAW)"],
+        ["Bildgröße", SIZE_ANY_DE]];
+      if(b === "OM System") return [
+        ["Weißabgleich", "<b>AUTO</b> (WB A)"],
+        ["Bildmodus", "<b>Natürlich</b>"],
+        ["JPEG-Qualität", "Bildqualität <b>LN</b> (Large Normal, kein RAW)"],
+        ["Bildgröße", "<b>L</b> (Groß), die größte Bildgröße"]];
       return [
         ["Weißabgleich", "<b>Auto</b> — das normale Auto, keine Warm-/Atmosphären- oder Weiß-Priorität"],
         ["Bildstil", "Das <b>neutralste</b> Profil (Neutral / Natürlich / Standard), keine kräftigen oder kreativen Looks"],
@@ -1651,13 +1706,13 @@ function trNode(n){
         c[3] === "style" ? "<b>Neutral (NT)</b>" :
         c[3] === "look1" ? "<b>NT (Neutral)</b> · bei Firmware vor 2.0: Kreativmodus → Neutral" : "<b>NT (Neutral)</b>"],
       ["JPEG-Qualität", c[3] === "style" || c[3] === "style0" ? "Qualität <b>Standard</b> (nur JPEG, nicht RAW oder RAW & JPEG)" : "Dateiformat <b>JPEG</b> (RAW aus), JPEG-Qualität <b>Standard</b>"],
-      ["Bildgröße", "JPEG-Bildgröße <b>" + size + "</b> · " + px + " px"]
+      ["Bildgröße", "JPEG-Bildgröße <b>" + size + "</b> · " + px + " px" + crop]
     ];
     if(b === "Canon") return [
       ["Weißabgleich", has(CANON_NO_AWBW, c[0]) ? "<b>AWB</b> (Auto)" : "<b>AWB</b> — Auto: Priorität Umgebung, nicht Priorität Weiß"],
       ["Bildstil", "<b>Neutral (N)</b>"],
       ["JPEG-Qualität", "Nur JPEG (RAW aus), Qualität <b>Normal</b> (das gestufte Symbol, nicht das glatte für Fein). Falls es JPEG-Qualität 1–10 gibt: <b>5/10</b>, die erste mit dem Treppen-Symbol (bei 6/10 ist noch das glatte Fein-Symbol zu sehen)"],
-      ["Bildgröße", "Bildqualität <b>" + size + "</b> Normal (gestuftes Symbol) · " + px + " px"]
+      ["Bildgröße", "Bildqualität <b>" + size + "</b> Normal (gestuftes Symbol) · " + px + " px" + crop]
     ];
     if(b === "Fujifilm") return [
       ["Weißabgleich", has(FUJI_AUTO_PRIORITY, c[0]) ? "<b>AUTO</b> — normales AUTO, nicht Weiß- oder Ambiente-Priorität" : "<b>AUTO</b>"],
@@ -1665,20 +1720,34 @@ function trNode(n){
       ["Bildqualität", "<b>NORMAL</b> (kein RAW)"],
       ["Bildgröße", "Bildgröße <b>" + size + " 3:2</b> · " + px + " px"]
     ];
+    if(b === "Panasonic") return [
+      ["Weißabgleich", "<b>AWB</b> — normales AWB, nicht AWBc oder AWBw"],
+      ["Bildstil", "<b>Natürlich</b>"],
+      ["JPEG-Qualität", "Qualität <b>STD.</b> (Standard, nicht FINE, kein RAW)"],
+      ["Bildgröße", "Seitenverhältnis <b>" + c[3] + "</b>, Bildgröße <b>" + size + "</b> · " + px + " px"]
+    ];
+    if(b === "OM System") return [
+      ["Weißabgleich", "<b>AUTO</b> (WB A)"],
+      ["Bildmodus", "<b>Natürlich</b>"],
+      ["JPEG-Qualität", "Bildqualität <b>LN</b> (Large Normal, kein RAW)"],
+      ["Bildgröße", "<b>L</b> (Groß) · " + c[3] + " · " + px + " px"]
+    ];
     return [
       ["Weißabgleich", has(NIKON_PLAIN_AUTO, c[0]) ? "<b>Auto</b> (dieses Modell hat keine Optionen AUTO0/1/2)" : has(NIKON_AUTO_NORMAL, c[0]) ? "<b>AUTO1</b> — Auto → Normal" : "<b>AUTO1</b> — Auto → Gesamtatmosphäre beibehalten"],
       ["Picture Control", "<b>Neutral (NL)</b>"],
       ["JPEG-Qualität", "Bildqualität <b>JPEG Normal</b> (kein RAW)"],
-      ["Bildgröße", "Bildfeld <b>" + c[3] + "</b>, Bildgröße <b>" + (NIK_SIZE_DE[size] || size) + "</b> · " + px + " px"]
+      ["Bildgröße", "Bildfeld <b>" + c[3] + "</b>, Bildgröße <b>" + (NIK_SIZE_DE[size] || size) + "</b> · " + px + " px" + crop]
     ];
   }
   // One short line of the four settings, shown on the clock once all are ticked
   function summary(b, c){
     var size = c[1], px = c[2];
-    if(c[0] === OTHER) return L("Auto WB · Neutral · JPEG standard · ≥4000 px", "Auto-WA · Neutral · JPEG Standard · ≥4000 px");
+    if(c[0] === OTHER) return L("Auto WB · Neutral · JPEG standard · ≈10 MP", "Auto-WA · Neutral · JPEG Standard · ≈10 MP");
     if(b === "Sony") return "AWB · " + (c[3] === "style0" ? "Standard" : "NT") + " · JPEG Std · " + size + " " + px;
     if(b === "Canon") return "AWB · Neutral · JPEG Normal (5/10) · " + size + " " + px;
     if(b === "Fujifilm") return "AUTO · PROVIA · NORMAL · " + size + " " + px;
+    if(b === "Panasonic") return "AWB · Natural · STD · " + size + " " + px;
+    if(b === "OM System") return "AUTO · Natural · LN · " + px;
     return (has(NIKON_PLAIN_AUTO, c[0]) ? "Auto" : "AUTO1") + L(" · NL · JPEG normal · ", " · NL · JPEG Normal · ") + c[3] + " " + size.charAt(0) + " " + px;
   }
 
@@ -1846,7 +1915,7 @@ function trNode(n){
   brandSel.addEventListener("change", function(){ choose(brandSel.value, brandSel.value === "Other" ? OTHER : ""); });
   // ================= Camera popup: Brand → Model → Check, all by tapping =================
   var pop = document.querySelector(".sheet-panel.pop"), pBrands = document.getElementById("pBrands"), pModels = document.getElementById("pModels");
-  var BRANDS = ["Canon", "Nikon", "Sony", "Fujifilm"];
+  var BRANDS = ["Canon", "Nikon", "Sony", "Fujifilm", "Panasonic", "OM System"];
   function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }   // light haptic tap (not the clock's tick)
   function screenFor(a){ return !a.b ? "brand" : !findCam(a.b, a.m) ? "model" : "checks"; }
   function goScreen(sc, back){
@@ -1871,7 +1940,7 @@ function trNode(n){
     pBrands.textContent = "";
     BRANDS.concat(["Other"]).forEach(function(b){
       var t = document.createElement("button"); t.type = "button"; t.className = "tile" + (b === "Other" ? " other" : "") + (a.b === b ? " sel" : "");
-      t.innerHTML = "<b></b>"; t.firstChild.textContent = b === "Other" ? "Other brand / not listed" : b;
+      t.innerHTML = "<b></b>"; t.firstChild.textContent = b === "Other" ? "Other brand / not listed" : b === "OM System" ? "OM System / Olympus" : b;
       t.addEventListener("click", function(){
         if(act().pick){ needType(); return; }
         buzz();
