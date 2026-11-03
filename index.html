@@ -117,6 +117,8 @@ body.photo .showhint{opacity:.45; visibility:visible; transform:none; transition
 .bad #syncText{color:var(--warn)}
 #detail{font-variant-numeric:tabular-nums}
 /* The app's web address: tap to open, press and hold to copy or share */
+.coffee{align-self:flex-start; color:var(--muted); font-size:.85em; text-decoration:underline; text-underline-offset:3px; margin-top:.15rem}
+html.narrow .coffee,html.land .coffee{align-self:center}
 .applink{display:inline-flex; align-items:center; gap:.35rem; color:inherit; font-size:inherit; overflow-wrap:anywhere}
 .al-t{-webkit-user-select:text; user-select:text}
 /* Copy the app's link: a small copy icon right after it, a green tick once copied */
@@ -731,6 +733,7 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
     <span id="syncText">Syncing with time server…</span>
     <span id="detail"></span>
     <span id="appLink" class="applink"><span class="al-t" data-notr>ryguy-design.github.io/SG-Atom-Uhr-by-RYS</span><button id="copyLink" class="al-copy" type="button" aria-label="Copy link" title="Copy link"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.2"/><path d="M15.5 8.5V6.7a2.2 2.2 0 0 0-2.2-2.2H6.7a2.2 2.2 0 0 0-2.2 2.2v6.6a2.2 2.2 0 0 0 2.2 2.2h1.8"/></svg><span class="al-ok" hidden>✓</span></button></span>
+    <a id="coffee" class="coffee" href="https://www.paypal.me/alpinstudios" target="_blank" rel="noopener">☕ <span>Buy me a coffee</span></a>
   </div>
   <div class="controls">
     <button id="resync" type="button">Sync now</button>
@@ -854,7 +857,7 @@ document.documentElement.lang = LANG;
 function L(en, de){ return LANG === "de" ? de : en; }
 var DE = {
   // main screen
-  "Sync now": "Synchronisieren", "Reset app": "Zurücksetzen", "How to use": "Anleitung",
+  "Sync now": "Synchronisieren", "Reset app": "Zurücksetzen", "How to use": "Anleitung", "Buy me a coffee": "Spendier mir einen Kaffee",
   "Sure? Resets everything": "Sicher? Alles zurücksetzen", "Done ✓": "Erledigt ✓", "Sure?": "Sicher?", "Delete?": "Löschen?",
   "Syncing with time server…": "Synchronisiere mit Zeitserver…",
   "Offline — showing phone clock (not synced)": "Offline — Handyuhr wird angezeigt (nicht synchronisiert)",
