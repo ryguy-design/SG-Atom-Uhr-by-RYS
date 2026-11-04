@@ -2003,12 +2003,12 @@ function trNode(n){
   // ---- Add / remove cameras ----
   // Adding a camera from the main screen
   // Initials in but no camera checked yet: open the check (adding the first camera if there's none)
-  // ---- "How it works": 5 steps, shown the first time each day before the camera check ----
-  var intro = document.getElementById("intro");
-  function introDue(){ try{ return localStorage.getItem("acIntro") !== ev.day; }catch(e){ return false; } }
+  // ---- "How it works": 5 steps, shown every time the app starts, before the camera check ----
+  var intro = document.getElementById("intro"), introSeen = false;
+  function introDue(){ return !introSeen; }
   function showIntro(){ intro.hidden = false; requestAnimationFrame(function(){ intro.classList.add("on"); }); }
   document.getElementById("introGo").addEventListener("click", function(){
-    try{ localStorage.setItem("acIntro", ev.day); }catch(e){}
+    introSeen = true;
     intro.classList.remove("on"); setTimeout(function(){ intro.hidden = true; requireCheck(); }, 250);   // then on with the regular workflow
   });
   function requireCheck(){
@@ -3376,7 +3376,10 @@ function trNode(n){
   document.addEventListener("visibilitychange", function(){ if(document.visibilityState === "visible") dayCheck(); });
   setInterval(dayCheck, 60*1000);   // also clears at midnight while the app stays open
   refresh(); syncEvent(); loadPhotos();
-  setTimeout(requireCheck, 400);   // opened with initials but no finished camera check: it opens first
+  setTimeout(function(){   // every start: "How it works" first, then the camera check if it's still open
+    var g = document.getElementById("guide");
+    if(introDue() && intro.hidden && !(g && !g.hidden)) showIntro(); else requireCheck();
+  }, 400);
 
   // ================= Photo mode: tap the clock to hide the buttons =================
   // Buttons slide away (down, fading) and back; the clock glides (moves and resizes) into its new place.
