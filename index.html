@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261108022231">
+<meta name="app-ver" content="20261108023622">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -1445,9 +1445,9 @@ function trNode(n){
     var renamed = [];
     var move = function(obj, o, n){ if(obj[o] !== undefined){ obj[n] = obj[o]; delete obj[o]; } };
     var rename = function(c, type, n){
-      var oldK = photoKey(c), oldKey = key(c), oldShort = short(c);
+      var oldK = photoKey(c), oldKey = key(c), oldShort = fileShort(c);
       c.type = type; c.n = n;
-      var newK = photoKey(c), newShort = short(c);
+      var newK = photoKey(c), newShort = fileShort(c);
       if(addedKey === oldKey) addedKey = key(c);
       if(addedFrom === oldKey) addedFrom = key(c);
       move(ev.ticks, oldK, newK); move(shotClock, oldK, newK); move(skipped, oldK, newK); move(at, oldK, newK);
@@ -1809,7 +1809,8 @@ function trNode(n){
   // ---- My cameras: saved for good (up to 4 hand cams + 4 LS, each with its own brand/model) ----
   var MAXN = 4, kit = null, ev = null, recent = [];
   function key(c){ return c.type + " " + c.n; }
-  function short(c){ return (c.type === "LS" ? "LS" : "HC") + c.n; }
+  function short(c){ return (c.type === "LS" ? "LS" : L("HC", "HK")) + c.n; }   // on screen: HC1 / HK1 (Handkamera)
+  function fileShort(c){ return (c.type === "LS" ? "LS" : "HC") + c.n; }   // in photo file names: always HC, so files sort the same for the whole team
   // Camera name with its model, so you know which body is meant: "LS 1 α6500", "HAND CAM 1 Z8"
   function modelTag(c){ if(!c.b) return ""; if(c.m === OTHER || !c.m) return c.b === "Other" ? "" : c.b; return shortName(c.m).split(" / ")[0].replace(/^EOS[ -]/, "").replace(/ Mark /, " "); }
   function tagM(c){ var t = modelTag(c); return short(c) + (t ? " " + t : ""); }   // short: "HC1 R3", "LS2 α6500"
@@ -3077,7 +3078,7 @@ function trNode(n){
     var c = pending.c, t = pending.t;
     compose(pending.base, stamp(c, t, sync, pending.exact), sync).toBlob(function(b){
       if(!b) return;
-      var name = (camInit.value ? camInit.value + "_" : "") + short(c) + "_" + p2(t.getHours()) + p2(t.getMinutes()) + p2(t.getSeconds()) + ".jpg";
+      var name = (camInit.value ? camInit.value + "_" : "") + fileShort(c) + "_" + p2(t.getHours()) + p2(t.getMinutes()) + p2(t.getSeconds()) + ".jpg";
       var exact = pending.exact, atomic = pending.saved ? pending.atomic : synced;
       pending.base.toBlob(function(raw){
         var rec = {day: evId(), name: name, blob: b, raw: raw, t: t.getTime(), exact: exact, cam: key(c), sync: sync, atomic: atomic};
