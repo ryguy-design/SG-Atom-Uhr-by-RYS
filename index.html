@@ -600,25 +600,28 @@ body.photo .tapfinger{display:none}
 .g-ver{list-style:none; text-align:center; color:var(--muted); font-size:.75rem; opacity:.7; padding:.5rem 0 0}
 /* New camera: Hand cam / LS must be picked first; the brands wait, dimmed */
 .pop.needtype #pBrands,.pop.needtype #recent,.pop.needtype #recentLabel{opacity:.35}
-/* Not picked yet: no green (that means selected). One soft band of light sweeps diagonally across the whole panel
-   and only shows through the outlines of options that can be picked; once something in a group is picked, that group goes quiet.
-   --W/--H: panel size, --ox/--oy: where each option sits in the panel (set by renderPop), --sweep: 0 → 1 across the panel */
-@property --sweep{syntax:"<number>"; inherits:false; initial-value:0}
-@keyframes sheen{0%{--sweep:0} 62%,100%{--sweep:1}}
+/* Not picked yet: no green (that means selected). Light passes diagonally over the whole panel and only shows through
+   the outlines of options that can be picked; once something in a group is picked, that group goes quiet.
+   Classic glass: each band is a soft, wide glow with a thin sharp line trailing just behind it. Two bands take turns
+   (each crosses in 9 s; the next sets off when the last is ~60% across), so one is always on the buttons.
+   --W/--H: panel size, --ox/--oy: where each option sits in the panel (set by renderPop), --s1/--s2: each band, 0 → 1 across */
+@property --s1{syntax:"<number>"; inherits:false; initial-value:1.15}
+@property --s2{syntax:"<number>"; inherits:false; initial-value:1.15}
+@keyframes glassA{0%{--s1:0} 80.6%{--s1:1} 80.61%,100%{--s1:1.15}}
+@keyframes glassB{0%{--s2:0} 80.6%{--s2:1} 80.61%,100%{--s2:1.15}}
 #pType.seg button::before,.brands .tile:not(.other)::before{content:""; position:absolute; inset:-2px; border-radius:16px; padding:2px; pointer-events:none; opacity:0; transition:opacity .25s;
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)}
 #pType.seg button::before,.brands .tile:not(.other)::before,.brands .tile.other b{
   background-color:#3a444b; background-repeat:no-repeat;
-  background-image:linear-gradient(110deg, transparent 0%, transparent 45%, rgba(236,241,244,.95) 50%, transparent 55%, transparent 100%);
-  background-size:calc(var(--W, 400px) * 3) var(--H, 800px);
-  background-position:calc((var(--sweep) * 2.5 - 2.25) * var(--W, 400px) - var(--ox, 0px) - 2px) calc(0px - var(--oy, 0px) - 2px)}
+  background-image:linear-gradient(112deg, transparent 0%, transparent 42.5%, rgba(255,255,255,.6) 42.75%, rgba(255,255,255,.6) 43.05%, transparent 43.3%, transparent 44%, rgba(255,255,255,.35) 46.5%, rgba(255,255,255,.9) 49%, rgba(255,255,255,.35) 51.5%, transparent 54%, transparent 100%), linear-gradient(112deg, transparent 0%, transparent 42.5%, rgba(255,255,255,.6) 42.75%, rgba(255,255,255,.6) 43.05%, transparent 43.3%, transparent 44%, rgba(255,255,255,.35) 46.5%, rgba(255,255,255,.9) 49%, rgba(255,255,255,.35) 51.5%, transparent 54%, transparent 100%);
+  background-size:calc(var(--W, 400px) * 3) var(--H, 800px), calc(var(--W, 400px) * 3) var(--H, 800px);
+  background-position:calc((var(--s1) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px) - 2px) calc(0px - var(--oy, 0px) - 2px), calc((var(--s2) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px) - 2px) calc(0px - var(--oy, 0px) - 2px)}
 .pop.needtype #pType.seg button:not(.on)::before,
-.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile:not(.other)::before{opacity:1; animation:sheen 3.4s linear infinite}
+.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile:not(.other)::before,
+.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{opacity:1; animation:glassA 11.16s linear infinite, glassB 11.16s linear -5.58s infinite}
 /* "Other brand" keeps its dashed outline; the light passes through its words instead */
-.brands .tile.other b{background-color:var(--muted); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent}
-.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{animation:sheen 3.4s linear infinite}
-/* Tilt mode: the phone's tilt places the light (set as --tilt on the panel) instead of the timer */
-.pop.tiltmode #pType.seg button::before,.pop.tiltmode .brands .tile:not(.other)::before,.pop.tiltmode .brands .tile.other b{animation:none!important; --sweep:var(--tilt, .5)}
+.brands .tile.other b{background-color:var(--muted); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
+  background-position:calc((var(--s1) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px)) calc(0px - var(--oy, 0px)), calc((var(--s2) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px)) calc(0px - var(--oy, 0px))}
 @media (prefers-reduced-motion: reduce){
   .pop.needtype #pType.seg button:not(.on)::before,.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile:not(.other)::before,
   .pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{animation:none} }
@@ -1977,57 +1980,9 @@ function trNode(n){
       var t = el.classList.contains("other") ? el.querySelector("b") : el, a = offs(t), b = offs(pop);   // layout offsets: unaffected by the sideways rotation
       t.style.setProperty("--ox", (a[0] - b[0]) + "px"); t.style.setProperty("--oy", (a[1] - b[1]) + "px");
     });
-    try{ pop.getAnimations({subtree: true}).forEach(function(x){ if(x.animationName === "sheen") x.startTime = 0; }); }catch(e){}
+    try{ pop.getAnimations({subtree: true}).forEach(function(x){ if(x.animationName === "glassA" || x.animationName === "glassB") x.startTime = 0; }); }catch(e){}
   }
   window.addEventListener("resize", function(){ if(pop.offsetWidth) placeSheen(); });
-  // ---- Tilt the phone, the light moves: the sweep follows the gyro; after a few still seconds it goes back to sweeping by itself ----
-  var tilt = {on: false, cur: .5, target: .5, x0: null, y0: null, lx: null, ly: null, last: 0, raf: 0, started: false};
-  var SHEEN_MS = 3400, SHEEN_RUN = .62;   // keep in step with the sheen keyframes (0% → 62%: across the panel)
-  function sheenAnims(){ try{ return pop.getAnimations({subtree: true}).filter(function(x){ return x.animationName === "sheen"; }); }catch(e){ return []; } }
-  function sheenNow(){   // where the light is right now (0 → 1)
-    var a = sheenAnims()[0]; if(!a || a.currentTime == null) return .5;
-    var t = (a.currentTime % SHEEN_MS) / SHEEN_MS; return Math.min(1, t / SHEEN_RUN);
-  }
-  function tiltLoop(){
-    tilt.cur += (tilt.target - tilt.cur) * .18;   // smoothed, so the light glides rather than jitters
-    pop.style.setProperty("--tilt", tilt.cur.toFixed(4));
-    if(Date.now() - tilt.last > 3000){   // held still: hand back to the automatic sweep, from where the light is now
-      tilt.on = false; tilt.raf = 0; var from = Math.max(0, Math.min(1, tilt.cur));
-      pop.classList.remove("tiltmode");
-      requestAnimationFrame(function(){ sheenAnims().forEach(function(x){ x.currentTime = from * SHEEN_RUN * SHEEN_MS; }); });
-      return;
-    }
-    tilt.raf = requestAnimationFrame(tiltLoop);
-  }
-  function onTilt(e){
-    if(e.beta == null || e.gamma == null || !pop.offsetWidth) return;
-    // tilt left/right and towards/away, as seen on the screen (portrait, landscape or the sideways view)
-    var ang = ((screen.orientation && screen.orientation.angle) || window.orientation || 0) + (document.documentElement.classList.contains("rot") ? 90 : 0);
-    ang = ((ang % 360) + 360) % 360;
-    var g = e.gamma, bt = e.beta, x = ang === 90 ? bt : ang === 180 ? -g : ang === 270 ? -bt : g, y = ang === 90 ? -g : ang === 180 ? -bt : ang === 270 ? g : bt;
-    if(tilt.x0 === null){ tilt.x0 = x; tilt.y0 = y; tilt.lx = x; tilt.ly = y; return; }
-    tilt.x0 += (x - tilt.x0) * .01; tilt.y0 += (y - tilt.y0) * .01;   // slowly re-centres on however the phone is held
-    tilt.target = Math.max(-.1, Math.min(1.1, .5 + (x - tilt.x0) / 45 + (y - tilt.y0) / 60));
-    if(Math.abs(x - tilt.lx) + Math.abs(y - tilt.ly) > 1.2){   // real movement, not sensor noise
-      tilt.lx = x; tilt.ly = y; tilt.last = Date.now();
-      if(!tilt.on){ tilt.on = true; tilt.cur = sheenNow(); pop.style.setProperty("--tilt", tilt.cur.toFixed(4)); pop.classList.add("tiltmode"); }
-      if(!tilt.raf) tilt.raf = requestAnimationFrame(tiltLoop);
-    }
-  }
-  function startTilt(){
-    if(tilt.started || !window.DeviceOrientationEvent) return;
-    try{ if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return; }catch(e){}
-    tilt.started = true; window.addEventListener("deviceorientation", onTilt);
-  }
-  function askTilt(){   // iPhone: needs a tap and a one-time "allow motion" prompt; elsewhere it just starts
-    if(!window.DeviceOrientationEvent) return;
-    if(typeof DeviceOrientationEvent.requestPermission === "function"){
-      if(tilt.started) return;
-      DeviceOrientationEvent.requestPermission().then(function(st){ if(st === "granted") startTilt(); }).catch(function(){});
-    } else startTilt();
-  }
-  if(!(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function")) startTilt();
-  else try{ DeviceOrientationEvent.requestPermission().then(function(st){ if(st === "granted") startTilt(); }).catch(function(){}); }catch(e){}   // granted without asking on some phones; iPhones wait for the tap
   function renderPop(){
     var a = act(), sc = pop.dataset.screen;
     document.getElementById("pBack").hidden = sc === "brand";
@@ -2109,7 +2064,6 @@ function trNode(n){
   function introDue(){ return !introSeen; }
   function showIntro(){ intro.hidden = false; requestAnimationFrame(function(){ intro.classList.add("on"); }); }
   document.getElementById("introGo").addEventListener("click", function(){
-    askTilt();   // the tap that lets iPhones ask for motion access
     introSeen = true;
     intro.classList.remove("on"); setTimeout(function(){ intro.hidden = true; requireCheck(); }, 250);   // then on with the regular workflow
   });
