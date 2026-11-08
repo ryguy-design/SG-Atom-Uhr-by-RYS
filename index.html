@@ -601,11 +601,16 @@ body.photo .tapfinger{display:none}
 /* New camera: Hand cam / LS must be picked first; the brands wait, dimmed */
 .pop.needtype #pBrands,.pop.needtype #recent,.pop.needtype #recentLabel{opacity:.35}
 /* Not picked yet: no green (that means selected); a soft highlight sweeps along the outline of each option instead */
-#pType.seg button::before{content:""; position:absolute; inset:-2px; border-radius:16px; padding:2px; pointer-events:none; opacity:0; transition:opacity .2s;
+#pType.seg button::before,.brands .tile:not(.other)::before{content:""; position:absolute; inset:-2px; border-radius:16px; padding:2px; pointer-events:none; opacity:0; transition:opacity .2s;
   background:linear-gradient(100deg, #3a444b 0%, #3a444b 38%, #e6ebee 50%, #3a444b 62%, #3a444b 100%) 0 0 / 250% 100%;
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)}
-.pop.needtype #pType.seg button:not(.on)::before{opacity:1; animation:hintShimmer 2.4s linear infinite}
-@media (prefers-reduced-motion: reduce){ .pop.needtype #pType.seg button:not(.on)::before{animation:none; background:#5a656b} }
+.pop.needtype #pType.seg button:not(.on)::before,
+.pop:not(.needtype)[data-screen="brand"] .brands .tile:not(.other):not(.sel)::before{opacity:1; animation:hintShimmer 2.4s linear infinite}
+/* "Other brand" keeps its dashed outline; its words shimmer instead */
+.pop:not(.needtype)[data-screen="brand"] .brands .tile.other b{background:linear-gradient(90deg, var(--muted) 0%, var(--muted) 38%, var(--fg) 50%, var(--muted) 62%, var(--muted) 100%) 0 0 / 250% 100%; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; animation:hintShimmer 2.4s linear infinite}
+@media (prefers-reduced-motion: reduce){
+  .pop.needtype #pType.seg button:not(.on)::before,.pop:not(.needtype)[data-screen="brand"] .brands .tile:not(.other):not(.sel)::before{animation:none; background:#5a656b}
+  .pop:not(.needtype)[data-screen="brand"] .brands .tile.other b{animation:none; -webkit-text-fill-color:var(--muted); color:var(--muted)} }
 #pType.shake{animation:popShake .38s ease}
 /* Send button in the send list: big, with the word */
 #sGo{flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.55rem; font-size:1.15rem; padding:1rem 1.2rem; border-radius:999px; margin-left:.8rem}
@@ -1976,6 +1981,7 @@ function trNode(n){
       });
       pBrands.appendChild(t);
     });
+    requestAnimationFrame(function(){ try{ pop.getAnimations({subtree: true}).forEach(function(x){ if(x.animationName === "hintShimmer") x.startTime = 0; }); }catch(e){} });
     // model tiles, grouped by body type
     pModels.textContent = "";
     if(a.b && GROUPS[a.b]){
