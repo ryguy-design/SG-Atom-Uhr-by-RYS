@@ -38,29 +38,29 @@ body{min-height:100vh; display:flex; flex-direction:column; align-items:center; 
   background-color:var(--line); background-repeat:no-repeat;
   background-image:
     conic-gradient(from calc(var(--ga, 0deg) - 40deg) at 50% 50%, transparent 0deg, rgba(255,255,255,.18) 18deg, rgba(255,255,255,.95) 40deg, rgba(255,255,255,.18) 62deg, transparent 80deg, transparent 360deg),
-    linear-gradient(112deg, transparent 0%, transparent 47.5%, rgba(255,255,255,.95) 50%, transparent 52.5%, transparent 100%),
-    linear-gradient(128deg, transparent 0%, transparent 42%, rgba(170,205,235,.5) 50%, transparent 58%, transparent 100%);
-  background-size:100% 100%, calc(var(--W) * 3) var(--H), calc(var(--W) * 3) var(--H);
-  background-position:
-    0 0,
-    calc((var(--s1, .5) * 2.5 - 2.25) * var(--W) - var(--ox) - 2px) calc(0px - var(--oy) - 2px),
-    calc((var(--s2, .5) * 2.5 - 2.25) * var(--W) - var(--ox) - 2px) calc(0px - var(--oy) - 2px)}
+    linear-gradient(112deg, transparent 0%, transparent 46%, rgba(255,255,255,.9) 50%, transparent 54%, transparent 100%);
+  background-size:100% 100%, calc(var(--W) * 3) var(--H);
+  background-position:0 0, calc((var(--s1, .5) * 2.5 - 2.25) * var(--W) - var(--ox) - 2px) calc(0px - var(--oy) - 2px)}
+/* Only one look at a time */
+.panel.m-glint .opt:not(.other)::before{background-image:conic-gradient(from calc(var(--ga, 0deg) - 40deg) at 50% 50%, transparent 0deg, rgba(255,255,255,.18) 18deg, rgba(255,255,255,.95) 40deg, rgba(255,255,255,.18) 62deg, transparent 80deg, transparent 360deg)}
+.panel.m-band .opt:not(.other)::before{background-image:linear-gradient(transparent, transparent), linear-gradient(112deg, transparent 0%, transparent 46%, rgba(255,255,255,.9) 50%, transparent 54%, transparent 100%)}
+.panel.m-glint .opt.other span{background-image:none}
 .live .opt:not(.other):not(.sel)::before{opacity:1}
 /* "Other brand" keeps its dashed outline: the bands pass through its words instead */
 .opt.other span{background-color:var(--muted); background-repeat:no-repeat; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
-  background-image:linear-gradient(112deg, transparent 0%, transparent 47.5%, #fff 50%, transparent 52.5%, transparent 100%), linear-gradient(128deg, transparent 0%, transparent 42%, rgba(200,225,245,.75) 50%, transparent 58%, transparent 100%);
-  background-size:calc(var(--W) * 3) var(--H), calc(var(--W) * 3) var(--H);
-  background-position:calc((var(--s1, .5) * 2.5 - 2.25) * var(--W) - var(--ox)) calc(0px - var(--oy)), calc((var(--s2, .5) * 2.5 - 2.25) * var(--W) - var(--ox)) calc(0px - var(--oy))}
+  background-image:linear-gradient(112deg, transparent 0%, transparent 46%, #fff 50%, transparent 54%, transparent 100%);
+  background-size:calc(var(--W) * 3) var(--H);
+  background-position:calc((var(--s1, .5) * 2.5 - 2.25) * var(--W) - var(--ox)) calc(0px - var(--oy))}
 .group.quiet .opt::before{opacity:0!important}
 .group.quiet .opt.other span{background-image:none}
 </style>
 </head>
 <body>
-  <div class="note"><b>Shimmer preview:</b> circling glint + double band. On a phone, tap <b>Enable tilt</b> and tilt it. On a computer, move the mouse over the panel to fake the tilt. Tap an option to pick it: that group goes quiet. Hold still for 3 s and it drifts on its own.</div>
-  <div class="bar"><button id="tiltBtn" type="button">Enable tilt</button><button id="resetBtn" type="button">Reset picks</button></div>
+  <div class="note"><b>Shimmer preview (calmer):</b> compare <b>Glint only</b> and <b>Band only</b>. On a phone, tap <b>Enable tilt</b> and tilt it. On a computer, move the mouse over the panel to fake the tilt. Tap an option to pick it: that group goes quiet. Hold still for 3 s and it drifts on its own.</div>
+  <div class="bar"><button id="modeGlint" type="button" aria-pressed="true">Glint only</button><button id="modeBand" type="button" aria-pressed="false">Band only</button><button id="tiltBtn" type="button">Enable tilt</button><button id="resetBtn" type="button">Reset picks</button></div>
   <div id="read">Mode: auto</div>
 
-  <div class="panel live" id="panel">
+  <div class="panel live m-glint" id="panel">
     <div class="title">Add camera</div>
     <div class="sub">First pick Hand cam or LS</div>
     <div class="grid group" id="gType">
@@ -100,6 +100,9 @@ body{min-height:100vh; display:flex; flex-direction:column; align-items:center; 
       g.classList.add("quiet");
     });
   });
+  var mg = document.getElementById("modeGlint"), mb = document.getElementById("modeBand");
+  function look(g){ panel.classList.toggle("m-glint", g); panel.classList.toggle("m-band", !g); mg.setAttribute("aria-pressed", g); mb.setAttribute("aria-pressed", !g); }
+  mg.onclick = function(){ look(true); }; mb.onclick = function(){ look(false); };
   document.getElementById("resetBtn").onclick = function(){
     [].forEach.call(panel.querySelectorAll(".opt"), function(x){ x.classList.remove("sel"); });
     [].forEach.call(panel.querySelectorAll(".group"), function(g){ g.classList.remove("quiet"); });
@@ -112,22 +115,21 @@ body{min-height:100vh; display:flex; flex-direction:column; align-items:center; 
   function tick(now){
     var dt = Math.min(.05, (now - prev) / 1000); prev = now;
     var tilted = now - last < 3000;
-    sx += (tx - sx) * .16; sy += (ty - sy) * .16;   // smoothing: glides, never jitters
+    sx += (tx - sx) * .06; sy += (ty - sy) * .06;   // heavy smoothing: slow, calm glide
     var mag = Math.hypot(sx, sy);
     if(tilted && mag > .03){
       var want = Math.atan2(sy, sx) * 180 / Math.PI + 90;   // glint on the side tipped towards
-      var d = ((want - ga + 540) % 360) - 180; ga += d * .2;
-      s1 += ((.5 + sx * .9) - s1) * .2; s2 += ((.5 + sx * .45 + sy * .2) - s2) * .2;
-      a1 = s1; a2 = s2;
+      var d = ((want - ga + 540) % 360) - 180; ga += d * .06;
+      s1 += ((.5 + sx * .7) - s1) * .06; s2 = s1;
+      a1 = Math.min(1, Math.max(0, s1));
     } else {
-      ga = (ga + 50 * dt) % 360;             // slow drift round each outline
-      a1 = (a1 + dt / 2.6) % 1.35;            // near band: crosses in ~2.6 s, then a short pause off-panel
-      a2 = (a2 + dt / 4.1) % 1.35;            // far band: slower, so the two cross over each other
-      s1 = Math.min(1, Math.max(0, a1)); s2 = Math.min(1, Math.max(0, a2));   // carries on from wherever tilt left them
+      ga = (ga + 16 * dt) % 360;             // very slow drift round each outline (about 22 s per lap)
+      a1 = (a1 + dt / 7) % 1.5;               // band: crosses in ~7 s, then a pause off-panel
+      s1 = Math.min(1, Math.max(0, a1));   // carries on from wherever tilt left it
     }
     panel.style.setProperty("--ga", ga.toFixed(1) + "deg");
     panel.style.setProperty("--s1", s1.toFixed(4)); panel.style.setProperty("--s2", s2.toFixed(4));
-    read.textContent = "Mode: " + (tilted ? "tilt" : "auto") + "  ·  glint " + Math.round((ga % 360 + 360) % 360) + "°  ·  bands " + s1.toFixed(2) + " / " + s2.toFixed(2);
+    read.textContent = "Mode: " + (tilted ? "tilt" : "auto") + "  ·  glint " + Math.round((ga % 360 + 360) % 360) + "°  ·  band " + s1.toFixed(2);
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -147,7 +149,7 @@ body{min-height:100vh; display:flex; flex-direction:column; align-items:center; 
     var g = e.gamma, b = e.beta, x = ang === 90 ? b : ang === 180 ? -g : ang === 270 ? -b : g, y = ang === 90 ? -g : ang === 180 ? -b : ang === 270 ? g : b;
     if(x0 === null){ x0 = x; y0 = y; lx = x; ly = y; return; }
     x0 += (x - x0) * .01; y0 += (y - y0) * .01;   // slowly re-centres on however the phone is held
-    tx = Math.max(-1, Math.min(1, (x - x0) / 22)); ty = Math.max(-1, Math.min(1, (y - y0) / 22));
+    tx = Math.max(-1, Math.min(1, (x - x0) / 35)); ty = Math.max(-1, Math.min(1, (y - y0) / 35));
     if(Math.abs(x - lx) + Math.abs(y - ly) > 1){ lx = x; ly = y; last = performance.now(); }
   }
   var btn = document.getElementById("tiltBtn");
