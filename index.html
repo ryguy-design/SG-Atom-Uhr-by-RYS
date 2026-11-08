@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261108023622">
+<meta name="app-ver" content="20261108024857">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -563,7 +563,8 @@ html.boxfull:not(.land) .taphint{opacity:0}
 .langsw i{position:absolute; top:2px; bottom:2px; left:2px; width:calc(50% - 2px); border-radius:999px; background:var(--fg); transition:transform .3s var(--spring)}
 .langsw.de i{transform:translateX(100%)}
 /* EN/DE stays tappable above the compulsory windows (camera check, How it works) */
-body:has(#sheet:not([hidden]), #intro:not([hidden])):not(:has(#cam:not([hidden]), #viewer:not([hidden]), #sendView:not([hidden]), #guide:not([hidden]))) .controls button.langsw{z-index:45}
+body:has(#sheet:not([hidden]), #intro:not([hidden])):not(:has(#cam:not([hidden]), #viewer:not([hidden]), #sendView:not([hidden]), #guide:not([hidden]))) .controls button.langsw,
+body:has(#sheet:not([hidden]), #intro:not([hidden])):not(:has(#cam:not([hidden]), #viewer:not([hidden]), #sendView:not([hidden]), #guide:not([hidden]))) .controls button.clearmain{position:relative; z-index:45}   /* Reset works even while a must-finish menu is open */
 .langsw:not(.de) span:first-of-type, .langsw.de span:last-of-type{color:var(--bg)}
 /* Trying to close the camera check before it's finished: a short shake and a note */
 .plock{position:absolute; left:1rem; right:1rem; bottom:1rem; z-index:5; box-shadow:0 8px 24px rgba(0,0,0,.5); padding:.6rem .8rem; border-radius:12px; background:#3a1215; color:#ffb4b8; font-weight:700; text-align:center}
@@ -3429,6 +3430,8 @@ function trNode(n){
     showLoc = false; applyLoc();
     if(rotated) setRot(false);
     setPhoto(false, true);
+    if(!sheet.hidden) closeSheet(true);   // the camera check closes too, even though it normally can't be left unfinished
+    var it = document.getElementById("intro"); if(it && !it.hidden){ it.classList.remove("on"); it.hidden = true; }
   }
 
   // A new day starts a new event: re-check whenever the app comes back to the screen
