@@ -600,7 +600,12 @@ body.photo .tapfinger{display:none}
 .g-ver{list-style:none; text-align:center; color:var(--muted); font-size:.75rem; opacity:.7; padding:.5rem 0 0}
 /* New camera: Hand cam / LS must be picked first; the brands wait, dimmed */
 .pop.needtype #pBrands,.pop.needtype #recent,.pop.needtype #recentLabel{opacity:.35}
-.pop.needtype #pType button{border-color:var(--ok)}
+/* Not picked yet: no green (that means selected); a soft highlight sweeps along the outline of each option instead */
+#pType.seg button::before{content:""; position:absolute; inset:-2px; border-radius:16px; padding:2px; pointer-events:none; opacity:0; transition:opacity .2s;
+  background:linear-gradient(100deg, #3a444b 0%, #3a444b 38%, #e6ebee 50%, #3a444b 62%, #3a444b 100%) 0 0 / 250% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)}
+.pop.needtype #pType.seg button:not(.on)::before{opacity:1; animation:hintShimmer 2.4s linear infinite}
+@media (prefers-reduced-motion: reduce){ .pop.needtype #pType.seg button:not(.on)::before{animation:none; background:#5a656b} }
 #pType.shake{animation:popShake .38s ease}
 /* Send button in the send list: big, with the word */
 #sGo{flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.55rem; font-size:1.15rem; padding:1rem 1.2rem; border-radius:999px; margin-left:.8rem}
