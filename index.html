@@ -620,6 +620,7 @@ html.land.hasbox .bubspace{height:calc(5.4rem + 8px)}   /* landscape: room for t
 body.cdrag footer,body.cdrag .taphint,body.cdrag .bubble{transition:none!important; transform:translateY(var(--cy,0px)); opacity:var(--co,1)}
 body.cdrag .rotbtn,body.cdrag .visits{transition:none!important; transform:translateY(calc(var(--cy,0px) * -.6)); opacity:var(--co,1)}
 body.cdrag .bubble,body.cdrag .tapfinger{animation:none!important}
+body.cdrag main,body.ctl-out main,body.ctl-in main{will-change:transform}   /* clock on its own layer while it moves: the ticking digits don't shimmer */
 body.cdrag .bb-steps i.cur{animation:none}
 body.cdrag.cfly footer,body.cdrag.cfly .taphint,body.cdrag.cfly .bubble,body.cdrag.csnap footer,body.cdrag.csnap .taphint,body.cdrag.csnap .bubble,
 body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits,body.cdrag.csnap .rotbtn,body.cdrag.csnap .visits{transition:transform .26s ease, opacity .26s ease!important}
@@ -3388,7 +3389,7 @@ function trNode(n){
   function absPos(el){ var x = 0, y = 0; while(el && el !== document.body){ x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; } return [x, y]; }
   function clockRect(){
     var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-    [].forEach.call(mainEl.children, function(c){ if(!c.offsetWidth || !c.offsetHeight) return; var p = absPos(c); x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0] + c.offsetWidth); y1 = Math.max(y1, p[1] + c.offsetHeight); });
+    [].forEach.call(mainEl.children, function(c){ if(!c.offsetWidth || !c.offsetHeight || c.id === "tapHint") return; /* the hint comes and goes with the buttons: leave it out or the clock jumps */ var p = absPos(c); x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0] + c.offsetWidth); y1 = Math.max(y1, p[1] + c.offsetHeight); });
     var m = absPos(mainEl); return {cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, w: Math.max(1, x1 - x0), mx: m[0], my: m[1]};
   }
   function geomFor(on){   // where the clock would sit with the buttons hidden (on) or shown
