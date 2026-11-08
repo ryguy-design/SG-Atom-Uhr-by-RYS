@@ -110,6 +110,12 @@ body.photo footer, body.photo .taphint, body.photo .rotbtn, body.photo .visits{d
 .rotbtn svg{width:1.6rem; height:1.6rem; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round}
 .rotbtn[aria-pressed="true"]{color:var(--fg); border-color:var(--fg)}
 .rotbtn:focus-visible{outline:2px solid var(--fg); outline-offset:2px}
+/* While the menu slides, one hint travels between its two places: under the clock and the bottom edge */
+.hintfly{position:fixed; left:0; right:0; top:0; display:none; font-size:.72rem; color:var(--muted); text-align:center; white-space:nowrap; pointer-events:none; z-index:5; will-change:transform}
+.hintfly span{grid-area:1/1}
+body.hfly .hintfly{display:grid}
+body.hfly .taphint,body.hfly .showhint{visibility:hidden!important; transition:none!important}
+body.hland .taphint,body.hland .showhint{transition:none!important}
 body.photo .showhint{opacity:.45; visibility:visible; transform:none; transition:opacity .35s ease .05s, transform .45s var(--spring) .05s, visibility 0s}   /* slides up into place; slides back down when the menu returns */
 #status{display:flex; flex-direction:column; gap:.15rem; min-width:0}
 #syncText{color:var(--muted)}
@@ -683,6 +689,7 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
 
 <div id="bubSpace" class="bubspace" aria-hidden="true"></div>
 <div id="showHint" class="showhint">Tap or swipe to show menu</div>
+<div id="hintFly" class="hintfly" aria-hidden="true" data-notr><span></span><span></span></div>
 <!-- Camera check bubble: the box when it's put away. Drag it anywhere; the arrows open the box -->
 <div id="bubble" class="bubble" hidden>
   <div id="bbSteps" class="bb-steps" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -3408,17 +3415,41 @@ function trNode(n){
     var after = clockRect(); if(Math.abs(after.cx - before.cx) < 1 && Math.abs(after.cy - before.cy) < 1 && Math.abs(after.w - before.w) < 1) return;
     placeClock(after, before, 1); void mainEl.offsetWidth; placeClock(after, before, 0, dur || .42);
   }
+  // The hint line travels in full sight: from under the clock to the bottom edge (q = 1) and back (q = 0),
+  // in the same time and easing as the clock, so it lands as everything else settles
+  var hintEl = document.getElementById("hintFly"), tapH = document.getElementById("tapHint"), showH = document.getElementById("showHint"), hP = null, hintT = 0;
+  function hintStart(){   // call while the layout with the buttons is in place
+    clearTimeout(hintT); var b = document.body, root = document.documentElement;
+    b.classList.remove("hland"); b.classList.add("hfly");
+    var p1 = absPos(tapH), p2 = absPos(showH), W = hintEl.offsetWidth;
+    hintEl.children[0].textContent = tapH.textContent; hintEl.children[1].textContent = showH.textContent;
+    hP = {y1: p1[1], y2: p2[1], x1: p1[0] + tapH.offsetWidth / 2 - W / 2, x2: p2[0] + showH.offsetWidth / 2 - W / 2,
+          o1: (!tapH.offsetHeight || (root.classList.contains("boxfull") && !root.classList.contains("land"))) ? 0 : .55, o2: .45};
+  }
+  function hintAt(q, anim){
+    if(!hP) return; var t = anim ? anim + "s " + EASE : "", a = hintEl.children[0], c = hintEl.children[1];
+    hintEl.style.transition = anim ? "transform " + t : "none"; a.style.transition = c.style.transition = anim ? "opacity " + t : "none";
+    hintEl.style.transform = "translate(" + (hP.x1 + (hP.x2 - hP.x1) * q).toFixed(1) + "px," + (hP.y1 + (hP.y2 - hP.y1) * q).toFixed(1) + "px)";
+    a.style.opacity = (hP.o1 * (1 - q)).toFixed(3); c.style.opacity = (hP.o2 * q).toFixed(3);
+  }
+  function hintEnd(){   // the real hint takes over in the same spot, with no entrance animation of its own
+    clearTimeout(hintT); hP = null; var b = document.body; if(!b.classList.contains("hfly")) return;
+    b.classList.add("hland"); b.classList.remove("hfly");
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.classList.remove("hland"); }); });
+  }
   function setPhoto(on, now){
     var b = document.body; clearTimeout(photoT); b.classList.remove("ctl-in");
     if(on === b.classList.contains("photo") && !(on && b.classList.contains("ctl-out"))) return;
     if(on){
-      if(now){ b.classList.add("photo"); fit(); return; }
+      if(now){ b.classList.add("photo"); fit(); hintEnd(); return; }
+      hintStart(); hintAt(0); void hintEl.offsetWidth;
       var A = clockRect(), B = geomFor(true);
-      b.classList.add("ctl-out"); placeClock(A, B, 1, .32);   // buttons slide out while the clock glides into the space
-      photoT = setTimeout(function(){ b.classList.add("photo"); b.classList.remove("ctl-out"); bubble.style.transform = ""; fit(); clockDone(); glide(B, .2); }, 330);
+      b.classList.add("ctl-out"); placeClock(A, B, 1, .32); hintAt(1, .32);   // buttons slide out while the clock glides into the space and the hint travels to the bottom
+      photoT = setTimeout(function(){ b.classList.add("photo"); b.classList.remove("ctl-out"); bubble.style.transform = ""; fit(); clockDone(); glide(B, .2); hintEnd(); }, 330);
     } else {
-      if(now){ b.classList.remove("photo", "ctl-out"); fit(); return; }
+      if(now){ b.classList.remove("photo", "ctl-out"); fit(); hintEnd(); return; }
       var before = clockRect(); b.classList.remove("ctl-out"); b.classList.add("ctl-in"); b.classList.remove("photo"); fit(); glide(before, .32);
+      hintStart(); hintAt(1); void hintEl.offsetWidth; hintAt(0, .32); hintT = setTimeout(hintEnd, 340);   // the hint travels back up under the clock
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.classList.remove("ctl-in"); }); });   // slide them back up
       if(typeof rePlace === "function") rePlace();
     }
@@ -3442,25 +3473,25 @@ function trNode(n){
         if(Math.abs(d) < 10 && Math.abs(dx) < 10) return;
         if(Math.abs(dx) > Math.abs(d)){ on = false; return; }
         var photo = b.classList.contains("photo");
-        if(!photo && d > 0){ mode = "hide"; A = clockRect(); B = geomFor(true); }   // A: now, B: with the buttons gone
-        else if(photo && d < 0){ mode = "show"; B = clockRect(); b.classList.add("cdrag"); set(SHOW, 0); b.classList.remove("photo"); fit(); placeBubble(); A = clockRect(); }   // B: now (hidden), A: with the buttons
+        if(!photo && d > 0){ mode = "hide"; A = clockRect(); B = geomFor(true); hintStart(); }   // A: now, B: with the buttons gone
+        else if(photo && d < 0){ mode = "show"; B = clockRect(); b.classList.add("cdrag"); set(SHOW, 0); b.classList.remove("photo"); fit(); placeBubble(); A = clockRect(); hintStart(); }   // B: now (hidden), A: with the buttons
         else { on = false; return; }
         b.classList.add("cdrag");
       }
       var q = prog();
-      if(mode === "hide"){ set(Math.max(0, d), 1 - d / 200); placeClock(A, B, q); }
-      else { set(Math.max(0, SHOW + d), -d / SHOW); placeClock(A, B, 1 - q); }
+      if(mode === "hide"){ set(Math.max(0, d), 1 - d / 200); placeClock(A, B, q); hintAt(q); }
+      else { set(Math.max(0, SHOW + d), -d / SHOW); placeClock(A, B, 1 - q); hintAt(1 - q); }
     }, {passive: true});
     document.addEventListener("touchend", function(){
       if(!on || !mode){ on = false; return; } on = false;
       var v = d / Math.max(1, Date.now() - t0); swallow = true; setTimeout(function(){ swallow = false; }, 400);
       var hideIt = mode === "hide" ? (d > 50 || v > .5) : !(d < -50 || v < -.5);
       if(hideIt){
-        b.classList.add("cfly"); placeClock(A, B, 1, .26);   // buttons carry on out, clock finishes its glide
+        b.classList.add("cfly"); placeClock(A, B, 1, .26); hintAt(1, .26);   // buttons carry on out, clock finishes its glide, hint lands at the bottom
         setTimeout(function(){ var seen = B; b.classList.remove("cfly"); clear(); setPhoto(true, true); clockDone(); glide(seen, .2); }, 270);   // any last few pixels glide too
       } else {
-        b.classList.add("csnap"); set(0, 1); placeClock(A, B, 0, .28);   // everything slides (back) into place
-        setTimeout(function(){ var seen = A; b.classList.remove("csnap"); clear(); clockDone(); fit(); glide(seen, .2); if(typeof rePlace === "function") rePlace(); }, 290);
+        b.classList.add("csnap"); set(0, 1); placeClock(A, B, 0, .28); hintAt(0, .28);   // everything slides (back) into place, hint back under the clock
+        setTimeout(function(){ var seen = A; b.classList.remove("csnap"); clear(); clockDone(); fit(); glide(seen, .2); hintEnd(); if(typeof rePlace === "function") rePlace(); }, 290);
       }
       mode = "";
     }, {passive: true});
