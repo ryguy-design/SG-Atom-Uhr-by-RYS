@@ -51,7 +51,7 @@ body{min-height:100vh; display:flex; flex-direction:column; align-items:center; 
 </style>
 </head>
 <body>
-  <div class="note"><b>Shimmer preview (calmer):</b> two glass bands taking turns across the buttons. Tilting nudges them along. On a phone, tap <b>Enable tilt</b> and tilt it. On a computer, move the mouse over the panel to fake the tilt. Tap an option to pick it: that group goes quiet. Hold still for 3 s and it drifts on its own.</div>
+  <div class="note"><b>Shimmer preview (calmer):</b> two glass bands taking turns across the buttons. Tilt the phone and the light moves with it, like a reflection on glass. On a phone, tap <b>Enable tilt</b> and tilt it. On a computer, move the mouse over the panel to fake the tilt. Tap an option to pick it: that group goes quiet. Hold still for 3 s and it drifts on its own.</div>
   <div class="bar"><button id="tiltBtn" type="button">Enable tilt</button><button id="resetBtn" type="button">Reset picks</button></div>
   <div id="read">Mode: auto</div>
 
@@ -103,17 +103,20 @@ body{min-height:100vh; display:flex; flex-direction:column; align-items:center; 
 
   // ---- The light ----
   // Each band takes CROSS seconds to cross; the next one sets off when the last is OVERLAP of the way across,
-  // so one is leaving the far corner as the next enters the first. Tilting nudges both along a little.
-  var CROSS = 9, OVERLAP = .62, CYCLE = 2 * OVERLAP * CROSS;
-  var tx = 0, sx = 0, t = 0, prev = performance.now();
+  // so one is leaving the far corner as the next enters the first.
+  // Tilt works like a real reflection: the bands still drift, but tilting shifts them straight away and strongly
+  // (about 10° moves them a third of the way across), so the light feels attached to the phone.
+  var CROSS = 9, OVERLAP = .62, CYCLE = 2 * OVERLAP * CROSS, PER_DEG = .0128, MAX_SHIFT = .5;
+  var deg = 0, shift = 0, t = 0, prev = performance.now();
   function pos(ph){ var p = (((ph % CYCLE) + CYCLE) % CYCLE) / CROSS; return p > 1 ? 1.15 : p; }   // past 1: waiting off-panel
   function tick(now){
     var dt = Math.min(.05, (now - prev) / 1000); prev = now; t += dt;
-    sx += (tx - sx) * .04;
-    var nudge = sx * .18;
+    var want = Math.max(-MAX_SHIFT, Math.min(MAX_SHIFT, deg * PER_DEG));
+    shift += (want - shift) * .3;   // light smoothing: follows the hand closely, just without sensor jitter
+    var nudge = shift;
     panel.style.setProperty("--s1", (pos(t) + (pos(t) <= 1 ? nudge : 0)).toFixed(4));
     panel.style.setProperty("--s2", (pos(t - OVERLAP * CROSS) + (pos(t - OVERLAP * CROSS) <= 1 ? nudge : 0)).toFixed(4));
-    read.textContent = "Band 1: " + (pos(t) > 1 ? "waiting" : Math.round(pos(t) * 100) + "%") + "  ·  Band 2: " + (pos(t - OVERLAP * CROSS) > 1 ? "waiting" : Math.round(pos(t - OVERLAP * CROSS) * 100) + "%");
+    read.textContent = "Tilt " + deg.toFixed(1) + "°  ·  Band 1: " + (pos(t) > 1 ? "waiting" : Math.round(pos(t) * 100) + "%") + "  ·  Band 2: " + (pos(t - OVERLAP * CROSS) > 1 ? "waiting" : Math.round(pos(t - OVERLAP * CROSS) * 100) + "%");
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -122,7 +125,7 @@ body{min-height:100vh; display:flex; flex-direction:column; align-items:center; 
   panel.addEventListener("pointermove", function(e){
     if(e.pointerType !== "mouse") return;
     var r = panel.getBoundingClientRect();
-    tx = ((e.clientX - r.left) / r.width - .5) * 2;
+    deg = ((e.clientX - r.left) / r.width - .5) * 2 * 25;   // edge to edge = ±25° of tilt
   });
 
   // Phone: the gyro
@@ -132,8 +135,8 @@ body{min-height:100vh; display:flex; flex-direction:column; align-items:center; 
     var ang = ((screen.orientation && screen.orientation.angle) || window.orientation || 0); ang = ((ang % 360) + 360) % 360;
     var g = e.gamma, b = e.beta, x = ang === 90 ? b : ang === 180 ? -g : ang === 270 ? -b : g, y = ang === 90 ? -g : ang === 180 ? -b : ang === 270 ? g : b;
     if(x0 === null){ x0 = x; y0 = y; lx = x; ly = y; return; }
-    x0 += (x - x0) * .01; y0 += (y - y0) * .01;   // slowly re-centres on however the phone is held
-    tx = Math.max(-1, Math.min(1, (x - x0) / 35));
+    x0 += (x - x0) * .002; y0 += (y - y0) * .002;   // very slowly re-centres on however the phone is held (~10 s)
+    deg = (x - x0) + .5 * (y - y0);   // left/right tilt counts fully, towards/away half
     
   }
   var btn = document.getElementById("tiltBtn");
