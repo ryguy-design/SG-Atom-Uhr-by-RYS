@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261108021914">
+<meta name="app-ver" content="20261108022231">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -609,22 +609,26 @@ body.photo .tapfinger{display:none}
 @property --s2{syntax:"<number>"; inherits:false; initial-value:1.15}
 @keyframes glassA{0%{--s1:0} 100%{--s1:1}}
 @keyframes glassB{0%{--s2:0} 100%{--s2:1}}
-#pType.seg button::before,.brands .tile:not(.other)::before{content:""; position:absolute; inset:-2px; border-radius:16px; padding:2px; pointer-events:none; opacity:0; transition:opacity .25s;
+#pType.seg button::before,.brands .tile:not(.other)::before,#pModels .tile:not(.other-model)::before{content:""; position:absolute; inset:-2px; border-radius:16px; padding:2px; pointer-events:none; opacity:0; transition:opacity .25s;
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)}
-#pType.seg button::before,.brands .tile:not(.other)::before,.brands .tile.other b{
+#pType.seg button::before,.brands .tile:not(.other)::before,.brands .tile.other b,
+#pModels .tile:not(.other-model)::before,#pModels .tile.other-model b{
   background-color:#3a444b; background-repeat:no-repeat;
   background-image:linear-gradient(112deg, transparent 0%, transparent 42.5%, rgba(255,255,255,.6) 42.75%, rgba(255,255,255,.6) 43.05%, transparent 43.3%, transparent 44%, rgba(255,255,255,.35) 46.5%, rgba(255,255,255,.9) 49%, rgba(255,255,255,.35) 51.5%, transparent 54%, transparent 100%), linear-gradient(112deg, transparent 0%, transparent 42.5%, rgba(255,255,255,.6) 42.75%, rgba(255,255,255,.6) 43.05%, transparent 43.3%, transparent 44%, rgba(255,255,255,.35) 46.5%, rgba(255,255,255,.9) 49%, rgba(255,255,255,.35) 51.5%, transparent 54%, transparent 100%);
   background-size:calc(var(--W, 400px) * 3) var(--H, 800px), calc(var(--W, 400px) * 3) var(--H, 800px);
   background-position:calc((var(--s1) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px) - 2px) calc(0px - var(--oy, 0px) - 2px), calc((var(--s2) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px) - 2px) calc(0px - var(--oy, 0px) - 2px)}
 .pop.needtype #pType.seg button:not(.on)::before,
 .pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile:not(.other)::before,
-.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{opacity:1; animation:glassA 7s linear infinite, glassB 7s linear -3.5s infinite}
+.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b,
+.pop:not(.hasmodel)[data-screen="model"] #pModels .tile:not(.other-model)::before,
+.pop:not(.hasmodel)[data-screen="model"] #pModels .tile.other-model b{opacity:1; animation:glassA 7s linear infinite, glassB 7s linear -3.5s infinite}
 /* "Other brand" keeps its dashed outline; the light passes through its words instead */
-.brands .tile.other b{background-color:var(--muted); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
+.brands .tile.other b,#pModels .tile.other-model b{background-color:var(--muted); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
   background-position:calc((var(--s1) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px)) calc(0px - var(--oy, 0px)), calc((var(--s2) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px)) calc(0px - var(--oy, 0px))}
 @media (prefers-reduced-motion: reduce){
   .pop.needtype #pType.seg button:not(.on)::before,.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile:not(.other)::before,
-  .pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{animation:none} }
+  .pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b,
+  .pop:not(.hasmodel)[data-screen="model"] #pModels .tile:not(.other-model)::before,.pop:not(.hasmodel)[data-screen="model"] #pModels .tile.other-model b{animation:none} }
 #pType.shake{animation:popShake .38s ease}
 /* Send button in the send list: big, with the word */
 #sGo{flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.55rem; font-size:1.15rem; padding:1rem 1.2rem; border-radius:999px; margin-left:.8rem}
@@ -1976,10 +1980,12 @@ function trNode(n){
   function placeSheen(){
     var W = pop.offsetWidth, H = pop.offsetHeight; if(!W) return;
     pop.style.setProperty("--W", W + "px"); pop.style.setProperty("--H", H + "px");
-    [].forEach.call(pop.querySelectorAll("#pType button, .brands .tile"), function(el){
-      var t = el.classList.contains("other") ? el.querySelector("b") : el, a = offs(t), b = offs(pop);   // layout offsets: unaffected by the sideways rotation
+    [].forEach.call(pop.querySelectorAll("#pType button, .brands .tile, #pModels .tile"), function(el){
+      var t = el.classList.contains("other") || el.classList.contains("other-model") ? el.querySelector("b") : el, a = offs(t), b = offs(pop);   // layout offsets: unaffected by the sideways rotation
       t.style.setProperty("--ox", (a[0] - b[0]) + "px"); t.style.setProperty("--oy", (a[1] - b[1]) + "px");
+      H = Math.max(H, a[1] - b[1] + t.offsetHeight + 4);   // a long model list scrolls past the panel: the light covers all of it
     });
+    pop.style.setProperty("--H", H + "px");
     try{ pop.getAnimations({subtree: true}).forEach(function(x){ if(x.animationName === "glassA" || x.animationName === "glassB") x.startTime = 0; }); }catch(e){}
   }
   window.addEventListener("resize", function(){ if(pop.offsetWidth) placeSheen(); });
@@ -2007,7 +2013,7 @@ function trNode(n){
       });
       pBrands.appendChild(t);
     });
-    pop.classList.toggle("hasbrand", !!a.b);
+    pop.classList.toggle("hasbrand", !!a.b); pop.classList.toggle("hasmodel", !!findCam(a.b, a.m));
     requestAnimationFrame(placeSheen);
     // model tiles, grouped by body type
     pModels.textContent = "";
