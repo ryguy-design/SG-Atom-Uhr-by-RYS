@@ -113,6 +113,10 @@ body.photo footer, body.photo .taphint, body.photo .rotbtn, body.photo .visits{d
 /* While the menu slides, one hint travels between its two places: under the clock and the bottom edge */
 .hintfly{position:fixed; left:0; right:0; top:0; display:none; font-size:.72rem; color:var(--muted); text-align:center; white-space:nowrap; pointer-events:none; z-index:5; will-change:transform}
 .hintfly span{grid-area:1/1}
+/* Hint text shimmers: a soft highlight sweeps across it, left to right */
+.taphint,.showhint,.hintfly span{background:linear-gradient(90deg, var(--muted) 0%, var(--muted) 38%, var(--fg) 50%, var(--muted) 62%, var(--muted) 100%) 0 0 / 250% 100%; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; animation:hintShimmer 2.4s linear infinite}
+@keyframes hintShimmer{from{background-position:100% 0} to{background-position:0% 0}}
+@media (prefers-reduced-motion: reduce){ .taphint,.showhint,.hintfly span{animation:none; -webkit-text-fill-color:var(--muted); color:var(--muted)} }
 body.hfly .hintfly{display:grid}
 body.hfly .taphint,body.hfly .showhint{visibility:hidden!important; transition:none!important}
 body.hland .taphint,body.hland .showhint{transition:none!important}
@@ -3422,10 +3426,12 @@ function trNode(n){
     clearTimeout(hintT); var b = document.body, root = document.documentElement;
     b.classList.remove("hland"); b.classList.add("hfly");
     var p1 = absPos(tapH), p2 = absPos(showH), W = hintEl.offsetWidth;
-    hintEl.children[0].textContent = tapH.textContent; hintEl.children[1].textContent = showH.textContent;
+    hintEl.children[0].textContent = tapH.textContent; hintEl.children[1].textContent = showH.textContent; syncShimmer();
     hP = {y1: p1[1], y2: p2[1], x1: p1[0] + tapH.offsetWidth / 2 - W / 2, x2: p2[0] + showH.offsetWidth / 2 - W / 2,
           o1: (!tapH.offsetHeight || (root.classList.contains("boxfull") && !root.classList.contains("land"))) ? 0 : .55, o2: .45};
   }
+  function syncShimmer(){ try{ [tapH, showH, hintEl.children[0], hintEl.children[1]].forEach(function(e){ e.getAnimations().forEach(function(a){ if(a.animationName === "hintShimmer") a.startTime = 0; }); }); }catch(e){} }
+  syncShimmer();
   function hintAt(q, anim){
     if(!hP) return; var t = anim ? anim + "s " + EASE : "", a = hintEl.children[0], c = hintEl.children[1];
     hintEl.style.transition = anim ? "transform " + t : "none"; a.style.transition = c.style.transition = anim ? "opacity " + t : "none";
@@ -3434,7 +3440,7 @@ function trNode(n){
   }
   function hintEnd(){   // the real hint takes over in the same spot, with no entrance animation of its own
     clearTimeout(hintT); hP = null; var b = document.body; if(!b.classList.contains("hfly")) return;
-    b.classList.add("hland"); b.classList.remove("hfly");
+    b.classList.add("hland"); b.classList.remove("hfly"); syncShimmer();
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.classList.remove("hland"); }); });
   }
   function setPhoto(on, now){
