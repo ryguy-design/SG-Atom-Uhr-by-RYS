@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261108021712">
+<meta name="app-ver" content="20261108021914">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -603,12 +603,12 @@ body.photo .tapfinger{display:none}
 /* Not picked yet: no green (that means selected). Light passes diagonally over the whole panel and only shows through
    the outlines of options that can be picked; once something in a group is picked, that group goes quiet.
    Classic glass: each band is a soft, wide glow with a thin sharp line trailing just behind it. Two bands take turns
-   (each crosses in 9 s; the next sets off when the last is ~60% across), so one is always on the buttons.
+   (each crosses in 7 s; the next sets off when the last is halfway across), so a new one is coming in before the last has gone.
    --W/--H: panel size, --ox/--oy: where each option sits in the panel (set by renderPop), --s1/--s2: each band, 0 → 1 across */
 @property --s1{syntax:"<number>"; inherits:false; initial-value:1.15}
 @property --s2{syntax:"<number>"; inherits:false; initial-value:1.15}
-@keyframes glassA{0%{--s1:0} 80.6%{--s1:1} 80.61%,100%{--s1:1.15}}
-@keyframes glassB{0%{--s2:0} 80.6%{--s2:1} 80.61%,100%{--s2:1.15}}
+@keyframes glassA{0%{--s1:0} 100%{--s1:1}}
+@keyframes glassB{0%{--s2:0} 100%{--s2:1}}
 #pType.seg button::before,.brands .tile:not(.other)::before{content:""; position:absolute; inset:-2px; border-radius:16px; padding:2px; pointer-events:none; opacity:0; transition:opacity .25s;
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)}
 #pType.seg button::before,.brands .tile:not(.other)::before,.brands .tile.other b{
@@ -618,7 +618,7 @@ body.photo .tapfinger{display:none}
   background-position:calc((var(--s1) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px) - 2px) calc(0px - var(--oy, 0px) - 2px), calc((var(--s2) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px) - 2px) calc(0px - var(--oy, 0px) - 2px)}
 .pop.needtype #pType.seg button:not(.on)::before,
 .pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile:not(.other)::before,
-.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{opacity:1; animation:glassA 11.16s linear infinite, glassB 11.16s linear -5.58s infinite}
+.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{opacity:1; animation:glassA 7s linear infinite, glassB 7s linear -3.5s infinite}
 /* "Other brand" keeps its dashed outline; the light passes through its words instead */
 .brands .tile.other b{background-color:var(--muted); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
   background-position:calc((var(--s1) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px)) calc(0px - var(--oy, 0px)), calc((var(--s2) * 2.6 - 2.3) * var(--W, 400px) - var(--ox, 0px)) calc(0px - var(--oy, 0px))}
