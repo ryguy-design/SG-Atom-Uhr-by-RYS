@@ -617,6 +617,8 @@ body.photo .tapfinger{display:none}
 /* "Other brand" keeps its dashed outline; the light passes through its words instead */
 .brands .tile.other b{background-color:var(--muted); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent}
 .pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{animation:sheen 3.4s linear infinite}
+/* Tilt mode: the phone's tilt places the light (set as --tilt on the panel) instead of the timer */
+.pop.tiltmode #pType.seg button::before,.pop.tiltmode .brands .tile:not(.other)::before,.pop.tiltmode .brands .tile.other b{animation:none!important; --sweep:var(--tilt, .5)}
 @media (prefers-reduced-motion: reduce){
   .pop.needtype #pType.seg button:not(.on)::before,.pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile:not(.other)::before,
   .pop:not(.needtype):not(.hasbrand)[data-screen="brand"] .brands .tile.other b{animation:none} }
@@ -1978,6 +1980,54 @@ function trNode(n){
     try{ pop.getAnimations({subtree: true}).forEach(function(x){ if(x.animationName === "sheen") x.startTime = 0; }); }catch(e){}
   }
   window.addEventListener("resize", function(){ if(pop.offsetWidth) placeSheen(); });
+  // ---- Tilt the phone, the light moves: the sweep follows the gyro; after a few still seconds it goes back to sweeping by itself ----
+  var tilt = {on: false, cur: .5, target: .5, x0: null, y0: null, lx: null, ly: null, last: 0, raf: 0, started: false};
+  var SHEEN_MS = 3400, SHEEN_RUN = .62;   // keep in step with the sheen keyframes (0% → 62%: across the panel)
+  function sheenAnims(){ try{ return pop.getAnimations({subtree: true}).filter(function(x){ return x.animationName === "sheen"; }); }catch(e){ return []; } }
+  function sheenNow(){   // where the light is right now (0 → 1)
+    var a = sheenAnims()[0]; if(!a || a.currentTime == null) return .5;
+    var t = (a.currentTime % SHEEN_MS) / SHEEN_MS; return Math.min(1, t / SHEEN_RUN);
+  }
+  function tiltLoop(){
+    tilt.cur += (tilt.target - tilt.cur) * .18;   // smoothed, so the light glides rather than jitters
+    pop.style.setProperty("--tilt", tilt.cur.toFixed(4));
+    if(Date.now() - tilt.last > 3000){   // held still: hand back to the automatic sweep, from where the light is now
+      tilt.on = false; tilt.raf = 0; var from = Math.max(0, Math.min(1, tilt.cur));
+      pop.classList.remove("tiltmode");
+      requestAnimationFrame(function(){ sheenAnims().forEach(function(x){ x.currentTime = from * SHEEN_RUN * SHEEN_MS; }); });
+      return;
+    }
+    tilt.raf = requestAnimationFrame(tiltLoop);
+  }
+  function onTilt(e){
+    if(e.beta == null || e.gamma == null || !pop.offsetWidth) return;
+    // tilt left/right and towards/away, as seen on the screen (portrait, landscape or the sideways view)
+    var ang = ((screen.orientation && screen.orientation.angle) || window.orientation || 0) + (document.documentElement.classList.contains("rot") ? 90 : 0);
+    ang = ((ang % 360) + 360) % 360;
+    var g = e.gamma, bt = e.beta, x = ang === 90 ? bt : ang === 180 ? -g : ang === 270 ? -bt : g, y = ang === 90 ? -g : ang === 180 ? -bt : ang === 270 ? g : bt;
+    if(tilt.x0 === null){ tilt.x0 = x; tilt.y0 = y; tilt.lx = x; tilt.ly = y; return; }
+    tilt.x0 += (x - tilt.x0) * .01; tilt.y0 += (y - tilt.y0) * .01;   // slowly re-centres on however the phone is held
+    tilt.target = Math.max(-.1, Math.min(1.1, .5 + (x - tilt.x0) / 45 + (y - tilt.y0) / 60));
+    if(Math.abs(x - tilt.lx) + Math.abs(y - tilt.ly) > 1.2){   // real movement, not sensor noise
+      tilt.lx = x; tilt.ly = y; tilt.last = Date.now();
+      if(!tilt.on){ tilt.on = true; tilt.cur = sheenNow(); pop.style.setProperty("--tilt", tilt.cur.toFixed(4)); pop.classList.add("tiltmode"); }
+      if(!tilt.raf) tilt.raf = requestAnimationFrame(tiltLoop);
+    }
+  }
+  function startTilt(){
+    if(tilt.started || !window.DeviceOrientationEvent) return;
+    try{ if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return; }catch(e){}
+    tilt.started = true; window.addEventListener("deviceorientation", onTilt);
+  }
+  function askTilt(){   // iPhone: needs a tap and a one-time "allow motion" prompt; elsewhere it just starts
+    if(!window.DeviceOrientationEvent) return;
+    if(typeof DeviceOrientationEvent.requestPermission === "function"){
+      if(tilt.started) return;
+      DeviceOrientationEvent.requestPermission().then(function(st){ if(st === "granted") startTilt(); }).catch(function(){});
+    } else startTilt();
+  }
+  if(!(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function")) startTilt();
+  else try{ DeviceOrientationEvent.requestPermission().then(function(st){ if(st === "granted") startTilt(); }).catch(function(){}); }catch(e){}   // granted without asking on some phones; iPhones wait for the tap
   function renderPop(){
     var a = act(), sc = pop.dataset.screen;
     document.getElementById("pBack").hidden = sc === "brand";
@@ -2059,6 +2109,7 @@ function trNode(n){
   function introDue(){ return !introSeen; }
   function showIntro(){ intro.hidden = false; requestAnimationFrame(function(){ intro.classList.add("on"); }); }
   document.getElementById("introGo").addEventListener("click", function(){
+    askTilt();   // the tap that lets iPhones ask for motion access
     introSeen = true;
     intro.classList.remove("on"); setTimeout(function(){ intro.hidden = true; requireCheck(); }, 250);   // then on with the regular workflow
   });
