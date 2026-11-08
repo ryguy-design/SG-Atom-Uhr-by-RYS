@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Shimmer preview</title>
+<style>
+:root{--bg:#0b0f12; --fg:#fff; --muted:#8d969b; --ok:#2fd14f; --line:#3a444b}
+*{box-sizing:border-box}
+html,body{margin:0; background:var(--bg); color:var(--fg); font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; -webkit-tap-highlight-color:transparent}
+body{min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:16px 16px 28px; gap:14px}
+.note{max-width:30rem; width:100%; font-size:.85rem; color:var(--muted); line-height:1.4}
+.note b{color:var(--fg)}
+.bar{display:flex; gap:.6rem; flex-wrap:wrap; width:100%; max-width:30rem}
+.bar button{font:inherit; font-size:.85rem; font-weight:700; color:var(--fg); background:#1d252a; border:1px solid #2a3238; border-radius:999px; padding:.5rem .9rem; cursor:pointer}
+.bar button[aria-pressed="true"]{border-color:var(--ok)}
+#read{font-size:.75rem; color:var(--muted); font-variant-numeric:tabular-nums; width:100%; max-width:30rem}
+
+.panel{position:relative; width:100%; max-width:30rem; background:#151b1f; border:1px solid #232b30; border-radius:22px; padding:1rem 1rem 1.2rem; display:flex; flex-direction:column; gap:.75rem}
+.title{font-weight:800; font-size:1.25rem}
+.sub{color:var(--muted); font-size:.9rem; margin-top:-.5rem}
+.label{font-size:.72rem; font-weight:800; letter-spacing:.12em; color:var(--muted); margin-top:.3rem}
+.grid{display:grid; grid-template-columns:1fr 1fr; gap:.6rem}
+.opt{position:relative; min-height:4.6rem; font:inherit; font-weight:800; font-size:1.25rem; color:var(--fg); background:#1d252a; border:2px solid transparent; border-radius:16px; cursor:pointer; transition:transform .3s cubic-bezier(.3,1.4,.5,1), background-color .2s, border-color .2s}
+.opt:active{transform:scale(.95)}
+.opt.type{min-height:4rem; font-size:1.3rem}
+.opt.other{grid-column:1 / -1; min-height:3.2rem; font-size:1rem; color:var(--muted); background:transparent; border:2px dashed var(--line)}
+.opt.sel{border-color:var(--ok); background:#163222}
+.opt.sel::after{content:"✓"; position:absolute; top:.35rem; right:.6rem; color:var(--ok); font-size:1rem}
+
+/* The light: drawn only on the outline ring of options that can still be picked.
+   Layer 1: a glint that sits on the side of each outline facing the light (--ga), and circles round as the phone tilts.
+   Layers 2 + 3: two bands across the whole panel (near: thin and bright, far: wide and soft), at different angles and speeds.
+   --W/--H: panel size; --ox/--oy: where this option sits in the panel; --s1/--s2: where each band is (0 → 1). */
+.opt:not(.other)::before{content:""; position:absolute; inset:-2px; border-radius:16px; padding:2px; pointer-events:none; opacity:0; transition:opacity .35s;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  background-color:var(--line); background-repeat:no-repeat;
+  background-image:
+    conic-gradient(from calc(var(--ga, 0deg) - 40deg) at 50% 50%, transparent 0deg, rgba(255,255,255,.18) 18deg, rgba(255,255,255,.95) 40deg, rgba(255,255,255,.18) 62deg, transparent 80deg, transparent 360deg),
+    linear-gradient(112deg, transparent 0%, transparent 47.5%, rgba(255,255,255,.95) 50%, transparent 52.5%, transparent 100%),
+    linear-gradient(128deg, transparent 0%, transparent 42%, rgba(170,205,235,.5) 50%, transparent 58%, transparent 100%);
+  background-size:100% 100%, calc(var(--W) * 3) var(--H), calc(var(--W) * 3) var(--H);
+  background-position:
+    0 0,
+    calc((var(--s1, .5) * 2.5 - 2.25) * var(--W) - var(--ox) - 2px) calc(0px - var(--oy) - 2px),
+    calc((var(--s2, .5) * 2.5 - 2.25) * var(--W) - var(--ox) - 2px) calc(0px - var(--oy) - 2px)}
+.live .opt:not(.other):not(.sel)::before{opacity:1}
+/* "Other brand" keeps its dashed outline: the bands pass through its words instead */
+.opt.other span{background-color:var(--muted); background-repeat:no-repeat; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
+  background-image:linear-gradient(112deg, transparent 0%, transparent 47.5%, #fff 50%, transparent 52.5%, transparent 100%), linear-gradient(128deg, transparent 0%, transparent 42%, rgba(200,225,245,.75) 50%, transparent 58%, transparent 100%);
+  background-size:calc(var(--W) * 3) var(--H), calc(var(--W) * 3) var(--H);
+  background-position:calc((var(--s1, .5) * 2.5 - 2.25) * var(--W) - var(--ox)) calc(0px - var(--oy)), calc((var(--s2, .5) * 2.5 - 2.25) * var(--W) - var(--ox)) calc(0px - var(--oy))}
+.group.quiet .opt::before{opacity:0!important}
+.group.quiet .opt.other span{background-image:none}
+</style>
+</head>
+<body>
+  <div class="note"><b>Shimmer preview:</b> circling glint + double band. On a phone, tap <b>Enable tilt</b> and tilt it. On a computer, move the mouse over the panel to fake the tilt. Tap an option to pick it: that group goes quiet. Hold still for 3 s and it drifts on its own.</div>
+  <div class="bar"><button id="tiltBtn" type="button">Enable tilt</button><button id="resetBtn" type="button">Reset picks</button></div>
+  <div id="read">Mode: auto</div>
+
+  <div class="panel live" id="panel">
+    <div class="title">Add camera</div>
+    <div class="sub">First pick Hand cam or LS</div>
+    <div class="grid group" id="gType">
+      <button class="opt type" type="button">Hand cam</button>
+      <button class="opt type" type="button">LS</button>
+    </div>
+    <div class="label">BRAND</div>
+    <div class="grid group" id="gBrand">
+      <button class="opt" type="button">Canon</button><button class="opt" type="button">Nikon</button>
+      <button class="opt" type="button">Sony</button><button class="opt" type="button">Fujifilm</button>
+      <button class="opt" type="button">Panasonic</button><button class="opt" type="button">OM System / Olympus</button>
+      <button class="opt other" type="button"><span>Other brand / not listed</span></button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  var panel = document.getElementById("panel"), read = document.getElementById("read");
+  // Where each option sits in the panel, so the bands are one light across the whole panel
+  function place(){
+    var W = panel.offsetWidth, H = panel.offsetHeight;
+    panel.style.setProperty("--W", W + "px"); panel.style.setProperty("--H", H + "px");
+    [].forEach.call(panel.querySelectorAll(".opt"), function(o){
+      var t = o.classList.contains("other") ? o.querySelector("span") : o, x = 0, y = 0, e = t;
+      while(e && e !== panel){ x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; }
+      if(e !== panel){ var r = t.getBoundingClientRect(), q = panel.getBoundingClientRect(); x = r.left - q.left; y = r.top - q.top; }
+      t.style.setProperty("--ox", x + "px"); t.style.setProperty("--oy", y + "px");
+    });
+  }
+  place(); addEventListener("resize", place);
+
+  // Picking: green + tick, and the group goes quiet
+  [].forEach.call(panel.querySelectorAll(".group"), function(g){
+    g.addEventListener("click", function(e){
+      var o = e.target.closest(".opt"); if(!o) return;
+      [].forEach.call(g.querySelectorAll(".opt"), function(x){ x.classList.toggle("sel", x === o); });
+      g.classList.add("quiet");
+    });
+  });
+  document.getElementById("resetBtn").onclick = function(){
+    [].forEach.call(panel.querySelectorAll(".opt"), function(x){ x.classList.remove("sel"); });
+    [].forEach.call(panel.querySelectorAll(".group"), function(g){ g.classList.remove("quiet"); });
+  };
+
+  // ---- The light ----
+  // tx, ty: tilt (-1 … 1). Auto: the glint drifts round, the two bands sweep at different speeds.
+  // Tilt: the glint goes to the side the phone is tipped towards; the near band moves more than the far one (depth).
+  var tx = 0, ty = 0, sx = 0, sy = 0, last = -1e9, ga = 0, s1 = .5, s2 = .5, a1 = 0, a2 = 0, prev = performance.now();
+  function tick(now){
+    var dt = Math.min(.05, (now - prev) / 1000); prev = now;
+    var tilted = now - last < 3000;
+    sx += (tx - sx) * .16; sy += (ty - sy) * .16;   // smoothing: glides, never jitters
+    var mag = Math.hypot(sx, sy);
+    if(tilted && mag > .03){
+      var want = Math.atan2(sy, sx) * 180 / Math.PI + 90;   // glint on the side tipped towards
+      var d = ((want - ga + 540) % 360) - 180; ga += d * .2;
+      s1 += ((.5 + sx * .9) - s1) * .2; s2 += ((.5 + sx * .45 + sy * .2) - s2) * .2;
+      a1 = s1; a2 = s2;
+    } else {
+      ga = (ga + 50 * dt) % 360;             // slow drift round each outline
+      a1 = (a1 + dt / 2.6) % 1.35;            // near band: crosses in ~2.6 s, then a short pause off-panel
+      a2 = (a2 + dt / 4.1) % 1.35;            // far band: slower, so the two cross over each other
+      s1 = Math.min(1, Math.max(0, a1)); s2 = Math.min(1, Math.max(0, a2));   // carries on from wherever tilt left them
+    }
+    panel.style.setProperty("--ga", ga.toFixed(1) + "deg");
+    panel.style.setProperty("--s1", s1.toFixed(4)); panel.style.setProperty("--s2", s2.toFixed(4));
+    read.textContent = "Mode: " + (tilted ? "tilt" : "auto") + "  ·  glint " + Math.round((ga % 360 + 360) % 360) + "°  ·  bands " + s1.toFixed(2) + " / " + s2.toFixed(2);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // Computer: the mouse over the panel stands in for tilting
+  panel.addEventListener("pointermove", function(e){
+    if(e.pointerType !== "mouse") return;
+    var r = panel.getBoundingClientRect();
+    tx = ((e.clientX - r.left) / r.width - .5) * 2; ty = ((e.clientY - r.top) / r.height - .5) * 2; last = performance.now();
+  });
+
+  // Phone: the gyro
+  var x0 = null, y0 = null, lx = 0, ly = 0;
+  function onTilt(e){
+    if(e.beta == null || e.gamma == null) return;
+    var ang = ((screen.orientation && screen.orientation.angle) || window.orientation || 0); ang = ((ang % 360) + 360) % 360;
+    var g = e.gamma, b = e.beta, x = ang === 90 ? b : ang === 180 ? -g : ang === 270 ? -b : g, y = ang === 90 ? -g : ang === 180 ? -b : ang === 270 ? g : b;
+    if(x0 === null){ x0 = x; y0 = y; lx = x; ly = y; return; }
+    x0 += (x - x0) * .01; y0 += (y - y0) * .01;   // slowly re-centres on however the phone is held
+    tx = Math.max(-1, Math.min(1, (x - x0) / 22)); ty = Math.max(-1, Math.min(1, (y - y0) / 22));
+    if(Math.abs(x - lx) + Math.abs(y - ly) > 1){ lx = x; ly = y; last = performance.now(); }
+  }
+  var btn = document.getElementById("tiltBtn");
+  function on(){ addEventListener("deviceorientation", onTilt); btn.textContent = "Tilt on"; btn.setAttribute("aria-pressed", "true"); }
+  btn.onclick = function(){
+    if(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function")
+      DeviceOrientationEvent.requestPermission().then(function(s){ if(s === "granted") on(); else btn.textContent = "Tilt not allowed"; }).catch(function(){ btn.textContent = "Tilt not available"; });
+    else if(window.DeviceOrientationEvent) on(); else btn.textContent = "No tilt sensor";
+  };
+})();
+</script>
+</body>
+</html>
