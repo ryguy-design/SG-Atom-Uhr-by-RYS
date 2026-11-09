@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261108024857">
+<meta name="app-ver" content="20261109143036">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- Security policy: the page may only load code from itself (and the pinned text-recognition library on jsDelivr),
+     and only talk to the time services, the place-name service and that library. Nothing else can be loaded or sent anywhere. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net blob:; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self' https://time.akamai.com https://timeapi.io https://worldtimeapi.org https://api.bigdatacloud.net https://cdn.jsdelivr.net https://tessdata.projectnaptha.com blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
 <meta property="og:type" content="website">
@@ -99,10 +103,6 @@ main{cursor:pointer}
 .taphint{font-size:.72rem; color:var(--muted); opacity:.55; text-align:center; margin:-.15rem 0 0; white-space:nowrap}
 .showhint{position:fixed; left:0; right:0; bottom:max(14px,env(safe-area-inset-bottom,0px)); font-size:.72rem; color:var(--muted); opacity:0; visibility:hidden; transform:translateY(24px); text-align:center; pointer-events:none; transition:opacity .22s ease, transform .26s ease, visibility 0s .26s}
 body.photo footer, body.photo .taphint, body.photo .rotbtn, body.photo .visits{display:none}
-/* Small visit counter, top-left corner */
-.visits{position:fixed; z-index:5; top:max(14px,env(safe-area-inset-top,0px)); left:max(14px,env(safe-area-inset-left,0px));
-  font-size:.75rem; font-weight:600; color:var(--muted); opacity:.7; font-variant-numeric:tabular-nums; pointer-events:none}
-.visits[hidden]{display:none}
 /* Rotate icon, top-right corner; turns the whole app 90° even with the phone's rotation lock on */
 .rotbtn{position:fixed; z-index:5; top:max(10px,env(safe-area-inset-top,0px)); right:max(10px,env(safe-area-inset-right,0px));
   width:2.6rem; height:2.6rem; display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer;
@@ -691,7 +691,6 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
 </head>
 <body>
 
-<div id="visits" class="visits" hidden aria-label="Users"></div>
 <button id="rotBtn" class="rotbtn" type="button" aria-pressed="false" aria-label="Rotate screen" title="Rotate screen">
   <svg viewBox="-1.5 -1.5 27 27" aria-hidden="true"><rect x="8.6" y="4.4" width="6.8" height="15.2" rx="1.6"/><line x1="11" y1="16.9" x2="13" y2="16.9"/><path d="M11.92 0.80A11.2 11.2 0 0 1 21.66 6.33"/><path d="M21.73 3.93L21.66 6.33L19.53 5.22"/><path d="M12.08 23.20A11.2 11.2 0 0 1 2.34 17.67"/><path d="M2.27 20.07L2.34 17.67L4.47 18.78"/></svg>
 </button>
@@ -948,7 +947,6 @@ var DE = {
   "Good to know": "Gut zu wissen", "Got it": "Verstanden"
 };
 var DE_RX = [
-  [/^👥 (\d+) users?$/, "👥 $1 Nutzer"],
   [/^Synced less than a minute ago · (.+)$/, "Vor weniger als einer Minute synchronisiert · $1"],
   [/^Synced (\d+) min ago · (.+)$/, "Vor $1 Min. synchronisiert · $2"],
   [/^(.+) · phone clock exact$/, "$1 · Handyuhr genau"], [/^(.+) · phone clock (.+)$/, "$1 · Handyuhr $2"],
@@ -978,7 +976,8 @@ function T(s){
     out = v;
     for(var i = 0; i < DE_RX.length; i++){ if(DE_RX[i][0].test(v)){ out = v.replace(DE_RX[i][0], DE_RX[i][1]); break; } }
   }
-  out = out.replace(/ atomic$/, " Atomzeit").replace(/(\d\d:\d\d:\d\d) phone clock$/, "$1 Handyuhr").replace(/HAND CAM/g, "HANDKAMERA").replace(/\bHand cam\b/g, "Handkamera").replace(/\bhand cam\b/g, "Handkamera");
+  out = out.replace(/(\d)\/(\d) sources agree/, "$1/$2 Quellen stimmen überein").replace("⚠ sources disagree", "⚠ Quellen widersprechen sich").replace("⚠ 1 source only", "⚠ nur 1 Quelle")
+    .replace(/ atomic$/, " Atomzeit").replace(/(\d\d:\d\d:\d\d) phone clock$/, "$1 Handyuhr").replace(/HAND CAM/g, "HANDKAMERA").replace(/\bHand cam\b/g, "Handkamera").replace(/\bhand cam\b/g, "Handkamera");
   return a + out + z;
 }
 // Translate a piece of the page (text and the labels screen readers use)
@@ -991,27 +990,6 @@ function trNode(n){
 }
 </script>
 <script>
-// User counter: a free, no-account counting service (Abacus). Each phone is counted once (remembered on the phone),
-// and every app open is counted separately. Nothing personal is sent. If the service is down the counter just hides.
-(function(){
-  var API = "https://abacus.jasoncameron.dev", NS = "ryguy-sg-atom-uhr";
-  function call(path){ return fetch(API + path).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
-  function val(j){ return j && (j.value != null ? j.value : j.count); }
-  function show(n){
-    var el = document.getElementById("visits"); if(!el || n == null) return;
-    el.textContent = "👥 " + n + (n == 1 ? " user" : " users"); el.hidden = false;
-  }
-  function go(){
-    var first = false; try{ first = !localStorage.getItem("acCounted"); }catch(e){}
-    call("/hit/" + NS + "/opens");
-    (first ? call("/hit/" + NS + "/users") : call("/get/" + NS + "/users")).then(function(j){
-      var n = val(j); if(n == null) return;
-      if(first){ try{ localStorage.setItem("acCounted", "1"); }catch(e){} }
-      show(n);
-    });
-  }
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
-})();
 (function(){
   function pad(n,w){ n=String(n); while(n.length<(w||2)) n="0"+n; return n; }
 
@@ -1029,7 +1007,7 @@ function trNode(n){
 
   function sample(src){
     var t0 = performance.now(), w0 = Date.now();
-    return fetch(src.url + "&_=" + w0, {cache:"no-store"})
+    return fetch(src.url + (src.url.indexOf("?") > -1 ? "&" : "?") + "_=" + w0, {cache:"no-store"})
       .then(function(r){ if(!r.ok) throw new Error(r.status); return src.text ? r.text() : r.json(); })
       .then(function(body){
         var rtt = performance.now() - t0, server = src.parse(body);
@@ -1037,22 +1015,38 @@ function trNode(n){
         return {offset: server - (w0 + rtt/2), rtt: rtt, name: src.name};
       });
   }
-  function syncFrom(i){
-    if(i >= SOURCES.length) return Promise.reject(new Error("all failed"));
-    var src = SOURCES[i];
+  function bestOf(src){
     // 3 samples; keep the one with the shortest round trip (most accurate)
     return sample(src).then(function(a){
       return sample(src).then(function(b){
         return sample(src).then(function(c){ return [a,b,c].sort(function(x,y){return x.rtt-y.rtt;})[0]; },
                                 function(){ return a.rtt<b.rtt?a:b; });
       }, function(){ return a; });
-    }).catch(function(){ return syncFrom(i+1); });
+    }).catch(function(){ return null; });
+  }
+  // Cross-check: ask every source at once. A time is only trusted when at least two sources agree (within AGREE ms,
+  // allowing for each one's own uncertainty); of those, the most accurate is used. One faulty or tampered source can't move the clock.
+  var AGREE = 500;
+  function syncAll(){
+    return Promise.all(SOURCES.map(bestOf)).then(function(rs){
+      rs = rs.filter(Boolean);
+      if(!rs.length) throw new Error("all failed");
+      var best = null, agreeing = [];
+      rs.forEach(function(a){
+        var mates = rs.filter(function(b){ return Math.abs(a.offset - b.offset) <= AGREE + (a.rtt + b.rtt) / 2; });
+        if(mates.length >= 2 && (!best || mates.length > agreeing.length || (mates.length === agreeing.length && a.rtt < best.rtt))){ best = a; agreeing = mates; }
+      });
+      if(best){ best.agree = agreeing.length; best.of = rs.length; return best; }
+      // only one answered, or none agree: use the most accurate, flagged as unconfirmed
+      best = rs.slice().sort(function(x, y){ return x.rtt - y.rtt; })[0]; best.agree = 1; best.of = rs.length; return best;
+    });
   }
   var statusEl = document.getElementById("status"), syncText = document.getElementById("syncText"), detail = document.getElementById("detail");
   function sync(){
     statusEl.className = ""; syncText.textContent = "Syncing with time server…";
-    syncFrom(0).then(function(best){
-      offset = best.offset; synced = true; syncedAt = Date.now(); source = best.name; accMs = Math.max(1, Math.round(best.rtt/2));
+    syncAll().then(function(best){
+      offset = best.offset; synced = true; syncedAt = Date.now(); accMs = Math.max(1, Math.round(best.rtt/2));
+      source = best.name + (best.agree >= 2 ? " · " + best.agree + "/" + best.of + " sources agree" : best.of > 1 ? " · ⚠ sources disagree" : " · ⚠ 1 source only");
       statusEl.className = "ok"; updateStatus();
     }).catch(function(){
       synced = false; offset = 0;
