@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261109152124">
+<meta name="app-ver" content="20261109153404">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <!-- Security policy: the page only runs code from this site (the text-recognition library lives in /ocr), and only talks to
      the time services and the place-name service. Nothing else can be loaded or sent anywhere. -->
@@ -121,10 +121,11 @@ body.hfly .hintfly{display:grid}
 body.hfly .taphint,body.hfly .showhint{visibility:hidden!important; transition:none!important}
 body.hland .taphint,body.hland .showhint{transition:none!important}
 body.photo .showhint{opacity:.45; visibility:visible; transform:none; transition:opacity .35s ease .05s, transform .45s var(--spring) .05s, visibility 0s}   /* slides up into place; slides back down when the menu returns */
-#status{display:flex; flex-direction:column; gap:.15rem; min-width:0}
+#status{display:flex; flex-direction:column; gap:.15rem; min-width:0; max-width:100%}   /* never wider than the footer, so the lines can shrink to fit */
 #syncText{color:var(--muted)}
 .ok #syncText{color:var(--ok)}
 .bad #syncText{color:var(--warn)}
+#detail,#syncText{white-space:nowrap; overflow:hidden; text-overflow:clip; max-width:100%}   /* always one line: fitLine() shrinks the text if needed */
 #detail{font-variant-numeric:tabular-nums}
 /* The app's web address: tap to open, press and hold to copy or share */
 .applink{display:inline-flex; align-items:center; gap:.35rem; color:inherit; font-size:inherit; overflow-wrap:anywhere}
@@ -134,7 +135,7 @@ body.photo .showhint{opacity:.45; visibility:visible; transform:none; transition
 .al-copy svg{width:1.05rem; height:1.05rem; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
 .al-copy.done svg{display:none} .al-copy .al-ok{color:var(--ok); font-weight:800}
 .al-copy:focus-visible{outline:2px solid var(--fg); outline-offset:1px}
-.controls{display:flex; align-items:center; gap:1.1rem; flex-shrink:0}
+.controls{display:flex; align-items:center; gap:1.1rem; flex-shrink:0; flex-wrap:wrap; justify-content:center; row-gap:.6rem; max-width:100%}   /* larger phone text: wraps instead of pushing the page sideways */
 .controls button{font:inherit; color:var(--fg); background:none; border:0; padding:.3rem 0; text-decoration:underline; text-underline-offset:3px; cursor:pointer}
 .guidebtn{font-weight:700}
 /* How-to guide */
@@ -986,7 +987,7 @@ function T(s){
     out = v;
     for(var i = 0; i < DE_RX.length; i++){ if(DE_RX[i][0].test(v)){ out = v.replace(DE_RX[i][0], DE_RX[i][1]); break; } }
   }
-  out = out.replace(/(\d)\/(\d) sources agree/, "$1/$2 Quellen stimmen überein").replace("⚠ sources disagree", "⚠ Quellen widersprechen sich").replace("⚠ 1 source only", "⚠ nur 1 Quelle")
+  out = out.replace(/(\d)\/(\d) agree\b/, "$1/$2 einig").replace("⚠ disagree", "⚠ uneinig").replace("⚠ 1 source", "⚠ 1 Quelle")
     .replace(/ atomic$/, " Atomzeit").replace(/(\d\d:\d\d:\d\d) phone clock$/, "$1 Handyuhr").replace(/HAND CAM/g, "HANDKAMERA").replace(/\bHand cam\b/g, "Handkamera").replace(/\bhand cam\b/g, "Handkamera");
   return a + out + z;
 }
@@ -1053,22 +1054,31 @@ function trNode(n){
   }
   var statusEl = document.getElementById("status"), syncText = document.getElementById("syncText"), detail = document.getElementById("detail");
   function sync(){
-    statusEl.className = ""; syncText.textContent = "Syncing with time server…";
+    statusEl.className = ""; syncText.textContent = "Syncing with time server…"; fitStatus();
     syncAll().then(function(best){
       offset = best.offset; synced = true; syncedAt = Date.now(); accMs = Math.max(1, Math.round(best.rtt/2));
-      source = best.name + (best.agree >= 2 ? " · " + best.agree + "/" + best.of + " sources agree" : best.of > 1 ? " · ⚠ sources disagree" : " · ⚠ 1 source only");
+      source = best.name + (best.agree >= 2 ? " · " + best.agree + "/" + best.of + " agree" : best.of > 1 ? " · ⚠ disagree" : " · ⚠ 1 source");
       statusEl.className = "ok"; updateStatus();
     }).catch(function(){
       synced = false; offset = 0;
-      statusEl.className = "bad"; syncText.textContent = "Offline — showing phone clock (not synced)"; detail.textContent = "";
+      statusEl.className = "bad"; syncText.textContent = "Offline — showing phone clock (not synced)"; detail.textContent = ""; fitStatus();
     });
   }
+  // Keep a status line on one line: shrink its text just enough to fit the available width
+  function fitLine(el){
+    el.style.fontSize = ""; if(!el.clientWidth) return;
+    var w = Math.min(el.clientWidth, document.body.clientWidth - 32);   // never wider than the screen, less the side margins
+    for(var k = 0; k < 8 && el.scrollWidth > w + 1; k++) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * Math.max(.7, w / el.scrollWidth * .99)) + "px";
+  }
+  function fitStatus(){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ fitLine(syncText); fitLine(detail); }); }); }   // after the German wording is applied
+  addEventListener("resize", fitStatus);
   function updateStatus(){
     if(!synced) return;
     var mins = Math.floor((Date.now() - syncedAt)/60000);
     syncText.textContent = (mins < 1 ? "Synced less than a minute ago" : "Synced " + mins + " min ago") + " · ±" + accMs + " ms";
     var s = Math.abs(offset)/1000, sign = offset > 0 ? "−" : "+";
-    detail.textContent = source + " · phone clock " + (Math.abs(offset) < 5 ? "exact" : sign + s.toFixed(2) + " s");
+    detail.textContent = source + " · phone clock " + (Math.abs(offset) < 5 ? "exact" : sign + s.toFixed(2) + "\u00a0s");
+    fitStatus();
   }
   document.getElementById("resync").addEventListener("click", sync);
 
