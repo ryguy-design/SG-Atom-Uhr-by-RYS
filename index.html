@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261109143036">
+<meta name="app-ver" content="20261109143830">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<!-- Security policy: the page may only load code from itself (and the pinned text-recognition library on jsDelivr),
-     and only talk to the time services, the place-name service and that library. Nothing else can be loaded or sent anywhere. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net blob:; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self' https://time.akamai.com https://timeapi.io https://worldtimeapi.org https://api.bigdatacloud.net https://cdn.jsdelivr.net https://tessdata.projectnaptha.com blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<!-- Security policy: the page only runs code from this site (the text-recognition library lives in /ocr), and only talks to
+     the time services and the place-name service. Nothing else can be loaded or sent anywhere. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https://time.akamai.com https://timeapi.io https://worldtimeapi.org https://api.bigdatacloud.net blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Camera check/Atomic Clock by RYS</title>
 <meta name="description" content="All in one app: camera settings, atomic clock and camera photo sync. Directly send to your camera check group.">
@@ -2617,7 +2617,8 @@ function trNode(n){
   // Reads (1) the clock in the camera's photo and (2) the camera's own time, both from the photo of the camera's screen, then compares them.
   // (1) is a reader made for this clock's digits: it knows their exact shape, so it copes with blur, glare and tilt.
   // (2) uses text recognition, loaded only when needed. If anything can't be read, the manual In sync / Not in sync answer decides.
-  var TESS = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+  // Text recognition (Tesseract.js 5.1.1) is hosted with the app in /ocr: no code is loaded from other sites.
+  var TESS = "ocr/tesseract.min.js", OCR_BASE = new URL("ocr/", location.href).href;
   var libP = {}, ocrWorker = null;
   function loadScript(src){
     if(libP[src]) return libP[src];
@@ -2947,7 +2948,7 @@ function trNode(n){
   }
   function readCamTimes(sc, clockP){
     return loadScript(TESS).then(function(){
-      if(!ocrWorker) ocrWorker = window.Tesseract.createWorker("eng");
+      if(!ocrWorker) ocrWorker = window.Tesseract.createWorker("eng", 1, {workerPath: OCR_BASE + "worker.min.js", corePath: OCR_BASE, langPath: OCR_BASE.replace(/\/$/, "")});
       return ocrWorker;
     }).then(function(w){
       var img = whiteText(sc), found = [];
