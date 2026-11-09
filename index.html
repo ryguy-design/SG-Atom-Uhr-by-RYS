@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261109151637">
+<meta name="app-ver" content="20261109152108">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <!-- Security policy: the page only runs code from this site (the text-recognition library lives in /ocr), and only talks to
      the time services and the place-name service. Nothing else can be loaded or sent anywhere. -->
@@ -685,6 +685,9 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
 .intro-steps .ii{flex-shrink:0; font-size:1.2rem; white-space:nowrap}
 .intro-go,.intro-go:focus,.intro-go:focus-visible{outline:none; box-shadow:none}
 .intro-go{width:100%; margin-top:1.4rem; font-size:1.15rem; padding:1rem; border-radius:999px}
+.intro-priv{display:block; margin:.9rem auto 0; font:inherit; font-size:.78rem; color:var(--muted); background:none; border:0; text-decoration:underline; text-underline-offset:3px; cursor:pointer}
+.g-body a{color:inherit}
+body:has(#intro:not([hidden])) #guide{z-index:50}   /* opened from the startup card: the guide sits above it */
 </style>
 </head>
 <body>
@@ -738,6 +741,7 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
       <li><span class="in">5</span><span class="it">Check sync, send to group</span><span class="ii">🔍→📨</span></li>
     </ol>
     <button id="introGo" class="fl-go intro-go" type="button"><span class="gt">Got it!</span><span class="ga" aria-hidden="true"></span></button>
+    <button id="introPriv" class="intro-priv" type="button">🔒 Privacy: everything stays on your phone</button>
   </div>
 </div>
 <div id="tapFinger" class="tapfinger" hidden aria-hidden="true">👆</div>
@@ -876,6 +880,14 @@ body.cdrag.cfly .rotbtn,body.cdrag.cfly .visits{transform:translateY(calc((var(-
       · <b>Tap the clock</b>: hides / shows the buttons.<br>
       · <b>Rotate button</b> (top right): turns the app sideways.<br>
       · <b>Reset app</b> (tap twice): clears everything.</p></div></li>
+    <li class="g-step" id="gPrivacy"><div class="g-num">🔒</div><div class="g-body"><b>Privacy</b><p>
+      This app is a free, non-commercial tool for colleagues, run privately (RYS). No accounts, no ads, no tracking, no cookies. Contact: via the <a href="https://github.com/ryguy-design/SG-Atom-Uhr-by-RYS/issues" target="_blank" rel="noopener">project page on GitHub</a>.<br>
+      · <b>Stays on your phone:</b> initials, cameras, settings and photos. Nothing is uploaded; photos only leave the phone when you send them yourself. Text recognition also runs on the phone. <b>Reset app</b> deletes everything.<br>
+      · <b>Hosting:</b> GitHub Pages (GitHub Inc., USA) delivers the app and receives your IP address, as with any website.<br>
+      · <b>Atomic time:</b> the app asks time.akamai.com, timeapi.io and worldtimeapi.org for the time; they receive your IP address.<br>
+      · <b>Place name:</b> only if you allow location, your rough position (about 100 m) goes to BigDataCloud (Australia) to show the town. You can refuse or withdraw this in your phone settings at any time; the clock works without it.<br>
+      · <b>Legal basis:</b> Art. 6(1)(f) GDPR (providing the tool you open); for location, your consent (Art. 6(1)(a)). This app keeps no data on any server; the services above handle their own logs under their privacy policies.<br>
+      · <b>Your rights:</b> access, correction, deletion, restriction, objection, and complaint to a data protection authority (in Berlin: the Berliner Beauftragte für Datenschutz und Informationsfreiheit).</p></div></li>
   </ol>
   <div class="view-bar"><button id="gDone" class="nb-next" type="button">Got it</button></div>
 </div>
@@ -893,6 +905,7 @@ document.documentElement.lang = LANG;
 function L(en, de){ return LANG === "de" ? de : en; }
 var DE = {
   // main screen
+  "🔒 Privacy: everything stays on your phone": "🔒 Datenschutz: alles bleibt auf deinem Handy",
   "Sync now": "Synchronisieren", "Reset app": "Zurücksetzen", "How to use": "Anleitung",
   "Sure? Resets everything": "Sicher? Alles zurücksetzen", "Done ✓": "Erledigt ✓", "Sure?": "Sicher?", "Delete?": "Löschen?",
   "Syncing with time server…": "Synchronisiere mit Zeitserver…",
@@ -3192,6 +3205,9 @@ function trNode(n){
   document.getElementById("guideBtn").addEventListener("click", openGuide);
   document.getElementById("gClose").addEventListener("click", closeGuide);
   document.getElementById("gDone").addEventListener("click", closeGuide);
+  document.getElementById("introPriv").addEventListener("click", function(){   // startup card → straight to the privacy notice
+    openGuide(); var pv = document.getElementById("gPrivacy"); if(pv) pv.scrollIntoView({block: "start"});
+  });
   document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !guide.hidden) closeGuide(); });
 
   function openSheet(){ hideNext(); clearTimeout(sheetT); sheet.classList.remove("leaving"); goScreen(screenFor(act())); sheet.hidden = false; if(rotated) fit(); }
@@ -3642,6 +3658,14 @@ function trNode(n){
       · <b>Uhr antippen</b>: blendet die Tasten aus / ein.<br>
       · <b>Drehen-Taste</b> (oben rechts): dreht die App ins Querformat.<br>
       · <b>Zurücksetzen</b> (zweimal tippen): löscht alles.</p></div></li>
+    <li class="g-step" id="gPrivacy"><div class="g-num">🔒</div><div class="g-body"><b>Datenschutz</b><p>
+      Diese App ist ein kostenloses, nicht-kommerzielles Werkzeug für Kolleg:innen und wird privat betrieben (RYS). Keine Konten, keine Werbung, kein Tracking, keine Cookies. Kontakt: über die <a href="https://github.com/ryguy-design/SG-Atom-Uhr-by-RYS/issues" target="_blank" rel="noopener">Projektseite auf GitHub</a>.<br>
+      · <b>Bleibt auf deinem Handy:</b> Kürzel, Kameras, Einstellungen und Fotos. Es wird nichts hochgeladen; Fotos verlassen das Handy nur, wenn du sie selbst sendest. Auch die Texterkennung läuft auf dem Handy. <b>Zurücksetzen</b> löscht alles.<br>
+      · <b>Hosting:</b> GitHub Pages (GitHub Inc., USA) liefert die App aus und erhält dabei deine IP-Adresse, wie bei jeder Website.<br>
+      · <b>Atomzeit:</b> Die App fragt die Zeit bei time.akamai.com, timeapi.io und worldtimeapi.org ab; diese erhalten deine IP-Adresse.<br>
+      · <b>Ortsname:</b> Nur wenn du den Standort erlaubst, geht deine ungefähre Position (ca. 100 m) an BigDataCloud (Australien), um den Ort anzuzeigen. Du kannst das jederzeit in den Handy-Einstellungen ablehnen oder widerrufen; die Uhr funktioniert auch ohne.<br>
+      · <b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. f DSGVO (Bereitstellung des Werkzeugs, das du öffnest); für den Standort deine Einwilligung (Art. 6 Abs. 1 lit. a). Die App speichert keine Daten auf einem Server; die genannten Dienste führen eigene Protokolle nach ihren Datenschutzbestimmungen.<br>
+      · <b>Deine Rechte:</b> Auskunft, Berichtigung, Löschung, Einschränkung, Widerspruch sowie Beschwerde bei einer Datenschutzaufsicht (in Berlin: die Berliner Beauftragte für Datenschutz und Informationsfreiheit).</p></div></li>
   `;
   // ---- Language switch (bottom of the main screen) and the German page ----
   (function(){
