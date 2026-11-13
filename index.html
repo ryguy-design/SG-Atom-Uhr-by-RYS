@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261113231038">
+<meta name="app-ver" content="20261113231840">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <!-- Security policy: the page only runs code from this site (the text-recognition library lives in /ocr), and only talks to
      the time services and the place-name service. Nothing else can be loaded or sent anywhere. -->
@@ -453,6 +453,14 @@ html.rot .cam-box video{position:absolute; left:50%; top:50%; width:100cqh; heig
 .send-item.missing{border:2px dashed var(--bad); cursor:pointer}
 .miss-ph{width:100%; aspect-ratio:4/3; border-radius:6px; background:#2a1416; display:grid; place-content:center; font-size:1.8rem}
 .send-item.add-more{border:2px dashed var(--ok); background:transparent; cursor:pointer}
+/* Hold a photo to delete it: no phone "save image" menu, then a choice on the photo itself */
+.send-item{position:relative; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
+.send-item img{-webkit-user-drag:none; pointer-events:none}
+.send-item.pressing{transform:scale(.97); transition:transform .5s ease}
+.del-ask{position:absolute; inset:0; border-radius:10px; background:rgba(10,12,14,.9); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6rem; padding:.6rem; cursor:default}
+.del-ask button{font:inherit; font-weight:800; border-radius:999px; cursor:pointer; width:100%; max-width:11rem}
+.del-ask .del{background:var(--bad); color:#fff; border:0; padding:.65rem .8rem}
+.del-ask .keep{background:none; color:var(--fg); border:1px solid #3a444b; padding:.5rem .8rem}
 .add-ph{width:100%; aspect-ratio:4/3; border-radius:6px; background:#12241a; display:flex; align-items:center; justify-content:center; gap:.35em; font-size:1.9rem; color:var(--ok); font-weight:800; white-space:nowrap}
 .send-item.add-more span{color:var(--muted)}
 .s-warn{background:#3a1416; color:#f3b5b6; font-weight:700; font-size:.88rem; padding:.6rem 1rem; text-align:left}
@@ -953,7 +961,7 @@ var DE = {
   "✕ Cancel": "✕ Abbrechen", "Phone camera": "Handykamera", "✓ Yes, in sync": "✓ Ja, synchron", "✗ Not in sync": "✗ Nicht synchron",
   "✗ Not in sync — fix camera": "✗ Nicht synchron — Kamera korrigieren", "✓ In sync anyway": "✓ Trotzdem synchron", "Keep anyway": "Trotzdem behalten",
   "↩ Back to list": "↩ Zurück zur Liste", "Close": "Schließen", "↩ Back": "↩ Zurück", "Tap a photo to view.": "Tippe auf ein Foto, um es anzusehen.",
-  "Tap a photo to look again.": "Tippe auf ein Foto, um es nochmal anzusehen.", "Locked until every camera has a photo.": "Gesperrt, bis jede Kamera ein Foto hat.",
+  "Tap a photo to look again, hold to delete.": "Tippe auf ein Foto, um es nochmal anzusehen, halte es zum Löschen.", "Locked until every camera has a photo.": "Gesperrt, bis jede Kamera ein Foto hat.",
   "Every camera needs a photo. Tap a red one.": "Jede Kamera braucht ein Foto. Tippe auf ein rotes.", "In sync ✓": "Synchron ✓", "Not in sync ✗": "Nicht synchron ✗",
   "Not checked": "Nicht geprüft", "No photo · tap to fix": "Kein Foto · zum Beheben tippen",
   "Checking the photo for you…": "Foto wird geprüft…", "Couldn't read the photo automatically — compare by eye.": "Foto konnte nicht automatisch gelesen werden — bitte selbst vergleichen.",
@@ -979,7 +987,7 @@ var DE_RX = [
   [/^(.+)  · (\d+) of (\d+) cameras done$/, "$1 · $2 von $3 Kameras fertig"],
   [/^⚠ (\d+) cameras? needs? photos$/, "⚠ $1 Kamera(s) ohne Foto"], [/^⚠ (\d+) cameras? needs? a photo$/, "⚠ $1 Kamera(s) ohne Foto"],
   [/^Send (\d+) camera photos?\?$/, "$1 Kamerafoto(s) senden?"], [/^Send (\d+) →$/, "$1 senden →"], [/^Fix (\d+) first$/, "Erst $1 beheben"],
-  [/^Tap a photo to look again\. (\d+) not confirmed in sync\.$/, "Tippe auf ein Foto, um es nochmal anzusehen. $1 nicht als synchron bestätigt."],
+  [/^Tap a photo to look again, hold to delete\. (\d+) not confirmed in sync\.$/, "Tippe auf ein Foto zum Ansehen, halte es zum Löschen. $1 nicht als synchron bestätigt."],
   [/^✗ (.+) not in sync$/, "✗ $1 nicht synchron"], [/^(.+) · in sync ✓$/, "$1 · synchron ✓"], [/^(.+) · not in sync ✗$/, "$1 · nicht synchron ✗"],
   [/^(.+), camera check not started$/, "$1, Kamera-Check nicht begonnen"], [/^(.+), (\d) of 4 checked$/, "$1, $2 von 4 geprüft"], [/^(.+), checked$/, "$1, geprüft"]
 ];
@@ -3160,7 +3168,8 @@ function trNode(n){
         n++; var u = URL.createObjectURL(rec.blob); listUrls.push(u);
         var im = document.createElement("img"); im.src = u; im.alt = ""; it.appendChild(im);
         st.textContent = rec.sync === true ? "In sync ✓" : rec.sync === false ? "Not in sync ✗" : "Not checked"; if(rec.sync !== true){ st.className = "bad"; bad++; }
-        it.addEventListener("click", function(){ viewSaved(c, "send"); });
+        holdToDelete(it, c);
+        it.addEventListener("click", function(){ if(it.dataset.held){ delete it.dataset.held; return; } if(!it.querySelector(".del-ask")) viewSaved(c, "send"); });
       } else {
         // Missing photo: the tile becomes a "fix it" button that takes you to that camera's photo step
         miss++; st.textContent = "No photo · tap to fix"; st.className = "bad"; it.classList.add("missing");
@@ -3189,11 +3198,37 @@ function trNode(n){
       sGo.textContent = "Fix " + miss + " first"; sGo.disabled = true;
     } else {
       document.getElementById("sTitle").textContent = "Send " + n + " camera photo" + (n === 1 ? "" : "s") + "?";
-      document.getElementById("sSub").textContent = "Tap a photo to look again." + (bad ? " " + bad + " not confirmed in sync." : "");
+      document.getElementById("sSub").textContent = "Tap a photo to look again, hold to delete." + (bad ? " " + bad + " not confirmed in sync." : "");
       warn.hidden = true;
       setGo(sGo, ["📨", null, "Send"]); sGo.disabled = !n;
     }
     sendView.hidden = false; sGo.focus();
+  }
+  // Hold a photo on the send screen (~0.5 s) to delete it: asks first, with a way back (Keep)
+  function holdToDelete(it, c){
+    var t = 0, x0 = 0, y0 = 0;
+    function cancel(){ clearTimeout(t); it.classList.remove("pressing"); }
+    it.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+    it.addEventListener("pointerdown", function(e){
+      if(it.querySelector(".del-ask")) return;
+      x0 = e.clientX; y0 = e.clientY; it.classList.add("pressing");
+      t = setTimeout(function(){
+        it.classList.remove("pressing"); it.dataset.held = "1"; try{ navigator.vibrate && navigator.vibrate(25); }catch(er){}
+        var ask = document.createElement("div"); ask.className = "del-ask";
+        var del = document.createElement("button"); del.type = "button"; del.className = "del"; del.textContent = L("🗑 Delete photo", "🗑 Foto löschen");
+        var keep = document.createElement("button"); keep.type = "button"; keep.className = "keep"; keep.textContent = L("Keep", "Behalten");
+        del.addEventListener("click", function(e){
+          e.stopPropagation(); var k = photoKey(c); delete photos[k];
+          db(function(d){ try{ d.transaction("p","readwrite").objectStore("p").delete(k); }catch(er){} });
+          updateSend(); sendAll();   // the box becomes "No photo · tap to fix"
+        });
+        keep.addEventListener("click", function(e){ e.stopPropagation(); ask.remove(); });
+        ask.addEventListener("click", function(e){ e.stopPropagation(); });
+        ask.appendChild(del); ask.appendChild(keep); it.appendChild(ask); keep.focus();
+      }, 550);
+    });
+    it.addEventListener("pointermove", function(e){ if(Math.abs(e.clientX - x0) + Math.abs(e.clientY - y0) > 12) cancel(); });   // scrolling isn't holding
+    ["pointerup", "pointerleave", "pointercancel"].forEach(function(n){ it.addEventListener(n, cancel); });
   }
   // Sent: start the 12-hour clock (sending again restarts it)
   function markSent(){ ev.sentAt = Date.now() + offset; save(); }
