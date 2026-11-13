@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261109153404">
+<meta name="app-ver" content="20261113231038">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <!-- Security policy: the page only runs code from this site (the text-recognition library lives in /ocr), and only talks to
      the time services and the place-name service. Nothing else can be loaded or sent anywhere. -->
@@ -452,6 +452,9 @@ html.rot .cam-box video{position:absolute; left:50%; top:50%; width:100cqh; heig
 .send-item span.miss{color:var(--muted)}
 .send-item.missing{border:2px dashed var(--bad); cursor:pointer}
 .miss-ph{width:100%; aspect-ratio:4/3; border-radius:6px; background:#2a1416; display:grid; place-content:center; font-size:1.8rem}
+.send-item.add-more{border:2px dashed var(--ok); background:transparent; cursor:pointer}
+.add-ph{width:100%; aspect-ratio:4/3; border-radius:6px; background:#12241a; display:flex; align-items:center; justify-content:center; gap:.35em; font-size:1.9rem; color:var(--ok); font-weight:800; white-space:nowrap}
+.send-item.add-more span{color:var(--muted)}
 .s-warn{background:#3a1416; color:#f3b5b6; font-weight:700; font-size:.88rem; padding:.6rem 1rem; text-align:left}
 .s-warn[hidden]{display:none}
 #sGo:disabled{background:#2a3238; color:var(--muted); cursor:not-allowed}
@@ -3167,6 +3170,16 @@ function trNode(n){
       var nm = document.createElement("b"); nm.textContent = key(c); it.appendChild(nm); it.appendChild(st);
       sList.appendChild(it);
     });
+    // One last nudge before sending: an "Add camera" tile next to the photos
+    var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length, lsN = kit.cams.filter(function(c){ return c.type === "LS"; }).length;
+    if(hcN < MAXN || lsN < MAXN){
+      var more = document.createElement("button"); more.type = "button"; more.className = "send-item add-more";
+      var mp = document.createElement("div"); mp.className = "add-ph"; mp.textContent = "+ 📷"; more.appendChild(mp);
+      var mb = document.createElement("b"); mb.textContent = L("Add camera", "Kamera hinzufügen"); more.appendChild(mb);
+      var ms = document.createElement("span"); ms.textContent = L("Forgot one?", "Eine vergessen?"); more.appendChild(ms);
+      more.addEventListener("click", function(){ sendView.hidden = true; addFirst(hcN < MAXN ? "HAND CAM" : "LS"); });   // same as the clock screen's "+ 📷": straight into the new camera's check
+      sList.appendChild(more);
+    }
     var warn = document.getElementById("sWarn");
     if(miss){
       // Every camera in the list needs its photo before anything can be sent
