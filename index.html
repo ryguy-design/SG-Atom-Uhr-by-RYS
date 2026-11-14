@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261114000151">
+<meta name="app-ver" content="20261114000543">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <!-- Security policy: the page only runs code from this site (the text-recognition library lives in /ocr), and only talks to
      the time services and the place-name service. Nothing else can be loaded or sent anywhere. -->
@@ -608,6 +608,8 @@ body.photo .tapfinger{display:none}
 .fl-go[hidden],.bb-go[hidden]{display:none}   /* the button layout must not override hidden */
 .p-or{align-self:center; color:var(--muted); font-size:.8rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:-.2rem 0}
 .p-or[hidden]{display:none}
+.p-ask{align-self:center; color:var(--fg); font-size:1.05rem; font-weight:800; margin:.2rem 0 -.2rem}
+.p-ask[hidden]{display:none}
 .g-ver{list-style:none; text-align:center; color:var(--muted); font-size:.75rem; opacity:.7; padding:.5rem 0 0}
 /* New camera: Hand cam / LS must be picked first; the brands wait, dimmed */
 .pop.needtype #pBrands,.pop.needtype #recent,.pop.needtype #recentLabel{opacity:.35}
@@ -824,8 +826,8 @@ body:has(#intro:not([hidden])) #guide{z-index:50}   /* opened from the startup c
       <button id="pCamCard" class="camcard" type="button"><span id="pCamName"></span><span class="chg">Change ›</span></button>
       <div class="ckhead"><span id="ckCount"></span><div class="ckbar"><i id="ckFill"></i></div></div>
       <ol id="checklist" class="checklist"></ol>
-      <button id="pAddCam" class="addcam" type="button">+ Add another camera</button>
-      <div id="pOr" class="p-or" hidden>or</div>
+      <div id="pOr" class="p-ask" hidden>Add another camera?</div>
+      <button id="pAddCam" class="addcam" type="button">+ Yes</button>
       <button id="sheetGo" class="fl-go" type="button" hidden></button>
       <div id="photoRow" class="photorow" hidden><img id="photoThumb" alt="Photo of the camera back"><span>Camera-back photo saved</span><button id="photoRetake" class="addbtn" type="button">Retake</button><button id="photoDel" class="addbtn del" type="button">Delete</button></div>
       <p id="sheetNote" class="sheet-note"></p>
@@ -874,8 +876,8 @@ body:has(#intro:not([hidden])) #guide{z-index:50}   /* opened from the startup c
     <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tap on <span class="gk w">✎</span> and add your initials.</p><img src="guide/1.webp?v=29" alt="" loading="lazy" width="300" height="70"></div></li>
     <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>The camera check opens by itself: pick <b>Hand cam</b> or <b>LS</b>, then the brand and model.</p><img src="guide/2.webp?v=29" alt="" loading="lazy" width="362" height="374"></div></li>
     <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Check your settings: set each one on the camera, then tick it. The check can't be closed until all 4 are ticked.</p><img src="guide/3.webp?v=29" alt="" loading="lazy" width="354" height="373"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Add additional cameras if needed with <span class="gk d">+ Add another camera</span>.</p><img src="guide/4.webp?v=29" alt="" loading="lazy" width="354" height="69"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>When all cameras are checked, tap <span class="gk g">📷→🕒 Shoot the clock</span>.</p><img src="guide/5.webp?v=29" alt="" loading="lazy" width="354" height="73"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Once a camera's settings are ticked, the app asks <b>Add another camera?</b> Tap <span class="gk d">+ Yes</span> for each extra camera.</p><img src="guide/4.webp?v=30" alt="" loading="lazy" width="354" height="99"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>When all cameras are checked, tap <span class="gk g">📷→🕒 No – shoot the clock</span>.</p><img src="guide/5.webp?v=30" alt="" loading="lazy" width="354" height="76"></div></li>
     <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Shoot the clock with every camera.</p><img src="guide/6.webp?v=29" alt="" loading="lazy" width="390" height="305"></div></li>
     <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Play back the clock shot on the camera, tap <span class="gk g">📱→📷</span> and photograph the camera's screen.</p><img src="guide/7.webp?v=29" alt="" loading="lazy" width="390" height="626"></div></li>
     <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>If the times match to the second, tap <span class="gk g">✓ In sync · next</span>. If not, fix the camera's clock, shoot the clock again and tap <b>📷 Retake</b>.</p><img src="guide/8.webp?v=29" alt="" loading="lazy" width="390" height="533"></div></li>
@@ -941,7 +943,7 @@ var DE = {
   "Hand cam": "Handkamera", "Other brand": "Andere Marke", "Other brand / not listed": "Andere Marke / nicht gelistet",
   "Pick brand or a recent camera": "Marke oder zuletzt genutzte Kamera wählen", "Pick model": "Modell wählen",
   "Tick each setting once set": "Jede Einstellung abhaken, sobald gesetzt", "Change ›": "Ändern ›",
-  "+ Add camera": "+ Kamera hinzufügen", "+ Add another camera": "+ Weitere Kamera hinzufügen", "or": "oder", "Continue": "Weiter", "+ Add hand cam": "+ Handkamera hinzufügen", "+ Add LS": "+ LS hinzufügen",
+  "+ Add camera": "+ Kamera hinzufügen", "+ Add another camera": "+ Weitere Kamera hinzufügen", "Add another camera?": "Weitere Kamera hinzufügen?", "+ Yes": "+ Ja", "No – shoot the clock": "Nein – Uhr fotografieren", "No – continue": "Nein – weiter", "or": "oder", "Continue": "Weiter", "+ Add hand cam": "+ Handkamera hinzufügen", "+ Add LS": "+ LS hinzufügen",
   "+ Hand cam": "+ Handkamera", "Camera-back photo saved": "Foto vom Kameradisplay gespeichert", "Retake": "Neu aufnehmen", "Delete": "Löschen",
   "Pick brand and model for exact settings.": "Marke und Modell wählen für die genauen Einstellungen.", "Pick brand & model": "Marke & Modell wählen",
   "Continue →": "Weiter →", "Continue: 📱→📷": "Weiter: 📱→📷", "camera check": "Kamera-Check", "Other model": "Anderes Modell", "Other camera": "Andere Kamera",
@@ -981,6 +983,7 @@ var DE_RX = [
   [/^(.+): photo of the camera's screen$/, "$1: Foto vom Kameradisplay"],
   [/^General settings for any (.+)$/, "Allgemeine Einstellungen für jede $1"], [/^Other (.+) model$/, "Anderes $1-Modell"], [/^Other (.+)$/, "Andere $1"],
   [/^(.+) · brand$/, "$1 · Marke"], [/^Add (.+)$/, "$1 hinzufügen"], [/^(.+) model$/, "$1-Modell"],
+  [/^No – next: check (.+)$/, "Nein – weiter: $1 prüfen"],
   [/^Next: check (.+) →$/, "Weiter: $1 prüfen →"], [/^Next: check (.+)$/, "Weiter: $1 prüfen"], [/^Camera check (\d)\/4$/, "Kamera-Check $1/4"], [/^Photo of (.+)$/, "Foto: $1"], [/^Check (.+)$/, "$1 prüfen"], [/^In sync · next: (.+)$/, "Synchron · weiter: $1"], [/^Next: (.+)$/, "Weiter: $1"], [/^Next camera: (.+)$/, "Nächste Kamera: $1"], [/^Delete (.+)\?$/, "$1 löschen?"],
   [/^Photo saved · (.+)$/, "Foto gespeichert · $1"],
   [/^(.+) (✓ in sync|✗ not in sync|no photo) · (\d+) of (\d+) cameras done$/, function(m, n, s, a, b){ return n + " " + {"✓ in sync": "✓ synchron", "✗ not in sync": "✗ nicht synchron", "no photo": "kein Foto"}[s] + " · " + a + " von " + b + " Kameras fertig"; }],
@@ -3299,8 +3302,8 @@ function trNode(n){
     var hcN = kit.cams.filter(function(c){ return c.type === "HAND CAM"; }).length, room = hcN < MAXN || kit.cams.length - hcN < MAXN;
     var addB = document.getElementById("pAddCam"); addB.hidden = !on || !room; document.getElementById("pOr").hidden = addB.hidden;
     if(!on) return;
-    var st = stepOf(a), u = nextUnchecked(a);
-    setGo(sheetGo, u ? ["📷✓", null, "Next: check " + keyM(u)] : clockQueue().length ? ["📷→🕒", null, "Shoot the clock"] : st === 2 ? ["📱→📷", null, "Continue"] : ["📷", null, "Continue"]);
+    var st = stepOf(a), u = nextUnchecked(a), ask = !addB.hidden;   // "Add another camera?" showing: this button is the "No"
+    setGo(sheetGo, u ? ["📷✓", null, (ask ? "No – next: check " : "Next: check ") + keyM(u)] : clockQueue().length ? ["📷→🕒", null, ask ? "No – shoot the clock" : "Shoot the clock"] : st === 2 ? ["📱→📷", null, ask ? "No – continue" : "Continue"] : ["📷", null, ask ? "No – continue" : "Continue"]);
   }
   // ---- The tapping finger: shown on the step button until it's first used, again each new day (new event) ----
   var finger = document.getElementById("tapFinger"), fingerOn = false, fingerRaf = 0;
@@ -3698,8 +3701,8 @@ function trNode(n){
     <li class="g-step"><div class="g-num">1</div><div class="g-body"><p>Tippe auf <span class="gk w">✎</span> und gib dein Kürzel ein.</p><img src="guide/de/1.webp?v=29" alt="" loading="lazy" width="300" height="70"></div></li>
     <li class="g-step"><div class="g-num">2</div><div class="g-body"><p>Der Kamera-Check öffnet sich von selbst: Wähle <b>Handkamera</b> oder <b>LS</b>, dann Marke und Modell.</p><img src="guide/de/2.webp?v=29" alt="" loading="lazy" width="362" height="374"></div></li>
     <li class="g-step"><div class="g-num">3</div><div class="g-body"><p>Prüfe deine Einstellungen: Stelle jede an der Kamera ein und hake sie dann ab. Der Check lässt sich erst schließen, wenn alle 4 abgehakt sind.</p><img src="guide/de/3.webp?v=29" alt="" loading="lazy" width="354" height="373"></div></li>
-    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Füge bei Bedarf weitere Kameras hinzu mit <span class="gk d">+ Weitere Kamera hinzufügen</span>.</p><img src="guide/de/4.webp?v=29" alt="" loading="lazy" width="354" height="69"></div></li>
-    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Wenn alle Kameras geprüft sind, tippe auf <span class="gk g">📷→🕒 Uhr fotografieren</span>.</p><img src="guide/de/5.webp?v=29" alt="" loading="lazy" width="354" height="73"></div></li>
+    <li class="g-step"><div class="g-num">4</div><div class="g-body"><p>Sind die Einstellungen einer Kamera abgehakt, fragt die App <b>Weitere Kamera hinzufügen?</b> Tippe für jede weitere Kamera auf <span class="gk d">+ Ja</span>.</p><img src="guide/de/4.webp?v=30" alt="" loading="lazy" width="354" height="99"></div></li>
+    <li class="g-step"><div class="g-num">5</div><div class="g-body"><p>Wenn alle Kameras geprüft sind, tippe auf <span class="gk g">📷→🕒 Nein – Uhr fotografieren</span>.</p><img src="guide/de/5.webp?v=30" alt="" loading="lazy" width="354" height="76"></div></li>
     <li class="g-step"><div class="g-num">6</div><div class="g-body"><p>Fotografiere die Uhr mit jeder Kamera.</p><img src="guide/de/6.webp?v=29" alt="" loading="lazy" width="390" height="305"></div></li>
     <li class="g-step"><div class="g-num">7</div><div class="g-body"><p>Spiele die Aufnahme der Uhr an der Kamera ab, tippe auf <span class="gk g">📱→📷</span> und fotografiere das Kameradisplay.</p><img src="guide/de/7.webp?v=29" alt="" loading="lazy" width="390" height="626"></div></li>
     <li class="g-step"><div class="g-num">8</div><div class="g-body"><p>Stimmen die Zeiten auf die Sekunde überein, tippe auf <span class="gk g">✓ Synchron · weiter</span>. Wenn nicht, stelle die Kamerauhr richtig, fotografiere die Uhr erneut und tippe auf <b>📷 Neu aufnehmen</b>.</p><img src="guide/de/8.webp?v=29" alt="" loading="lazy" width="390" height="533"></div></li>
