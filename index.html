@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="20261113231840">
+<meta name="app-ver" content="20261114000151">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <!-- Security policy: the page only runs code from this site (the text-recognition library lives in /ocr), and only talks to
      the time services and the place-name service. Nothing else can be loaded or sent anywhere. -->
@@ -87,7 +87,7 @@ footer{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space
 .camlabel.need,.camlabel.need:focus-within{box-shadow:0 0 0 .08em var(--bad)}
 .cammodel.need{color:var(--bad)}
 .camlabel:focus-within{box-shadow:0 0 0 .07em var(--ok)}
-.camtype{font:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; background:none; border:0; padding:0; margin:0; white-space:pre; cursor:pointer}
+.camtype{font:inherit; letter-spacing:inherit; line-height:inherit; color:inherit; background:none; border:0; padding:0; margin:0; white-space:pre; cursor:default}
 .camtype[hidden]{display:none}
 /* Brand and model, small and grey under the white label */
 .camwrap{display:flex; flex-direction:column; align-items:center; gap:calc(var(--u)*.07)}
@@ -709,7 +709,7 @@ body:has(#intro:not([hidden])) #guide{z-index:50}   /* opened from the startup c
 </button>
 <main aria-live="off">
   <div class="camwrap">
-    <div id="camLabel" class="camlabel"><label id="iniWrap" class="ini" data-v="✎"><input id="camInit" type="text" size="1" placeholder="✎" inputmode="text" pattern="[A-Za-z]*" aria-label="Your initials" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><button id="camType" class="camtype" type="button" aria-label="Change camera type" hidden></button></div>
+    <div id="camLabel" class="camlabel"><label id="iniWrap" class="ini" data-v="✎"><input id="camInit" type="text" size="1" placeholder="✎" inputmode="text" pattern="[A-Za-z]*" aria-label="Your initials" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><span id="camType" class="camtype" hidden></span></div>
     <div id="camModel" class="cammodel" aria-label="Camera model"></div>
     <div id="camSet" class="camset" aria-label="Camera settings"></div>
   </div>
@@ -1335,7 +1335,7 @@ function trNode(n){
   function applyLoc(){ placeEl.hidden = !showLoc; if(showLoc) startGeo(); else stopGeo(); fit(); }
 
   // ================= Camera label =================
-  // The white box: initials are typed straight into it (tap → cursor), the camera part opens "Change cam to:"
+  // The white box: initials are typed straight into it (tap → cursor); the camera part is just a label
   var camLabelEl = document.getElementById("camLabel");
   var camInit = document.getElementById("camInit"), iniWrap = document.getElementById("iniWrap"), camTypeEl = document.getElementById("camType");
   try{ var saved = JSON.parse(localStorage.getItem("acCam") || "{}"); if(saved.i) camInit.value = saved.i; }catch(e){}
@@ -1425,7 +1425,7 @@ function trNode(n){
       // The start of the camera part (the " · " and a bit more) still counts as the initials: easier to hit
       var em = parseFloat(getComputedStyle(camTypeEl).fontSize) || 16, x = e.target === camTypeEl ? e.offsetX : 9999;
       if(x < 1.6 * em){ camInit.focus(); return; }
-      camInit.blur(); openTypeSwitch(); return;
+      return;   // the camera part itself does nothing (the "Change cam to:" pop-up was removed)
     }
     if(e.target !== camInit) camInit.focus();
   });
